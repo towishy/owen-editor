@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Owen Markdown knowledge work stack</title>
+  <desc id="desc">Owen WIKI, Owen Graphite, and Owen Editor presented as one Markdown-based knowledge work stack.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#edf3ff"/>
+      <stop offset="1" stop-color="#dfeee9"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#506070" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #121b2d; }
+      .muted { fill: #52627a; }
+      .small { font-size: 13px; font-weight: 600; }
+      .body { font-size: 15px; font-weight: 700; }
+      .caption { font-size: 12px; font-weight: 600; fill: #52627a; }
+      .h1 { font-size: 39px; font-weight: 850; letter-spacing: 0; }
+      .card-title { font-size: 21px; font-weight: 850; }
+      .card { fill: #fff; stroke: #ccd7e5; stroke-width: 1.2; }
+      .screen { fill: #f4f8fc; stroke: #d5e0ec; stroke-width: 1; }
+      .button { fill: #f9fbfe; stroke: #d8e2ee; stroke-width: 1; }
+      .bullet { font-size: 13px; font-weight: 650; fill: #42516a; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect x="23" y="23" width="1234" height="657" rx="20" fill="none" stroke="#cad7e5" stroke-width="1.2"/>
+
+  <text x="51" y="51" class="small muted">towishy GitHub Repository Picks</text>
+  <text x="51" y="96" class="h1">LLM Wiki부터 Obsidian 작성 환경까지 이어지는</text>
+  <text x="51" y="132" class="h1">지식 작업 스택</text>
+  <text x="1227" y="59" text-anchor="end" class="body muted">수집, 정제, 작성, 출력을 하나의 흐름으로 묶는 Owen의</text>
+  <text x="1227" y="83" text-anchor="end" class="body muted">Markdown 기반 도구 모음.</text>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(51 164)">
+      <rect class="card" width="380" height="493" rx="4"/>
+      <rect x="0" y="64" width="380" height="1" fill="#dbe3ed"/>
+      <rect x="18" y="17" width="32" height="32" rx="6" fill="#2374d8"/>
+      <text x="34" y="39" text-anchor="middle" font-size="18" font-weight="850" fill="#fff">W</text>
+      <text x="59" y="35" class="card-title">Owen WIKI</text>
+      <text x="59" y="52" class="caption">LLM-native knowledge operations template</text>
+
+      <rect x="15" y="79" width="350" height="187" rx="5" class="screen"/>
+      <circle cx="79" cy="254" r="7" fill="#3f7df3"/>
+      <circle cx="338" cy="255" r="7" fill="#1d9873"/>
+      <path d="M149 236 L229 276 L282 242 L336 266" fill="none" stroke="#b8cadf" stroke-width="2"/>
+      <rect x="15" y="79" width="90" height="187" rx="5" fill="#eaf0f7"/>
+      <circle cx="78" cy="91" r="3" fill="#95a9bf"/><circle cx="89" cy="91" r="3" fill="#95a9bf"/><circle cx="100" cy="91" r="3" fill="#95a9bf"/>
+      <rect x="75" y="277" width="54" height="38" rx="5" class="button"/><rect x="137" y="277" width="54" height="38" rx="5" class="button"/><rect x="199" y="277" width="54" height="38" rx="5" class="button"/><rect x="261" y="277" width="54" height="38" rx="5" class="button"/>
+      <text x="191" y="298" text-anchor="middle" font-size="11" font-weight="800" fill="#344258">wiki</text>
+      <text x="75" y="459" class="caption" font-weight="800">github.com/towishy/owen-wiki</text>
+      <text x="18" y="292" class="body">대규모 원본 자료를 LLM이 운영 가능한 위키와 온톨로지</text>
+      <text x="18" y="314" class="body">로 정리합니다.</text>
+      <text x="18" y="338" class="bullet">• raw, wiki, ontology, outputs 레이어 분리</text>
+      <text x="18" y="361" class="bullet">• 품질 게이트, 액션 큐, 운영 대시보드 포함</text>
+      <text x="18" y="384" class="bullet">• 보고서와 발표 자료까지 재가공하는 템플릿 킷</text>
+      <rect x="17" y="464" width="346" height="29" rx="5" fill="#f9fbfe" stroke="#d8e2ee"/>
+    </g>
+    <g transform="translate(450 164)">
+      <rect class="card" width="380" height="493" rx="4"/>
+      <rect x="0" y="64" width="380" height="1" fill="#dbe3ed"/>
+      <rect x="18" y="17" width="32" height="32" rx="6" fill="#202a3b"/>
+      <text x="34" y="39" text-anchor="middle" font-size="16" font-weight="850" fill="#fff">G</text>
+      <text x="59" y="35" class="card-title">Owen Graphite</text>
+      <text x="59" y="52" class="caption">Obsidian report-focused light and dark theme</text>
+
+      <rect x="15" y="79" width="350" height="187" rx="5" class="screen"/>
+      <rect x="25" y="104" width="330" height="140" fill="#fff" stroke="#dce5ef"/>
+      <rect x="45" y="122" width="75" height="13" fill="#dceff9"/><rect x="125" y="122" width="70" height="13" fill="#f3f6fa"/><rect x="200" y="122" width="70" height="13" fill="#f3f6fa"/>
+      <rect x="111" y="154" width="168" height="7" fill="#7fd5f4"/><rect x="112" y="171" width="180" height="7" fill="#e9eef5"/><rect x="112" y="188" width="180" height="7" fill="#e9eef5"/>
+      <rect x="274" y="174" width="62" height="40" rx="3" fill="#f9fbff" stroke="#d2ddea"/><rect x="284" y="194" width="38" height="6" fill="#81d9f1"/>
+      <text x="18" y="292" class="body">한국어 보고서와 기술 문서를 위한 차분한 Graphite 기반</text>
+      <text x="18" y="314" class="body">Obsidian 테마입니다.</text>
+      <text x="18" y="338" class="bullet">• A3 PDF, 표지, 헤더 자동 넘버링 지원</text>
+      <text x="18" y="361" class="bullet">• Live Preview와 Reading View 시각 동기화</text>
+      <text x="18" y="384" class="bullet">• Style Settings 27개 옵션과 모바일 대응</text>
+      <rect x="17" y="464" width="346" height="29" rx="5" fill="#f9fbfe" stroke="#d8e2ee"/>
+      <text x="108" y="484" class="caption" font-weight="800">github.com/towishy/Owen-Graphite</text>
+    </g>
+
+    <g transform="translate(849 164)">
+      <rect class="card" width="380" height="493" rx="4"/>
+      <rect x="0" y="64" width="380" height="1" fill="#dbe3ed"/>
+      <rect x="18" y="17" width="32" height="32" rx="6" fill="#6544e6"/>
+      <text x="34" y="39" text-anchor="middle" font-size="18" font-weight="850" fill="#fff">E</text>
+      <text x="59" y="35" class="card-title">Owen Editor</text>
+      <text x="59" y="52" class="caption">Obsidian Markdown UI editor plugin</text>
+
+      <rect x="15" y="79" width="350" height="187" rx="5" class="screen"/>
+      <rect x="31" y="109" width="302" height="130" fill="#fff" stroke="#dce5ef"/>
+      <rect x="31" y="109" width="302" height="20" fill="#f2f6fb"/>
+      <rect x="52" y="145" width="180" height="16" rx="3" fill="#f6f9fd" stroke="#dde6f1"/>
+      <rect x="235" y="145" width="70" height="16" rx="3" fill="#e8f5f0" stroke="#bedfd3"/>
+      <rect x="54" y="170" width="235" height="15" rx="3" fill="#f8fbff" stroke="#dde6f1"/>
+      <rect x="54" y="192" width="235" height="15" rx="3" fill="#f8fbff" stroke="#dde6f1"/>
+      <text x="18" y="292" class="body">Markdown 편집을 빠르게 만드는 플로팅 글래스 툴바와</text>
+      <text x="18" y="314" class="body">팔레트를 제공합니다.</text>
+      <text x="18" y="338" class="bullet">• 선택 영역 미니 툴바와 위치 조절 가능한 편집 툴바</text>
+      <text x="18" y="361" class="bullet">• 표 빌더, 콜아웃, 링크, 템플릿, 하이라이트 지원</text>
+      <text x="18" y="384" class="bullet">• Owen Graphite용 보고서 스니펫과 프리셋 제공</text>
+      <rect x="17" y="464" width="346" height="29" rx="5" fill="#f9fbfe" stroke="#d8e2ee"/>
+      <text x="104" y="484" class="caption" font-weight="800">github.com/towishy/owen-editor</text>
+    </g>
+  </g>
+</svg>

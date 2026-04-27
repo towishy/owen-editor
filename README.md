@@ -1,3 +1,7 @@
+![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
+
+Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
+
 # Owen Editor
 
 Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolbar together with quick helpers for the Owen Graphite theme.
