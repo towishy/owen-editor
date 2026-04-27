@@ -106,6 +106,10 @@
   color: var(--text-accent);
 }
 
+.owen-editor-toolbar-button.is-favorite {
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.22);
+}
+
 .owen-editor-toolbar-palette {
   background: linear-gradient(180deg, rgba(238, 242, 255, 0.68), rgba(224, 231, 255, 0.4));
   border-color: rgba(129, 140, 248, 0.38);
@@ -213,6 +217,13 @@ body.is-mobile .owen-editor-toolbar-button::after {
   gap: 8px;
 }
 
+.owen-editor-command-item {
+  align-items: stretch;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 32px;
+}
+
 .owen-editor-command-button {
   align-items: center;
   border: 1px solid var(--background-modifier-border);
@@ -229,6 +240,29 @@ body.is-mobile .owen-editor-toolbar-button::after {
 .owen-editor-command-button:hover,
 .owen-editor-command-button:focus-visible {
   border-color: var(--interactive-accent);
+}
+
+.owen-editor-favorite-button {
+  align-items: center;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  color: var(--text-faint);
+  display: inline-flex;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0;
+}
+
+.owen-editor-favorite-button:hover,
+.owen-editor-favorite-button:focus-visible,
+.owen-editor-favorite-button.is-active {
+  border-color: rgba(245, 158, 11, 0.55);
+  color: #b45309;
+}
+
+.owen-editor-favorite-button svg {
+  height: 15px;
+  width: 15px;
 }
 
 .owen-editor-command-icon {
@@ -306,4 +340,20 @@ body.is-mobile .owen-editor-toolbar-button::after {
 .owen-editor-highlight-description {
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
+}
+
+.owen-editor-table-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.owen-editor-table-builder input[type="text"] {
+  width: 88px;
+}
+
+.owen-editor-table-builder-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
 }

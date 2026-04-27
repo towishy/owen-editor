@@ -4,12 +4,16 @@ interface OwenEditorSettings {
   showFloatingToolbar: boolean;
   showStatusBarButton: boolean;
   insertHtmlTables: boolean;
+  showGraphiteThemeNotice: boolean;
+  favoriteCommandIds: string[];
 }
 
 const DEFAULT_SETTINGS: OwenEditorSettings = {
   showFloatingToolbar: true,
   showStatusBarButton: true,
-  insertHtmlTables: true
+  insertHtmlTables: true,
+  showGraphiteThemeNotice: true,
+  favoriteCommandIds: []
 };
 
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
@@ -29,6 +33,16 @@ interface HighlightColorOption {
   background: string;
   foreground: string;
   format: "markdown" | "html";
+}
+
+type TableBuilderPreset = "markdown" | "wide" | "risk" | "numeric";
+
+interface TableBuilderOptions {
+  rows: number;
+  columns: number;
+  includeHeader: boolean;
+  preset: TableBuilderPreset;
+  useHtml: boolean;
 }
 
 const HIGHLIGHT_COLOR_OPTIONS: HighlightColorOption[] = [
@@ -183,6 +197,7 @@ export default class OwenEditorPlugin extends Plugin {
   private commands: EditorCommand[] = [];
   private toolbarEl?: HTMLElement;
   private statusBarItem?: HTMLElement;
+  private graphiteNoticeShown = false;
 
   async onload() {
     await this.loadSettings();
@@ -227,12 +242,32 @@ export default class OwenEditorPlugin extends Plugin {
     return this.commands;
   }
 
+  isFavoriteCommand(commandId: string) {
+    return this.settings.favoriteCommandIds.includes(commandId);
+  }
+
+  async toggleFavoriteCommand(commandId: string) {
+    const favoriteIds = new Set(this.settings.favoriteCommandIds);
+    if (favoriteIds.has(commandId)) {
+      favoriteIds.delete(commandId);
+    } else {
+      favoriteIds.add(commandId);
+    }
+
+    this.settings.favoriteCommandIds = [...favoriteIds];
+    await this.saveSettings();
+  }
+
   openPalette(category?: CommandCategory) {
     new OwenEditorPaletteModal(this.app, this, category).open();
   }
 
   openHighlightPalette(editor: Editor) {
     new OwenEditorHighlightModal(this.app, editor).open();
+  }
+
+  openTableBuilder(editor: Editor) {
+    new OwenEditorTableBuilderModal(this.app, this, editor).open();
   }
 
   runCommand(command: EditorCommand) {
@@ -294,6 +329,17 @@ export default class OwenEditorPlugin extends Plugin {
       }
     });
 
+    const favoriteCommands = this.settings.favoriteCommandIds
+      .map((id) => this.commands.find((command) => command.id === id))
+      .filter((command): command is EditorCommand => Boolean(command));
+
+    if (favoriteCommands.length > 0) {
+      toolbar.createDiv({ cls: "owen-editor-toolbar-separator" });
+      for (const command of favoriteCommands.slice(0, 8)) {
+        this.createToolbarButton(toolbar, command, true);
+      }
+    }
+
     toolbar.createDiv({ cls: "owen-editor-toolbar-separator" });
     this.createToolbarGroupButton(toolbar, "text-select", "Open selection tools", "Selection");
     this.createToolbarGroupButton(toolbar, "link", "Open link tools", "Links");
@@ -316,9 +362,9 @@ export default class OwenEditorPlugin extends Plugin {
     this.toolbarEl = toolbar;
   }
 
-  private createToolbarButton(toolbar: HTMLElement, command: EditorCommand) {
+  private createToolbarButton(toolbar: HTMLElement, command: EditorCommand, isFavorite = false) {
     const button = toolbar.createEl("button", {
-      cls: `owen-editor-toolbar-button mod-${command.category.toLowerCase().replace(/\s+/g, "-")}`,
+      cls: `owen-editor-toolbar-button mod-${command.category.toLowerCase().replace(/\s+/g, "-")}${isFavorite ? " is-favorite" : ""}`,
       attr: {
         type: "button",
         title: command.name,
@@ -581,6 +627,14 @@ export default class OwenEditorPlugin extends Plugin {
         group: "Basic tables",
         run: (editor) => insertBlock(editor, "| 항목 | 설명 | 상태 |\n|---|---|---|\n| 예시 | 내용 | OK |")
       },
+      {
+        id: "open-table-builder",
+        name: "Open table builder",
+        icon: "table-properties",
+        category: "Tables",
+        group: "Basic tables",
+        run: (editor) => this.openTableBuilder(editor)
+      },
       ...CALLOUT_OPTIONS.map(createCalloutCommand),
       {
         id: "insert-graphite-wide-table",
@@ -619,58 +673,97 @@ export default class OwenEditorPlugin extends Plugin {
         name: "Insert Owen Graphite reference list",
         icon: "library",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, GRAPHITE_REFERENCE_LIST)
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, GRAPHITE_REFERENCE_LIST);
+        }
       },
       {
         id: "insert-graphite-report-frontmatter",
         name: "Insert Owen Graphite report frontmatter",
         icon: "file-sliders",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, "---\ntitle: 보고서 제목\ndate: 2026-04-27\ntags:\n  - report\ncssclasses:\n  - ogd-report-mode\n  - ogd-page-a3-land\n  - ogd-modern-tables\n  - ogd-print-avoid-breaks\ncover: true\n---")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, "---\ntitle: 보고서 제목\ndate: 2026-04-27\ntags:\n  - report\ncssclasses:\n  - ogd-report-mode\n  - ogd-page-a3-land\n  - ogd-modern-tables\n  - ogd-print-avoid-breaks\ncover: true\n---");
+        }
       },
       {
         id: "wrap-graphite-kbd",
         name: "Wrap selection with Owen Graphite kbd",
         icon: "keyboard",
         category: "Owen Graphite",
-        run: (editor) => wrapSelection(editor, "<kbd>", "</kbd>", "Cmd+K")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          wrapSelection(editor, "<kbd>", "</kbd>", "Cmd+K");
+        }
       },
       {
         id: "wrap-graphite-blur",
         name: "Wrap selection with Owen Graphite blur",
         icon: "eye-off",
         category: "Owen Graphite",
-        run: (editor) => wrapSelection(editor, "<span class=\"ogd-blur\">", "</span>", "비공개 내용")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          wrapSelection(editor, "<span class=\"ogd-blur\">", "</span>", "비공개 내용");
+        }
       },
       {
         id: "insert-graphite-secret-callout",
         name: "Insert Owen Graphite secret callout",
         icon: "lock-keyhole",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, "> [!secret] Restricted\n> hover 시 표시할 내용을 입력합니다.")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, "> [!secret] Restricted\n> hover 시 표시할 내용을 입력합니다.");
+        }
       },
       {
         id: "insert-graphite-summary-callout",
         name: "Insert Owen Graphite executive summary",
         icon: "notebook-text",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, "> [!summary] Executive summary\n> 핵심 판단과 근거를 간결하게 정리합니다.")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, "> [!summary] Executive summary\n> 핵심 판단과 근거를 간결하게 정리합니다.");
+        }
       },
       {
         id: "insert-graphite-action-callout",
         name: "Insert Owen Graphite action summary",
         icon: "list-checks",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, "> [!action] Action items\n> - 담당자: \n> - 기한: \n> - 다음 단계:")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, "> [!action] Action items\n> - 담당자: \n> - 기한: \n> - 다음 단계:");
+        }
       },
       {
         id: "insert-graphite-status-badge",
         name: "Insert Owen Graphite status badge",
         icon: "badge-check",
         category: "Owen Graphite",
-        run: (editor) => insertBlock(editor, "<span class=\"ogd-status-badge is-e5\">E5</span> <span class=\"ogd-status-badge is-payg\">PAYG</span> <span class=\"ogd-status-badge is-addon\">Add-on</span>")
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, "<span class=\"ogd-status-badge is-e5\">E5</span> <span class=\"ogd-status-badge is-payg\">PAYG</span> <span class=\"ogd-status-badge is-addon\">Add-on</span>");
+        }
       }
     ];
+  }
+
+  ensureGraphiteThemeNotice() {
+    if (!this.settings.showGraphiteThemeNotice || this.graphiteNoticeShown || this.isOwenGraphiteThemeActive()) {
+      return;
+    }
+
+    this.graphiteNoticeShown = true;
+    new Notice("Owen Editor: Owen Graphite 테마가 활성화되어야 Graphite 전용 스타일이 적용됩니다.");
+  }
+
+  private isOwenGraphiteThemeActive() {
+    const vaultWithConfig = this.app.vault as unknown as { getConfig?: (key: string) => unknown };
+    const cssTheme = String(vaultWithConfig.getConfig?.("cssTheme") ?? "").toLowerCase();
+    return cssTheme.includes("owen graphite") || cssTheme.includes("owen-graphite");
   }
 }
 
@@ -730,7 +823,8 @@ class OwenEditorPaletteModal extends Modal {
         }
         const grid = this.contentEl.createDiv({ cls: "owen-editor-command-grid" });
         for (const command of groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup)) {
-          const button = grid.createEl("button", {
+          const item = grid.createDiv({ cls: "owen-editor-command-item" });
+          const button = item.createEl("button", {
             cls: "owen-editor-command-button",
             attr: { type: "button" }
           });
@@ -741,11 +835,108 @@ class OwenEditorPaletteModal extends Modal {
             this.plugin.runCommand(command);
             this.close();
           });
+
+          const favoriteButton = item.createEl("button", {
+            cls: `owen-editor-favorite-button${this.plugin.isFavoriteCommand(command.id) ? " is-active" : ""}`,
+            attr: {
+              type: "button",
+              "aria-label": this.plugin.isFavoriteCommand(command.id) ? `Remove ${command.name} from toolbar favorites` : `Add ${command.name} to toolbar favorites`,
+              title: this.plugin.isFavoriteCommand(command.id) ? "Remove from toolbar favorites" : "Add to toolbar favorites"
+            }
+          });
+          setIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
+          favoriteButton.addEventListener("click", async () => {
+            await this.plugin.toggleFavoriteCommand(command.id);
+            this.render();
+          });
         }
       }
     }
 
     searchInput.focus();
+  }
+}
+
+class OwenEditorTableBuilderModal extends Modal {
+  private plugin: OwenEditorPlugin;
+  private editor: Editor;
+  private options: TableBuilderOptions = {
+    rows: 3,
+    columns: 3,
+    includeHeader: true,
+    preset: "markdown",
+    useHtml: false
+  };
+
+  constructor(app: App, plugin: OwenEditorPlugin, editor: Editor) {
+    super(app);
+    this.plugin = plugin;
+    this.editor = editor;
+  }
+
+  onOpen() {
+    this.titleEl.setText("Table builder");
+    this.render();
+  }
+
+  private render() {
+    this.contentEl.empty();
+    this.contentEl.addClass("owen-editor-table-builder");
+
+    new Setting(this.contentEl)
+      .setName("Rows")
+      .addText((text) => text
+        .setValue(String(this.options.rows))
+        .onChange((value) => {
+          this.options.rows = clampInteger(value, 1, 20, 3);
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Columns")
+      .addText((text) => text
+        .setValue(String(this.options.columns))
+        .onChange((value) => {
+          this.options.columns = clampInteger(value, 1, 12, 3);
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Header row")
+      .addToggle((toggle) => toggle
+        .setValue(this.options.includeHeader)
+        .onChange((value) => {
+          this.options.includeHeader = value;
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Preset")
+      .addDropdown((dropdown) => dropdown
+        .addOption("markdown", "Markdown")
+        .addOption("wide", "Owen Graphite wide")
+        .addOption("risk", "Owen Graphite risk")
+        .addOption("numeric", "Owen Graphite numeric")
+        .setValue(this.options.preset)
+        .onChange((value) => {
+          this.options.preset = value as TableBuilderPreset;
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Use HTML table")
+      .setDesc("HTML tables can carry Owen Graphite CSS classes.")
+      .addToggle((toggle) => toggle
+        .setValue(this.options.useHtml)
+        .onChange((value) => {
+          this.options.useHtml = value;
+        }));
+
+    const actions = this.contentEl.createDiv({ cls: "owen-editor-table-builder-actions" });
+    const insertButton = actions.createEl("button", { text: "Insert table", cls: "mod-cta", attr: { type: "button" } });
+    insertButton.addEventListener("click", () => {
+      if (this.options.preset !== "markdown" || this.options.useHtml) {
+        this.plugin.ensureGraphiteThemeNotice();
+      }
+      insertBlock(this.editor, buildTableFromOptions(this.options));
+      this.close();
+    });
   }
 }
 
@@ -830,6 +1021,30 @@ class OwenEditorSettingTab extends PluginSettingTab {
           this.plugin.settings.insertHtmlTables = value;
           await this.plugin.saveSettings();
         }));
+
+    new Setting(containerEl)
+      .setName("Warn when Owen Graphite is not active")
+      .setDesc("Owen Graphite 전용 스니펫을 사용할 때 테마가 활성화되어 있지 않으면 한 번 안내합니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.showGraphiteThemeNotice)
+        .onChange(async (value) => {
+          this.plugin.settings.showGraphiteThemeNotice = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Toolbar favorites")
+      .setDesc("툴바에 고정할 명령 ID를 쉼표로 구분해 입력합니다. 팔레트의 별 버튼으로도 관리할 수 있습니다.")
+      .addTextArea((text) => text
+        .setPlaceholder("insert-graphite-wide-table, open-table-builder")
+        .setValue(this.plugin.settings.favoriteCommandIds.join(", "))
+        .onChange(async (value) => {
+          this.plugin.settings.favoriteCommandIds = value
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+          await this.plugin.saveSettings();
+        }));
   }
 }
 
@@ -909,7 +1124,77 @@ function insertFootnote(editor: Editor) {
 }
 
 function insertGraphiteBlock(plugin: OwenEditorPlugin, editor: Editor, htmlText: string, markdownText: string) {
+  plugin.ensureGraphiteThemeNotice();
   insertBlock(editor, plugin.settings.insertHtmlTables ? htmlText : markdownText);
+}
+
+function clampInteger(value: string, min: number, max: number, fallback: number) {
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    return fallback;
+  }
+  return Math.min(max, Math.max(min, parsed));
+}
+
+function buildTableFromOptions(options: TableBuilderOptions) {
+  if (options.useHtml || options.preset !== "markdown") {
+    return buildHtmlTable(options);
+  }
+  return buildMarkdownTable(options);
+}
+
+function buildMarkdownTable(options: TableBuilderOptions) {
+  const headers = Array.from({ length: options.columns }, (_, index) => `Column ${index + 1}`);
+  const rows = Array.from({ length: options.rows }, (_, rowIndex) => Array.from({ length: options.columns }, (_, columnIndex) => `Cell ${rowIndex + 1}-${columnIndex + 1}`));
+  const headerLine = `| ${headers.join(" | ")} |`;
+  const dividerLine = `| ${headers.map(() => "---").join(" | ")} |`;
+  const bodyLines = rows.map((row) => `| ${row.join(" | ")} |`);
+  return [headerLine, dividerLine, ...bodyLines].join("\n");
+}
+
+function buildHtmlTable(options: TableBuilderOptions) {
+  const classes = getTablePresetClasses(options.preset);
+  const headers = Array.from({ length: options.columns }, (_, index) => `Column ${index + 1}`);
+  const rows = Array.from({ length: options.rows }, (_, rowIndex) => Array.from({ length: options.columns }, (_, columnIndex) => getTableCellText(options.preset, rowIndex, columnIndex)));
+  const headerHtml = options.includeHeader ? `\n  <thead>\n    <tr>\n${headers.map((header) => `      <th>${header}</th>`).join("\n")}\n    </tr>\n  </thead>` : "";
+  const bodyHtml = `\n  <tbody>\n${rows.map((row) => `    <tr>\n${row.map((cell, index) => `      <td${getCellClass(options.preset, index)}>${cell}</td>`).join("\n")}\n    </tr>`).join("\n")}\n  </tbody>`;
+  return `<table${classes ? ` class="${classes}"` : ""}>${headerHtml}${bodyHtml}\n</table>`;
+}
+
+function getTablePresetClasses(preset: TableBuilderPreset) {
+  if (preset === "wide") {
+    return "wide-table print-fit-table comparison-table wrap-table";
+  }
+  if (preset === "risk") {
+    return "risk-table compact-table";
+  }
+  if (preset === "numeric") {
+    return "numeric-table print-fit-table";
+  }
+  return "";
+}
+
+function getTableCellText(preset: TableBuilderPreset, rowIndex: number, columnIndex: number) {
+  if (preset === "risk" && columnIndex === 0) {
+    return `Risk ${rowIndex + 1}`;
+  }
+  if (preset === "risk" && columnIndex === 1) {
+    return "Impact";
+  }
+  if (preset === "numeric" && columnIndex > 0) {
+    return String((rowIndex + 1) * (columnIndex + 1) * 10);
+  }
+  return `Cell ${rowIndex + 1}-${columnIndex + 1}`;
+}
+
+function getCellClass(preset: TableBuilderPreset, columnIndex: number) {
+  if (preset === "numeric" && columnIndex > 0) {
+    return " class=\"num\"";
+  }
+  if (preset === "risk" && columnIndex === 0) {
+    return " class=\"risk-medium\"";
+  }
+  return "";
 }
 
 function setCurrentLinePrefix(editor: Editor, prefix: string) {

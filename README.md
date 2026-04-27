@@ -10,7 +10,9 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands.
 - Highlight color picker with recommended soft colors for selected text.
+- Favorites that pin frequently used commands directly onto the floating toolbar.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
+- Table builder for quick Markdown tables and Owen Graphite-styled HTML table layouts.
 - Table helpers for basic Markdown tables and Owen Graphite report table presets.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
 
@@ -37,11 +39,17 @@ Use the left side of the toolbar for frequent edits such as headings, formatting
 
 Most commands are also available from Obsidian's command palette under `Owen Editor`.
 
+Open the all-commands palette and use the star buttons to pin frequent actions to the glass toolbar. Pinned commands appear between the common Markdown controls and the category icons.
+
+Use the table builder from the Tables palette when you need a custom number of rows and columns. Markdown output works in any vault; Owen Graphite presets insert theme-classed HTML for report-ready tables.
+
 ## Settings
 
 - Show floating glass toolbar: toggles the horizontal editor toolbar.
 - Show status bar button: adds an `Owen Editor` status bar shortcut.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
+- Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
+- Toolbar favorites: stores command IDs pinned to the floating toolbar. This is usually managed with the star buttons in the palette.
 
 ## Installation
 
@@ -60,6 +68,7 @@ Restart Obsidian or reload plugins, then enable `Owen Editor`.
 ```bash
 npm install
 npm run build
+npm run release:check
 ```
 
 For live rebuilds during plugin development:
