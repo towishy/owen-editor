@@ -154,6 +154,12 @@
   transform: translateY(0) scale(0.96);
 }
 
+.owen-editor-toolbar-button.is-command-success {
+  border-color: rgba(34, 197, 94, 0.52);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.22), 0 0 0 3px rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
 .owen-editor-toolbar-button.mod-tables {
   border-color: rgba(45, 212, 191, 0.24);
   color: var(--text-muted);
@@ -537,6 +543,20 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   white-space: nowrap;
 }
 
+.owen-editor-command-detail-preview {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 5px;
+  color: var(--text-muted);
+  display: block;
+  font-size: var(--font-ui-smaller);
+  line-height: 1.25;
+  max-height: 54px;
+  overflow: hidden;
+  padding: 4px 6px;
+  white-space: pre-wrap;
+}
+
 .mod-owen-graphite .owen-editor-command-preview,
 .mod-tables .owen-editor-command-preview {
   background: rgba(237, 233, 254, 0.42);
@@ -683,6 +703,12 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-table-builder textarea {
   min-height: 82px;
+}
+
+.owen-editor-table-builder-insight {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  min-height: 18px;
 }
 
 .owen-editor-table-builder-preview-title {

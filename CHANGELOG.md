@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-04-28
+
+### Added
+
+- Added toolbar density presets for compact, balanced, comfortable, and custom layouts.
+- Added context-aware toolbar command groups for selections, tables, code blocks, and Owen Graphite reports.
+- Added command execution feedback on toolbar buttons.
+- Added recommended default favorites for first-run toolbar onboarding.
+- Added settings JSON export/import for portable toolbar configuration.
+- Added richer palette search with category prefixes, fuzzy matching, and expanded Graphite previews.
+- Added table builder inference for pasted data, including header detection, uneven row normalization, and numeric alignment.
+- Added A3/PDF-friendly Graphite snippets for source notes, metric rows, and decision matrices.
+
 ## [0.6.4] - 2026-04-28
 
 ### Added
@@ -132,7 +145,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.4...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.5...HEAD
+[0.6.5]: https://github.com/towishy/owen-editor/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/towishy/owen-editor/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/towishy/owen-editor/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/towishy/owen-editor/compare/0.6.1...0.6.2

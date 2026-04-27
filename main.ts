@@ -10,8 +10,11 @@ interface OwenEditorSettings {
   toolbarPreset: ToolbarPreset;
   toolbarCollapsed: boolean;
   toolbarScale: number;
+  toolbarDensity: ToolbarDensity;
   favoriteDisplay: FavoriteDisplayMode;
   mobileCompactToolbar: boolean;
+  contextAwareToolbar: boolean;
+  commandFeedback: boolean;
   favoriteCommandIds: string[];
   recentCommandIds: string[];
 }
@@ -26,9 +29,12 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   toolbarPreset: "full",
   toolbarCollapsed: false,
   toolbarScale: 90,
+  toolbarDensity: "balanced",
   favoriteDisplay: "hover",
   mobileCompactToolbar: true,
-  favoriteCommandIds: [],
+  contextAwareToolbar: true,
+  commandFeedback: true,
+  favoriteCommandIds: ["insert-link", "mark-selection", "open-table-builder", "insert-graphite-summary-callout"],
   recentCommandIds: []
 };
 
@@ -36,6 +42,8 @@ type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Ta
 type ToolbarPosition = "top" | "bottom";
 type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
 type FavoriteDisplayMode = "always" | "hover" | "hidden";
+type ToolbarDensity = "compact" | "balanced" | "comfortable" | "custom";
+type ToolbarContext = "default" | "selection" | "table" | "code" | "report";
 
 const clampToolbarScale = (value: number) => Math.min(110, Math.max(80, Number.isFinite(value) ? value : 100));
 const getAdaptiveToolbarScale = (scale: number, viewWidth?: number) => {
@@ -50,6 +58,12 @@ const getAdaptiveToolbarScale = (scale: number, viewWidth?: number) => {
     return Math.min(configuredScale, 90);
   }
   return configuredScale;
+};
+
+const TOOLBAR_DENSITY_SETTINGS: Record<Exclude<ToolbarDensity, "custom">, Pick<OwenEditorSettings, "toolbarScale" | "favoriteDisplay" | "mobileCompactToolbar">> = {
+  compact: { toolbarScale: 85, favoriteDisplay: "hidden", mobileCompactToolbar: true },
+  balanced: { toolbarScale: 90, favoriteDisplay: "hover", mobileCompactToolbar: true },
+  comfortable: { toolbarScale: 100, favoriteDisplay: "always", mobileCompactToolbar: false }
 };
 
 interface EditorCommand {
@@ -227,6 +241,24 @@ const GRAPHITE_MATRIX_MARKDOWN_TABLE = `| 영향도 \\ 가능성 | Low | Medium 
 | High | M | H | H |
 | Medium | L | M | H |
 | Low | L | L | M |`;
+
+const GRAPHITE_SOURCE_NOTE = `<p class="table-source">Source: Microsoft Learn, internal workshop notes, 2026.</p>`;
+
+const GRAPHITE_METRIC_ROW = `<div class="ogd-metric-row">
+  <div class="ogd-metric-card"><strong>95%</strong><span>Coverage</span></div>
+  <div class="ogd-metric-card"><strong>12</strong><span>Open risks</span></div>
+  <div class="ogd-metric-card"><strong>3</strong><span>Next actions</span></div>
+</div>`;
+
+const GRAPHITE_DECISION_MATRIX = `<table class="matrix-table compact-table print-fit-table">
+  <thead>
+    <tr><th>Option</th><th>Fit</th><th>Risk</th><th>Cost</th><th>Decision</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Baseline</td><td>High</td><td class="risk-low">Low</td><td class="num">1x</td><td>Adopt</td></tr>
+    <tr><td>Advanced</td><td>Medium</td><td class="risk-medium">Medium</td><td class="num">1.6x</td><td>Phase 2</td></tr>
+  </tbody>
+</table>`;
 const DOCUMENT_TEMPLATES = {
   executiveSummary: `---
 title: Executive Summary
@@ -318,7 +350,39 @@ tags:
 `
 };
 
-function getToolbarCommandGroups(preset: ToolbarPreset) {
+function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext = "default") {
+  if (context === "selection") {
+    return [
+      ["undo-edit", "redo-edit"],
+      ["bold-selection", "italic-selection", "mark-selection", "insert-link"],
+      ["wrap-graphite-kbd", "wrap-graphite-blur", "comment-selection", "blockquote-selection"]
+    ];
+  }
+
+  if (context === "table") {
+    return [
+      ["undo-edit", "redo-edit"],
+      ["open-table-builder", "insert-markdown-table", "insert-graphite-wide-table", "insert-graphite-risk-table", "insert-graphite-numeric-table"],
+      ["insert-graphite-reference-list", "insert-graphite-status-badge"]
+    ];
+  }
+
+  if (context === "report") {
+    return [
+      ["undo-edit", "redo-edit", "clear-formatting-selection"],
+      ["heading-2", "heading-3", "mark-selection", "insert-link"],
+      ["open-table-builder", "insert-graphite-summary-callout", "insert-graphite-action-callout", "insert-graphite-reference-list"]
+    ];
+  }
+
+  if (context === "code") {
+    return [
+      ["undo-edit", "redo-edit"],
+      ["code-block-selection", "comment-selection"],
+      ["insert-mermaid-block", "insert-horizontal-rule"]
+    ];
+  }
+
   if (preset === "minimal") {
     return [
       ["undo-edit", "redo-edit"],
@@ -357,6 +421,7 @@ export default class OwenEditorPlugin extends Plugin {
   private selectionToolbarEl?: HTMLElement;
   private statusBarItem?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
+  private currentToolbarContext: ToolbarContext = "default";
   private graphiteNoticeShown = false;
 
   async onload() {
@@ -400,8 +465,14 @@ export default class OwenEditorPlugin extends Plugin {
     });
     this.registerDomEvent(window, "scroll", () => this.updateSelectionToolbar(), true);
     this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
-    this.registerDomEvent(document, "mouseup", () => this.updateSelectionToolbar());
-    this.registerDomEvent(document, "keyup", () => this.updateSelectionToolbar());
+    this.registerDomEvent(document, "mouseup", () => {
+      this.updateSelectionToolbar();
+      this.refreshToolbarForContext();
+    });
+    this.registerDomEvent(document, "keyup", () => {
+      this.updateSelectionToolbar();
+      this.refreshToolbarForContext();
+    });
     this.app.workspace.onLayoutReady(() => {
       this.updateToolbarContentOffset();
       this.updateSelectionToolbar();
@@ -417,10 +488,17 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const loadedSettings = await this.loadData();
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedSettings);
     this.settings.toolbarScale = clampToolbarScale(this.settings.toolbarScale);
+    if (!["compact", "balanced", "comfortable", "custom"].includes(this.settings.toolbarDensity)) {
+      this.settings.toolbarDensity = DEFAULT_SETTINGS.toolbarDensity;
+    }
     if (!["always", "hover", "hidden"].includes(this.settings.favoriteDisplay)) {
       this.settings.favoriteDisplay = DEFAULT_SETTINGS.favoriteDisplay;
+    }
+    if (!loadedSettings || !Array.isArray(loadedSettings.favoriteCommandIds)) {
+      this.settings.favoriteCommandIds = [...DEFAULT_SETTINGS.favoriteCommandIds];
     }
   }
 
@@ -498,6 +576,19 @@ export default class OwenEditorPlugin extends Plugin {
     await this.saveSettings();
   }
 
+  async applyToolbarDensity(density: ToolbarDensity) {
+    this.settings.toolbarDensity = density;
+    if (density !== "custom") {
+      Object.assign(this.settings, TOOLBAR_DENSITY_SETTINGS[density]);
+    }
+    await this.saveSettings();
+  }
+
+  async replaceSettings(nextSettings: Partial<OwenEditorSettings>) {
+    this.settings = Object.assign({}, this.settings, nextSettings);
+    await this.saveSettings();
+  }
+
   async toggleToolbarCollapsed() {
     this.settings.toolbarCollapsed = !this.settings.toolbarCollapsed;
     await this.saveSettings();
@@ -526,7 +617,18 @@ export default class OwenEditorPlugin extends Plugin {
 
   private executeCommand(command: EditorCommand, editor: Editor) {
     command.run(editor);
+    if (this.settings.commandFeedback) {
+      this.flashCommand(command.id);
+    }
     void this.recordRecentCommand(command.id);
+  }
+
+  private flashCommand(commandId: string) {
+    const buttons = Array.from(document.querySelectorAll<HTMLElement>(`.owen-editor-toolbar-button[data-command-id="${commandId}"]`));
+    for (const button of buttons) {
+      button.addClass("is-command-success");
+      window.setTimeout(() => button.removeClass("is-command-success"), 320);
+    }
   }
 
   private async recordRecentCommand(commandId: string) {
@@ -578,6 +680,47 @@ export default class OwenEditorPlugin extends Plugin {
 
     this.selectionToolbarEl = toolbar;
     this.updateSelectionToolbar();
+  }
+
+  private refreshToolbarForContext() {
+    if (!this.settings.showFloatingToolbar || !this.settings.contextAwareToolbar || this.settings.toolbarCollapsed) {
+      return;
+    }
+
+    const nextContext = this.getToolbarContext();
+    if (nextContext !== this.currentToolbarContext) {
+      this.currentToolbarContext = nextContext;
+      this.refreshFloatingToolbar();
+    }
+  }
+
+  private getToolbarContext(): ToolbarContext {
+    const view = this.getActiveMarkdownView();
+    const editor = view?.editor;
+    if (!editor) {
+      return "default";
+    }
+    if (editor.getSelection()) {
+      return "selection";
+    }
+
+    const cursor = editor.getCursor();
+    const line = editor.getLine(cursor.line);
+    if (isInsideFence(editor, cursor.line)) {
+      return "code";
+    }
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      return "table";
+    }
+    if (this.isReportDocument(editor)) {
+      return "report";
+    }
+    return "default";
+  }
+
+  private isReportDocument(editor: Editor) {
+    const firstLines = Array.from({ length: Math.min(editor.lineCount(), 24) }, (_, index) => editor.getLine(index)).join("\n").toLowerCase();
+    return firstLines.includes("ogd-report-mode") || firstLines.includes("ogd-page-a3") || firstLines.includes("tags:") && firstLines.includes("report");
   }
 
   private updateSelectionToolbar() {
@@ -679,7 +822,8 @@ export default class OwenEditorPlugin extends Plugin {
 
     const primaryRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-primary-row" });
 
-    const groups = getToolbarCommandGroups(this.settings.toolbarPreset);
+    this.currentToolbarContext = this.settings.contextAwareToolbar ? this.getToolbarContext() : "default";
+    const groups = getToolbarCommandGroups(this.settings.toolbarPreset, this.currentToolbarContext);
 
     groups.forEach((group, groupIndex) => {
       if (groupIndex > 0) {
@@ -799,6 +943,7 @@ export default class OwenEditorPlugin extends Plugin {
         type: "button",
         title: command.name,
         "aria-label": command.name,
+        "data-command-id": command.id,
         "data-tooltip": command.name
       }
     });
@@ -1222,6 +1367,42 @@ export default class OwenEditorPlugin extends Plugin {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "<span class=\"ogd-status-badge is-e5\">E5</span> <span class=\"ogd-status-badge is-payg\">PAYG</span> <span class=\"ogd-status-badge is-addon\">Add-on</span>");
         }
+      },
+      {
+        id: "insert-graphite-source-note",
+        name: "Insert Owen Graphite source note",
+        icon: "text-quote",
+        category: "Owen Graphite",
+        group: "A3/PDF snippets",
+        aliases: ["source", "출처", "pdf", "a3", "print"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, GRAPHITE_SOURCE_NOTE);
+        }
+      },
+      {
+        id: "insert-graphite-metric-row",
+        name: "Insert Owen Graphite metric row",
+        icon: "gauge",
+        category: "Owen Graphite",
+        group: "A3/PDF snippets",
+        aliases: ["metric", "지표", "kpi", "pdf", "a3", "print"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, GRAPHITE_METRIC_ROW);
+        }
+      },
+      {
+        id: "insert-graphite-decision-matrix",
+        name: "Insert Owen Graphite decision matrix",
+        icon: "git-branch-plus",
+        category: "Owen Graphite",
+        group: "A3/PDF snippets",
+        aliases: ["decision", "의사결정", "matrix", "매트릭스", "pdf", "a3", "print"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, GRAPHITE_DECISION_MATRIX);
+        }
       }
     ];
   }
@@ -1281,14 +1462,12 @@ class OwenEditorPaletteModal extends Modal {
       text: this.initialCategory ? `${this.initialCategory} tools` : "Search results are prioritized above grouped browsing."
     });
 
-    const commands = this.plugin.getCommands().filter((command) => {
-      const haystack = getCommandSearchText(command);
-      return (!this.initialCategory || command.category === this.initialCategory) && haystack.includes(this.query);
-    });
+    const parsedQuery = parseCommandQuery(this.query);
+    const commands = this.plugin.getCommands().filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
 
     const recentCommands = this.plugin.getRecentCommands()
       .filter((command) => !this.initialCategory || command.category === this.initialCategory)
-      .filter((command) => getCommandSearchText(command).includes(this.query));
+      .filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
 
     if (recentCommands.length > 0) {
       const recentSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
@@ -1336,6 +1515,10 @@ class OwenEditorPaletteModal extends Modal {
       if (preview) {
         copy.createSpan({ text: preview, cls: "owen-editor-command-preview" });
       }
+      const detail = getCommandPreviewDetail(command);
+      if (detail) {
+        copy.createEl("code", { text: detail, cls: "owen-editor-command-detail-preview" });
+      }
       button.addEventListener("click", () => {
         this.plugin.runCommand(command);
         this.close();
@@ -1366,6 +1549,71 @@ function getCommandSearchText(command: EditorCommand) {
     command.name,
     ...getCommandSearchAliases(command)
   ].join(" ").toLowerCase();
+}
+
+interface ParsedCommandQuery {
+  text: string;
+  category?: CommandCategory;
+}
+
+function parseCommandQuery(query: string): ParsedCommandQuery {
+  const normalized = query.trim().toLowerCase();
+  const match = normalized.match(/^(table|tables|표|graphite|ogd|owen|link|links|block|blocks|selection|select|basic|markdown|md):\s*(.*)$/);
+  if (!match) {
+    return { text: normalized };
+  }
+
+  const categoryMap: Record<string, CommandCategory> = {
+    table: "Tables",
+    tables: "Tables",
+    "표": "Tables",
+    graphite: "Owen Graphite",
+    ogd: "Owen Graphite",
+    owen: "Owen Graphite",
+    link: "Links",
+    links: "Links",
+    block: "Blocks",
+    blocks: "Blocks",
+    selection: "Selection",
+    select: "Selection",
+    basic: "Basic Markdown",
+    markdown: "Basic Markdown",
+    md: "Basic Markdown"
+  };
+  return { category: categoryMap[match[1]], text: match[2] };
+}
+
+function commandMatchesQuery(command: EditorCommand, query: ParsedCommandQuery, initialCategory?: CommandCategory) {
+  if (initialCategory && command.category !== initialCategory) {
+    return false;
+  }
+  if (query.category && command.category !== query.category) {
+    return false;
+  }
+  if (!query.text) {
+    return true;
+  }
+
+  const haystack = getCommandSearchText(command);
+  return haystack.includes(query.text) || fuzzyIncludes(haystack, query.text);
+}
+
+function fuzzyIncludes(haystack: string, needle: string) {
+  const compactHaystack = haystack.replace(/[^a-z0-9가-힣]/gi, "");
+  const compactNeedle = needle.replace(/[^a-z0-9가-힣]/gi, "");
+  if (!compactNeedle) {
+    return true;
+  }
+
+  let cursor = 0;
+  for (const char of compactNeedle) {
+    cursor = compactHaystack.indexOf(char, cursor);
+    if (cursor === -1) {
+      return false;
+    }
+    cursor += 1;
+  }
+  return true;
 }
 
 function getCommandSearchAliases(command: EditorCommand) {
@@ -1425,6 +1673,40 @@ function getCommandPreview(command: EditorCommand) {
   return "";
 }
 
+function getCommandPreviewDetail(command: EditorCommand) {
+  if (command.id === "insert-graphite-summary-callout") {
+    return "> [!summary] Executive summary";
+  }
+  if (command.id === "insert-graphite-action-callout") {
+    return "> [!action] Action items";
+  }
+  if (command.id === "insert-graphite-status-badge") {
+    return "<span class=\"ogd-status-badge\">E5</span>";
+  }
+  if (command.id === "insert-graphite-reference-list") {
+    return "<ol class=\"ogd-reference-list\">";
+  }
+  if (command.id === "insert-graphite-source-note") {
+    return "<p class=\"table-source\">Source...</p>";
+  }
+  if (command.id === "insert-graphite-metric-row") {
+    return "<div class=\"ogd-metric-row\">";
+  }
+  if (command.id === "insert-graphite-decision-matrix") {
+    return "<table class=\"matrix-table compact-table\">";
+  }
+  if (command.id === "insert-graphite-wide-table") {
+    return "<table class=\"wide-table print-fit-table\">";
+  }
+  if (command.id === "insert-graphite-risk-table") {
+    return "<table class=\"risk-table compact-table\">";
+  }
+  if (command.id.includes("template")) {
+    return "---\ncssclasses:\n  - ogd-report-mode\n---";
+  }
+  return "";
+}
+
 class OwenEditorTableBuilderModal extends Modal {
   private plugin: OwenEditorPlugin;
   private editor: Editor;
@@ -1453,8 +1735,10 @@ class OwenEditorTableBuilderModal extends Modal {
     this.contentEl.addClass("owen-editor-table-builder");
 
     let previewCode: HTMLElement;
+    let sourceInsight: HTMLElement;
     const refreshPreview = () => {
       previewCode.setText(buildTableFromOptions(this.options));
+      sourceInsight.setText(getDelimitedTableInsight(this.options.sourceText, this.options.includeHeader));
     };
 
     new Setting(this.contentEl)
@@ -1510,14 +1794,22 @@ class OwenEditorTableBuilderModal extends Modal {
 
     new Setting(this.contentEl)
       .setName("CSV or TSV source")
-      .setDesc("붙여넣은 표 데이터가 있으면 rows/columns 대신 이 값을 사용합니다.")
+      .setDesc("붙여넣은 표 데이터가 있으면 rows/columns 대신 이 값을 사용합니다. 헤더와 숫자 컬럼은 자동 추정합니다.")
       .addTextArea((text) => text
         .setPlaceholder("Name\tStatus\tOwner\nItem A\tReady\tOwen")
         .setValue(this.options.sourceText)
         .onChange((value) => {
           this.options.sourceText = value;
+          const sourceRows = parseDelimitedTable(value);
+          if (sourceRows.length > 0) {
+            this.options.includeHeader = inferHeaderRow(sourceRows);
+            this.options.rows = Math.max(1, sourceRows.length - (this.options.includeHeader ? 1 : 0));
+            this.options.columns = Math.max(...sourceRows.map((row) => row.length));
+          }
           refreshPreview();
         }));
+
+    sourceInsight = this.contentEl.createDiv({ cls: "owen-editor-table-builder-insight" });
 
     this.contentEl.createEl("h3", { text: "Preview", cls: "owen-editor-table-builder-preview-title" });
     const preview = this.contentEl.createEl("pre", { cls: "owen-editor-table-builder-preview" });
@@ -1627,6 +1919,20 @@ class OwenEditorSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
+      .setName("Toolbar density")
+      .setDesc("툴바의 크기, 즐겨찾기 줄 표시 방식, 모바일 compact 설정을 함께 조정합니다.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("compact", "Compact")
+        .addOption("balanced", "Balanced")
+        .addOption("comfortable", "Comfortable")
+        .addOption("custom", "Custom")
+        .setValue(this.plugin.settings.toolbarDensity)
+        .onChange(async (value) => {
+          await this.plugin.applyToolbarDensity(value as ToolbarDensity);
+          this.display();
+        }));
+
+    new Setting(containerEl)
       .setName("Start with toolbar collapsed")
       .setDesc("툴바를 작은 버튼 하나로 접어두고 필요할 때 펼칩니다.")
       .addToggle((toggle) => toggle
@@ -1645,7 +1951,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setDynamicTooltip()
         .onChange(async (value) => {
           this.plugin.settings.toolbarScale = value;
+          this.plugin.settings.toolbarDensity = "custom";
           await this.plugin.saveSettings();
+          this.display();
         }));
 
     new Setting(containerEl)
@@ -1658,7 +1966,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.favoriteDisplay)
         .onChange(async (value) => {
           this.plugin.settings.favoriteDisplay = value as FavoriteDisplayMode;
+          this.plugin.settings.toolbarDensity = "custom";
           await this.plugin.saveSettings();
+          this.display();
         }));
 
     new Setting(containerEl)
@@ -1668,6 +1978,28 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.mobileCompactToolbar)
         .onChange(async (value) => {
           this.plugin.settings.mobileCompactToolbar = value;
+          this.plugin.settings.toolbarDensity = "custom";
+          await this.plugin.saveSettings();
+          this.display();
+        }));
+
+    new Setting(containerEl)
+      .setName("Context-aware toolbar")
+      .setDesc("선택 영역, Markdown 표, 코드블록, Owen Graphite 보고서 문맥에 맞춰 주요 툴바 명령을 자동으로 바꿉니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.contextAwareToolbar)
+        .onChange(async (value) => {
+          this.plugin.settings.contextAwareToolbar = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Command feedback")
+      .setDesc("툴바 명령 실행 후 해당 버튼에 짧은 성공 피드백을 표시합니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.commandFeedback)
+        .onChange(async (value) => {
+          this.plugin.settings.commandFeedback = value;
           await this.plugin.saveSettings();
         }));
 
@@ -1768,6 +2100,35 @@ class OwenEditorSettingTab extends PluginSettingTab {
         });
       }
     }
+
+    this.createSettingsSection("Portability", "툴바 설정을 다른 vault나 기기로 옮깁니다.");
+
+    let settingsJson = JSON.stringify(getPortableSettings(this.plugin.settings), null, 2);
+    new Setting(containerEl)
+      .setName("Settings JSON")
+      .setDesc("현재 툴바 설정을 내보내거나, 이전에 내보낸 JSON을 붙여넣어 가져옵니다.")
+      .addTextArea((text) => text
+        .setValue(settingsJson)
+        .onChange((value) => {
+          settingsJson = value;
+        }));
+
+    new Setting(containerEl)
+      .setName("Import or refresh JSON")
+      .addButton((button) => button
+        .setButtonText("Import")
+        .onClick(async () => {
+          try {
+            await this.plugin.replaceSettings(parsePortableSettings(settingsJson));
+            new Notice("Owen Editor settings imported.");
+            this.display();
+          } catch (error) {
+            new Notice(`Owen Editor import failed: ${error instanceof Error ? error.message : "Invalid JSON"}`);
+          }
+        }))
+      .addButton((button) => button
+        .setButtonText("Refresh")
+        .onClick(() => this.display()));
   }
 
   private createSettingsSection(title: string, description: string) {
@@ -1887,8 +2248,35 @@ function parseDelimitedTable(sourceText: string) {
   const delimiter = trimmed.includes("\t") ? "\t" : ",";
   return trimmed
     .split(/\r?\n/)
-    .map((line) => line.split(delimiter).map((cell) => cell.trim()))
+    .map((line) => splitDelimitedLine(line, delimiter).map((cell) => cell.trim()))
     .filter((row) => row.some(Boolean));
+}
+
+function splitDelimitedLine(line: string, delimiter: string) {
+  if (delimiter === "\t") {
+    return line.split(delimiter);
+  }
+
+  const cells: string[] = [];
+  let cell = "";
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+    if (char === '"' && next === '"' && quoted) {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === delimiter && !quoted) {
+      cells.push(cell);
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  cells.push(cell);
+  return cells;
 }
 
 function buildMarkdownTableFromRows(rows: string[][], includeHeader: boolean) {
@@ -1897,7 +2285,7 @@ function buildMarkdownTableFromRows(rows: string[][], includeHeader: boolean) {
   const headers = includeHeader ? normalizedRows[0] : Array.from({ length: width }, (_, index) => `Column ${index + 1}`);
   const bodyRows = includeHeader ? normalizedRows.slice(1) : normalizedRows;
   const headerLine = `| ${headers.join(" | ")} |`;
-  const dividerLine = `| ${headers.map(() => "---").join(" | ")} |`;
+  const dividerLine = `| ${headers.map((_, index) => getMarkdownDivider(bodyRows, index)).join(" | ")} |`;
   const bodyLines = bodyRows.map((row) => `| ${row.join(" | ")} |`);
   return [headerLine, dividerLine, ...bodyLines].join("\n");
 }
@@ -1915,6 +2303,86 @@ function buildHtmlTableFromRows(options: TableBuilderOptions, rows: string[][]) 
 
 function normalizeTableRow(row: string[], width: number) {
   return Array.from({ length: width }, (_, index) => row[index] ?? "");
+}
+
+function inferHeaderRow(rows: string[][]) {
+  if (rows.length < 2) {
+    return true;
+  }
+  const first = rows[0];
+  const rest = rows.slice(1);
+  return first.some((cell) => cell.trim()) && first.every((cell) => !isNumericCell(cell)) && rest.some((row) => row.some(isNumericCell));
+}
+
+function getDelimitedTableInsight(sourceText: string, includeHeader: boolean) {
+  const rows = parseDelimitedTable(sourceText);
+  if (rows.length === 0) {
+    return "";
+  }
+
+  const width = Math.max(...rows.map((row) => row.length));
+  const ragged = rows.some((row) => row.length !== width);
+  const bodyRows = includeHeader ? rows.slice(1) : rows;
+  const numericColumns = Array.from({ length: width }, (_, index) => index + 1).filter((column) => isNumericColumn(bodyRows, column - 1));
+  const messages = [`${rows.length} rows x ${width} columns detected`, includeHeader ? "header inferred" : "no header inferred"];
+  if (numericColumns.length > 0) {
+    messages.push(`numeric columns: ${numericColumns.join(", ")}`);
+  }
+  if (ragged) {
+    messages.push("uneven rows normalized");
+  }
+  return messages.join(" · ");
+}
+
+function getMarkdownDivider(rows: string[][], columnIndex: number) {
+  return isNumericColumn(rows, columnIndex) ? "---:" : "---";
+}
+
+function isNumericColumn(rows: string[][], columnIndex: number) {
+  const values = rows.map((row) => row[columnIndex] ?? "").filter((cell) => cell.trim());
+  return values.length > 0 && values.every(isNumericCell);
+}
+
+function isNumericCell(value: string) {
+  return /^[-+]?\$?\d[\d,]*(\.\d+)?%?$/.test(value.trim());
+}
+
+function isInsideFence(editor: Editor, lineNumber: number) {
+  let fenceCount = 0;
+  for (let index = 0; index <= lineNumber; index += 1) {
+    if (/^\s*```/.test(editor.getLine(index))) {
+      fenceCount += 1;
+    }
+  }
+  return fenceCount % 2 === 1;
+}
+
+function getPortableSettings(settings: OwenEditorSettings) {
+  return {
+    showFloatingToolbar: settings.showFloatingToolbar,
+    showSelectionToolbar: settings.showSelectionToolbar,
+    showStatusBarButton: settings.showStatusBarButton,
+    toolbarPosition: settings.toolbarPosition,
+    toolbarPreset: settings.toolbarPreset,
+    toolbarCollapsed: settings.toolbarCollapsed,
+    toolbarScale: settings.toolbarScale,
+    toolbarDensity: settings.toolbarDensity,
+    favoriteDisplay: settings.favoriteDisplay,
+    mobileCompactToolbar: settings.mobileCompactToolbar,
+    contextAwareToolbar: settings.contextAwareToolbar,
+    commandFeedback: settings.commandFeedback,
+    insertHtmlTables: settings.insertHtmlTables,
+    showGraphiteThemeNotice: settings.showGraphiteThemeNotice,
+    favoriteCommandIds: settings.favoriteCommandIds
+  };
+}
+
+function parsePortableSettings(value: string): Partial<OwenEditorSettings> {
+  const parsed = JSON.parse(value) as Partial<OwenEditorSettings>;
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("Expected a JSON object");
+  }
+  return parsed;
 }
 
 function escapeHtml(value: string) {

@@ -1,9 +1,9 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.4](https://img.shields.io/badge/release-v0.6.4-0b8bdc?style=flat-square)
+![release v0.6.5](https://img.shields.io/badge/release-v0.6.5-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
-![Settings 11 options](https://img.shields.io/badge/Settings-11%20options-0f9b8e?style=flat-square)
+![Settings 15 options](https://img.shields.io/badge/Settings-15%20options-0f9b8e?style=flat-square)
 
 Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
 
@@ -18,8 +18,9 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Floating glass toolbar for common Markdown editing actions.
 - Selection mini toolbar for quick inline formatting near selected text.
 - Smart selection toolbar placement that avoids editor edges and flips below selected text when needed.
-- Toolbar position controls for top or bottom placement, with a collapsible compact state.
+- Toolbar position controls for top or bottom placement, with collapsible, density, and context-aware toolbar states.
 - Toolbar presets for minimal, writer, report, full, and custom workflows.
+- Context-aware toolbar groups for selected text, tables, fenced code blocks, and Owen Graphite report notes.
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands, including Korean and English search aliases.
 - Palette sections emphasize search context, recent commands, grouped browsing, and small output previews for commands that insert visible Graphite or Markdown snippets.
@@ -27,9 +28,11 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Favorites that pin frequently used commands directly onto the floating toolbar, with display modes for always visible, hover reveal, or hidden rows.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
 - Table builder with live preview, custom row/column counts, and CSV/TSV paste conversion.
+- Table builder inference for pasted data, including header detection, uneven row normalization, and numeric column alignment.
 - Document templates for executive summaries, comparison reports, risk reviews, and meeting notes.
 - Table helpers for basic Markdown tables and Owen Graphite report table presets.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
+- A3/PDF-friendly Owen Graphite snippets for source notes, metric rows, and decision matrices.
 
 ## Owen Graphite Theme Notice
 
@@ -69,14 +72,18 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Show status bar button: adds an `Owen Editor` status bar shortcut.
 - Toolbar position: pins the toolbar to the top or bottom of the editor.
 - Toolbar preset: applies minimal, writer, report, full, or custom toolbar layouts.
+- Toolbar density: applies compact, balanced, comfortable, or custom toolbar density settings.
 - Start with toolbar collapsed: keeps the toolbar as a compact single-button launcher until expanded.
 - Toolbar scale: adjusts the floating toolbar and selection mini toolbar size from 80% to 110%, with automatic downscaling in narrow document panes.
 - Favorite row display: shows pinned favorite commands always, on toolbar hover/focus, or hides the row.
 - Compact toolbar on mobile: reduces button size and allows wrapping on mobile devices.
+- Context-aware toolbar: changes the visible toolbar command groups based on selection, table, code block, or report context.
+- Command feedback: briefly highlights toolbar buttons after a command runs.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
 - Toolbar favorites: stores command IDs pinned to the floating toolbar. This is usually managed with the star buttons in the palette.
 - Favorite order: move pinned commands up or down, or remove them without editing raw IDs.
+- Settings JSON: export and import portable toolbar settings across vaults or devices.
 
 Settings are grouped by toolbar behavior, selection tools, shortcuts, Graphite helpers, and favorites so the growing command surface stays easier to scan.
 
