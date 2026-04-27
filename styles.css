@@ -5,7 +5,7 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(241, 245, 249, 0.46));
   border: 1px solid rgba(148, 163, 184, 0.42);
   border-radius: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(148, 163, 184, 0.14), 0 18px 42px rgba(15, 23, 42, 0.18), 0 3px 10px rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), inset 0 -1px 0 rgba(148, 163, 184, 0.12), 0 14px 32px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.06);
   display: inline-flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -21,7 +21,7 @@
 }
 
 .owen-editor-glass-toolbar.mod-top {
-  top: 88px;
+  top: 92px;
 }
 
 .owen-editor-glass-toolbar.mod-bottom {
@@ -67,6 +67,7 @@
   justify-content: center;
   padding: 0;
   position: relative;
+  transition: background 90ms ease, border-color 90ms ease, box-shadow 90ms ease, color 90ms ease, transform 90ms ease;
   width: 38px;
 }
 
@@ -128,6 +129,12 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(var(--interactive-accent-rgb), 0.12));
   border-color: rgba(var(--interactive-accent-rgb), 0.46);
   color: var(--text-accent);
+  transform: translateY(-1px);
+}
+
+.owen-editor-toolbar-button:active {
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.14);
+  transform: translateY(0) scale(0.96);
 }
 
 .owen-editor-toolbar-button.mod-tables {
@@ -136,8 +143,9 @@
 }
 
 .owen-editor-toolbar-button.mod-owen-graphite {
-  background: rgba(var(--interactive-accent-rgb), 0.08);
-  color: var(--text-accent);
+  background: linear-gradient(180deg, rgba(237, 233, 254, 0.62), rgba(245, 243, 255, 0.34));
+  border-color: rgba(167, 139, 250, 0.32);
+  color: #6d28d9;
 }
 
 .owen-editor-toolbar-button.is-favorite {
@@ -217,6 +225,29 @@
   z-index: calc(var(--layer-popover) + 3);
 }
 
+.owen-editor-selection-toolbar::after {
+  background: inherit;
+  border-color: rgba(148, 163, 184, 0.42);
+  content: "";
+  height: 9px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%) rotate(45deg);
+  width: 9px;
+}
+
+.owen-editor-selection-toolbar.is-above::after {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.42);
+  border-right: 1px solid rgba(148, 163, 184, 0.42);
+  bottom: -5px;
+}
+
+.owen-editor-selection-toolbar.is-below::after {
+  border-left: 1px solid rgba(148, 163, 184, 0.42);
+  border-top: 1px solid rgba(148, 163, 184, 0.42);
+  top: -5px;
+}
+
 .owen-editor-selection-toolbar.is-visible {
   opacity: 1;
   pointer-events: auto;
@@ -234,6 +265,7 @@
   height: 32px;
   justify-content: center;
   padding: 0;
+  transition: background 90ms ease, border-color 90ms ease, color 90ms ease, transform 90ms ease;
   width: 32px;
 }
 
@@ -241,9 +273,16 @@
 .owen-editor-selection-toolbar-button:focus-visible {
   border-color: rgba(var(--interactive-accent-rgb), 0.46);
   color: var(--text-accent);
+  transform: translateY(-1px);
+}
+
+.owen-editor-selection-toolbar-button:active {
+  transform: translateY(0) scale(0.94);
 }
 
 .owen-editor-selection-toolbar-button.mod-owen-graphite {
+  background: linear-gradient(180deg, rgba(237, 233, 254, 0.68), rgba(245, 243, 255, 0.42));
+  border-color: rgba(167, 139, 250, 0.34);
   color: #6d28d9;
 }
 
@@ -320,7 +359,7 @@ body.is-mobile .owen-editor-selection-toolbar {
 
 body.owen-editor-toolbar-offset.owen-editor-toolbar-top .workspace-leaf-content[data-type="markdown"] .markdown-reading-view .markdown-preview-sizer,
 body.owen-editor-toolbar-offset.owen-editor-toolbar-top .workspace-leaf-content[data-type="markdown"] .markdown-source-view .cm-scroller {
-  padding-top: var(--owen-editor-toolbar-clearance, 112px);
+  padding-top: var(--owen-editor-toolbar-clearance, 118px);
 }
 
 body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-content[data-type="markdown"] .markdown-reading-view .markdown-preview-sizer,
@@ -339,7 +378,7 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 .owen-editor-palette {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .modal.owen-editor-palette-modal {
@@ -351,12 +390,36 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   width: 100%;
 }
 
+.owen-editor-palette-context {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-top: -4px;
+}
+
+.owen-editor-command-section {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.owen-editor-recent-section {
+  background: var(--background-secondary);
+  border-style: dashed;
+}
+
 .owen-editor-group-title {
   margin: 4px 0 0;
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   font-weight: var(--font-semibold);
   text-transform: uppercase;
+}
+
+.owen-editor-command-section > .owen-editor-group-title {
+  margin-top: 0;
 }
 
 .owen-editor-subgroup-title {
@@ -392,11 +455,40 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   width: 100%;
 }
 
+.owen-editor-command-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
 .owen-editor-command-label {
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+.owen-editor-command-preview {
+  align-self: flex-start;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 5px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 2px 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mod-owen-graphite .owen-editor-command-preview,
+.mod-tables .owen-editor-command-preview {
+  background: rgba(237, 233, 254, 0.42);
+  border-color: rgba(167, 139, 250, 0.28);
+  color: #6d28d9;
 }
 
 .owen-editor-command-button:hover,
@@ -439,6 +531,25 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   font-size: var(--font-ui-small);
   margin: 18px 0 8px;
   text-transform: uppercase;
+}
+
+.owen-editor-settings-section {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  margin: 18px 0 6px;
+  padding: 10px 12px;
+}
+
+.owen-editor-settings-section h3 {
+  font-size: var(--font-ui-medium);
+  margin: 0;
+}
+
+.owen-editor-settings-section p {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin: 3px 0 0;
 }
 
 .owen-editor-favorite-settings-list {

@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-27
+
+### Changed
+
+- Improved selection mini toolbar placement so it stays inside the active Markdown pane and flips below selections when needed.
+- Refined toolbar spacing, shadows, hover states, and press feedback to reduce document distraction.
+- Improved palette hierarchy with recent-command framing, grouped command sections, and small output preview chips for Graphite and formatting commands.
+- Grouped settings into scannable sections for toolbar, selection tools, shortcuts, Graphite helpers, and favorites.
+
+### Added
+
+- Design preview fixture showing the seven planned UI improvements together.
+
 ## [0.5.0] - 2026-04-27
 
 ### Added
@@ -88,7 +101,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.5.0...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/towishy/owen-editor/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/towishy/owen-editor/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/towishy/owen-editor/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/towishy/owen-editor/compare/0.3.1...0.4.0

@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owen Editor 7 Design Improvements Preview</title>
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --paper: #fbfcfd;
+      --ink: #1f2933;
+      --muted: #657282;
+      --line: #cfd7df;
+      --line-strong: #aeb9c5;
+      --accent: #2f7d78;
+      --accent-soft: #dff1ef;
+      --amber: #b67822;
+      --amber-soft: #f7ead8;
+      --violet: #6f55a6;
+      --violet-soft: #ece5f3;
+      --rose: #a54c62;
+      --rose-soft: #f2e1e6;
+      --shadow: 0 20px 60px rgba(31, 41, 51, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .preview {
+      background: linear-gradient(180deg, #f9fafb, #edf1f5);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin: 0 auto;
+      max-width: 1280px;
+      min-height: 820px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      align-items: center;
+      background: rgba(251, 252, 253, 0.92);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      padding: 14px 20px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand strong {
+      font-size: 17px;
+      font-weight: 720;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .legend span {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 5px 9px;
+    }
+
+    .canvas {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.22fr) minmax(340px, 0.78fr);
+      padding: 20px;
+    }
+
+    .workspace {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 716px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .toolbar {
+      align-items: center;
+      backdrop-filter: blur(18px) saturate(150%);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(174, 185, 197, 0.58);
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(31, 41, 51, 0.12);
+      display: flex;
+      gap: 4px;
+      left: 50%;
+      padding: 6px;
+      position: absolute;
+      top: 18px;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+
+    .tool-icon,
+    .mini-icon {
+      align-items: center;
+      background: linear-gradient(180deg, #fff, #f2f5f8);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--muted);
+      display: inline-flex;
+      font-size: 13px;
+      font-weight: 720;
+      height: 32px;
+      justify-content: center;
+      width: 32px;
+    }
+
+    .tool-icon.active,
+    .mini-icon.active {
+      background: var(--accent-soft);
+      border-color: rgba(47, 125, 120, 0.5);
+      color: var(--accent);
+    }
+
+    .tool-icon.graphite,
+    .mini-icon.graphite {
+      background: var(--violet-soft);
+      border-color: rgba(111, 85, 166, 0.36);
+      color: var(--violet);
+    }
+
+    .document {
+      margin: 86px auto 30px;
+      max-width: 660px;
+      padding: 0 28px 46px;
+    }
+
+    .doc-label {
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+    }
+
+    .document h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin: 0 0 18px;
+    }
+
+    .document p {
+      color: #344150;
+      font-size: 15px;
+      line-height: 1.72;
+      margin: 0 0 14px;
+    }
+
+    .selection {
+      background: linear-gradient(180deg, rgba(223, 241, 239, 0), rgba(223, 241, 239, 0.92));
+      border-bottom: 2px solid var(--accent);
+      border-radius: 3px;
+      color: #173f3d;
+      padding: 1px 2px;
+    }
+
+    .mini-toolbar {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(174, 185, 197, 0.66);
+      border-radius: 10px;
+      box-shadow: 0 14px 34px rgba(31, 41, 51, 0.18);
+      display: flex;
+      gap: 4px;
+      left: 282px;
+      padding: 5px;
+      position: absolute;
+      top: 226px;
+      z-index: 4;
+    }
+
+    .mini-note {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      bottom: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      left: 18px;
+      max-width: 305px;
+      padding: 10px 12px;
+      position: absolute;
+    }
+
+    .side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 14px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .panel-tag {
+      background: var(--accent-soft);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+
+    .palette-search {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px;
+    }
+
+    .search-box {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--muted);
+      display: flex;
+      font-size: 13px;
+      gap: 8px;
+      height: 38px;
+      padding: 0 11px;
+    }
+
+    .recent-row,
+    .command-row,
+    .setting-row {
+      align-items: center;
+      border-bottom: 1px solid rgba(207, 215, 223, 0.68);
+      display: flex;
+      gap: 10px;
+      padding: 10px 14px;
+    }
+
+    .recent-row {
+      background: #f8fafc;
+      padding-bottom: 8px;
+      padding-top: 8px;
+    }
+
+    .row-icon {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--muted);
+      display: flex;
+      flex: 0 0 auto;
+      font-size: 12px;
+      font-weight: 720;
+      height: 28px;
+      justify-content: center;
+      width: 28px;
+    }
+
+    .row-copy {
+      min-width: 0;
+    }
+
+    .row-copy strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 680;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .row-copy span {
+      color: var(--muted);
+      display: block;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .sample-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 14px 14px;
+    }
+
+    .sample-chip {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 12px;
+      padding: 7px 9px;
+    }
+
+    .sample-chip.kbd {
+      background: var(--violet-soft);
+      color: var(--violet);
+    }
+
+    .sample-chip.blur {
+      background: var(--rose-soft);
+      color: var(--rose);
+      filter: blur(0.35px);
+    }
+
+    .sample-chip.table {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .settings-section {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 14px 8px;
+    }
+
+    .settings-section strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .settings-section span {
+      color: var(--muted);
+      display: block;
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .toggle {
+      background: var(--accent);
+      border-radius: 999px;
+      height: 20px;
+      margin-left: auto;
+      position: relative;
+      width: 36px;
+    }
+
+    .toggle::after {
+      background: #fff;
+      border-radius: 50%;
+      content: "";
+      height: 16px;
+      position: absolute;
+      right: 2px;
+      top: 2px;
+      width: 16px;
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 14px;
+      }
+
+      .canvas {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace {
+        min-height: 620px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="preview" aria-label="Owen Editor design preview">
+    <header class="topbar">
+      <div class="brand">
+        <strong>Owen Editor 디자인 개선 프리뷰</strong>
+        <span>7개 개선사항을 모두 적용했을 때의 한 화면 목업</span>
+      </div>
+      <div class="legend" aria-label="개선사항 목록">
+        <span>1 미니 툴바 위치</span>
+        <span>2 역할 구분</span>
+        <span>3 버튼 피드백</span>
+        <span>4 팔레트 위계</span>
+        <span>5 설정 섹션</span>
+        <span>6 문서 거리감</span>
+        <span>7 시각 샘플</span>
+      </div>
+    </header>
+
+    <section class="canvas">
+      <div class="workspace">
+        <nav class="toolbar" aria-label="고정 편집 툴바">
+          <span class="tool-icon active">B</span>
+          <span class="tool-icon">I</span>
+          <span class="tool-icon">H</span>
+          <span class="tool-icon">L</span>
+          <span class="tool-icon graphite">K</span>
+          <span class="tool-icon graphite">Bl</span>
+          <span class="tool-icon">T</span>
+          <span class="tool-icon">P</span>
+        </nav>
+
+        <article class="document">
+          <div class="doc-label">Live Preview · 상단 툴바는 문서 영역과 간격을 유지</div>
+          <h1>Report draft with Owen Graphite helpers</h1>
+          <p>
+            문서 편집 중 필요한 고정 도구는 상단에 머무르고, 선택한 문장에는
+            <span class="selection">선택 영역 전용 미니 툴바가 가까운 위치에 안정적으로 표시됩니다.</span>
+            위쪽 공간이 부족하면 아래쪽으로 전환되는 설계를 전제로 합니다.
+          </p>
+          <p>
+            고정 툴바는 표, 템플릿, 팔레트 같은 넓은 작업을 담당하고 미니 툴바는 굵게, 기울임, 강조, 링크처럼 즉시 적용하는 인라인 작업만 담당합니다.
+          </p>
+          <p>
+            Graphite 전용 기능은 절제된 보라 톤으로 구분해 일반 Markdown 기능과 섞여도 빠르게 찾을 수 있습니다.
+          </p>
+        </article>
+
+        <div class="mini-toolbar" aria-label="선택 영역 미니 툴바">
+          <span class="mini-icon active">B</span>
+          <span class="mini-icon">I</span>
+          <span class="mini-icon">H</span>
+          <span class="mini-icon">L</span>
+          <span class="mini-icon graphite">K</span>
+          <span class="mini-icon graphite">Bl</span>
+        </div>
+
+        <div class="mini-note">미니 툴바는 선택 영역을 가리지 않도록 간격을 두고, 화면 가장자리에서는 자동으로 위치를 보정하는 방향입니다.</div>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Palette hierarchy</div>
+            <div class="panel-tag">검색 우선</div>
+          </div>
+          <div class="palette-search">
+            <div class="search-box">⌕ highlight graphite table</div>
+          </div>
+          <div class="recent-row">
+            <div class="row-icon">↺</div>
+            <div class="row-copy">
+              <strong>최근 사용 · Highlight selection</strong>
+              <span>작고 조용한 보조 영역</span>
+            </div>
+          </div>
+          <div class="command-row">
+            <div class="row-icon">H</div>
+            <div class="row-copy">
+              <strong>Highlight selection</strong>
+              <span>검색 결과는 더 선명한 우선순위</span>
+            </div>
+          </div>
+          <div class="command-row">
+            <div class="row-icon">T</div>
+            <div class="row-copy">
+              <strong>Insert Graphite table</strong>
+              <span>시각 샘플과 함께 결과를 예측</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Graphite preview chips</div>
+            <div class="panel-tag">결과 미리보기</div>
+          </div>
+          <div class="sample-chip-row">
+            <span class="sample-chip kbd">kbd · ⌘ K</span>
+            <span class="sample-chip blur">blur · hidden note</span>
+            <span class="sample-chip table">table · report</span>
+            <span class="sample-chip">callout · tip</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Settings sections</div>
+            <div class="panel-tag">정리된 구조</div>
+          </div>
+          <div class="settings-section">
+            <strong>Toolbar</strong>
+            <span>위치, 접기, preset, favorite row</span>
+          </div>
+          <div class="setting-row">
+            <div class="row-copy">
+              <strong>Show floating glass toolbar</strong>
+              <span>문서 위 고정 편집 도구</span>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-section">
+            <strong>Selection Tools</strong>
+            <span>선택 영역 미니 툴바와 인라인 작업</span>
+          </div>
+          <div class="setting-row">
+            <div class="row-copy">
+              <strong>Show selection mini toolbar</strong>
+              <span>텍스트 선택 시 표시</span>
+            </div>
+            <div class="toggle"></div>
+          </div>
+          <div class="settings-section">
+            <strong>Graphite Helpers</strong>
+            <span>테마 전용 기능과 미리보기</span>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

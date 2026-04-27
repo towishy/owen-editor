@@ -381,7 +381,10 @@ export default class OwenEditorPlugin extends Plugin {
     this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
     this.registerDomEvent(document, "mouseup", () => this.updateSelectionToolbar());
     this.registerDomEvent(document, "keyup", () => this.updateSelectionToolbar());
-    this.app.workspace.onLayoutReady(() => this.updateToolbarContentOffset());
+    this.app.workspace.onLayoutReady(() => {
+      this.updateToolbarContentOffset();
+      this.updateSelectionToolbar();
+    });
   }
 
   onunload() {
@@ -500,8 +503,11 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private getActiveEditor(): Editor | null {
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return view?.editor ?? null;
+    return this.getActiveMarkdownView()?.editor ?? null;
+  }
+
+  private getActiveMarkdownView(): MarkdownView | null {
+    return this.app.workspace.getActiveViewOfType(MarkdownView);
   }
 
   private refreshStatusBarButton() {
@@ -547,36 +553,54 @@ export default class OwenEditorPlugin extends Plugin {
       return;
     }
 
-    const editor = this.getActiveEditor();
+    const activeMarkdownView = this.getActiveMarkdownView();
+    const editor = activeMarkdownView?.editor;
     if (!editor || !editor.getSelection()) {
       this.selectionToolbarEl.removeClass("is-visible");
       return;
     }
 
-    const rect = this.getSelectionRect();
+    const rect = this.getSelectionRect(activeMarkdownView.contentEl);
     if (!rect) {
       this.selectionToolbarEl.removeClass("is-visible");
       return;
     }
 
     const toolbarRect = this.selectionToolbarEl.getBoundingClientRect();
-    const left = Math.min(window.innerWidth - toolbarRect.width - 12, Math.max(12, rect.left + rect.width / 2 - toolbarRect.width / 2));
-    const top = Math.max(12, rect.top - toolbarRect.height - 10);
+    const viewRect = activeMarkdownView.contentEl.getBoundingClientRect();
+    const viewportLeft = Math.max(12, viewRect.left + 12);
+    const viewportRight = Math.min(window.innerWidth - 12, viewRect.right - 12);
+    const minTop = Math.max(12, viewRect.top + 8);
+    const maxTop = Math.min(window.innerHeight - toolbarRect.height - 12, viewRect.bottom - toolbarRect.height - 8);
+    const availableAbove = rect.top - minTop;
+    const availableBelow = maxTop - rect.bottom;
+    const showBelow = availableAbove < toolbarRect.height + 12 && availableBelow > availableAbove;
+    const preferredTop = showBelow ? rect.bottom + 10 : rect.top - toolbarRect.height - 10;
+    const preferredLeft = rect.left + rect.width / 2 - toolbarRect.width / 2;
+    const left = Math.min(viewportRight - toolbarRect.width, Math.max(viewportLeft, preferredLeft));
+    const top = Math.min(maxTop, Math.max(minTop, preferredTop));
 
     this.selectionToolbarEl.style.setProperty("left", `${Math.round(left)}px`);
     this.selectionToolbarEl.style.setProperty("top", `${Math.round(top)}px`);
+    this.selectionToolbarEl.toggleClass("is-below", showBelow);
+    this.selectionToolbarEl.toggleClass("is-above", !showBelow);
     this.selectionToolbarEl.addClass("is-visible");
   }
 
-  private getSelectionRect() {
+  private getSelectionRect(container: HTMLElement) {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
       return null;
     }
 
     const range = selection.getRangeAt(0);
+    if (!container.contains(range.commonAncestorContainer)) {
+      return null;
+    }
+
     const rects = Array.from(range.getClientRects()).filter((rect) => rect.width > 0 && rect.height > 0);
-    return rects[0] ?? range.getBoundingClientRect();
+    const rect = rects[0] ?? range.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0 ? rect : null;
   }
 
   private createSelectionToolbarButton(toolbar: HTMLElement, command: EditorCommand) {
@@ -592,6 +616,7 @@ export default class OwenEditorPlugin extends Plugin {
     this.registerDomEvent(button, "click", () => {
       this.runCommand(command);
       this.selectionToolbarEl?.removeClass("is-visible");
+      window.setTimeout(() => this.updateSelectionToolbar(), 80);
     });
   }
 
@@ -1217,6 +1242,11 @@ class OwenEditorPaletteModal extends Modal {
       this.render();
     });
 
+    this.contentEl.createDiv({
+      cls: "owen-editor-palette-context",
+      text: this.initialCategory ? `${this.initialCategory} tools` : "Search results are prioritized above grouped browsing."
+    });
+
     const commands = this.plugin.getCommands().filter((command) => {
       const haystack = getCommandSearchText(command);
       return (!this.initialCategory || command.category === this.initialCategory) && haystack.includes(this.query);
@@ -1227,8 +1257,9 @@ class OwenEditorPaletteModal extends Modal {
       .filter((command) => getCommandSearchText(command).includes(this.query));
 
     if (recentCommands.length > 0) {
-      this.contentEl.createEl("h3", { text: "Recent", cls: "owen-editor-group-title" });
-      this.renderCommandGrid(recentCommands.slice(0, 6));
+      const recentSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
+      recentSection.createEl("h3", { text: "Recent", cls: "owen-editor-group-title" });
+      this.renderCommandGrid(recentSection, recentCommands.slice(0, 6));
     }
 
     for (const category of ["Basic Markdown", "Selection", "Links", "Blocks", "Tables", "Owen Graphite"] as CommandCategory[]) {
@@ -1241,21 +1272,22 @@ class OwenEditorPaletteModal extends Modal {
         continue;
       }
 
-      this.contentEl.createEl("h3", { text: category, cls: "owen-editor-group-title" });
+      const section = this.contentEl.createDiv({ cls: `owen-editor-command-section mod-${category.toLowerCase().replace(/\s+/g, "-")}` });
+      section.createEl("h3", { text: category, cls: "owen-editor-group-title" });
       const commandGroups = [...new Set(groupCommands.map((command) => command.group ?? category))];
       for (const commandGroup of commandGroups) {
         if (commandGroups.length > 1) {
-          this.contentEl.createEl("h4", { text: commandGroup, cls: "owen-editor-subgroup-title" });
+          section.createEl("h4", { text: commandGroup, cls: "owen-editor-subgroup-title" });
         }
-        this.renderCommandGrid(groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup));
+        this.renderCommandGrid(section, groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup));
       }
     }
 
     searchInput.focus();
   }
 
-  private renderCommandGrid(commands: EditorCommand[]) {
-    const grid = this.contentEl.createDiv({ cls: "owen-editor-command-grid" });
+  private renderCommandGrid(container: HTMLElement, commands: EditorCommand[]) {
+    const grid = container.createDiv({ cls: "owen-editor-command-grid" });
     for (const command of commands) {
       const item = grid.createDiv({ cls: "owen-editor-command-item" });
       const button = item.createEl("button", {
@@ -1264,7 +1296,12 @@ class OwenEditorPaletteModal extends Modal {
       });
       const icon = button.createSpan({ cls: "owen-editor-command-icon" });
       setIcon(icon, command.icon);
-      button.createSpan({ text: command.name, cls: "owen-editor-command-label" });
+      const copy = button.createDiv({ cls: "owen-editor-command-copy" });
+      copy.createSpan({ text: command.name, cls: "owen-editor-command-label" });
+      const preview = getCommandPreview(command);
+      if (preview) {
+        copy.createSpan({ text: preview, cls: "owen-editor-command-preview" });
+      }
       button.addEventListener("click", () => {
         this.plugin.runCommand(command);
         this.close();
@@ -1330,6 +1367,28 @@ function getCommandSearchAliases(command: EditorCommand) {
   }
 
   return aliases;
+}
+
+function getCommandPreview(command: EditorCommand) {
+  if (command.id === "wrap-graphite-kbd") {
+    return "kbd · Cmd+K";
+  }
+  if (command.id === "wrap-graphite-blur") {
+    return "blur · hidden text";
+  }
+  if (command.id.includes("graphite") && command.id.includes("table")) {
+    return "Graphite table preset";
+  }
+  if (command.id.includes("callout")) {
+    return command.category === "Owen Graphite" ? "Graphite callout sample" : "Obsidian callout";
+  }
+  if (command.id.includes("template")) {
+    return "document template";
+  }
+  if (command.id.includes("highlight") || command.id.includes("mark")) {
+    return "==highlight==";
+  }
+  return "";
 }
 
 class OwenEditorTableBuilderModal extends Modal {
@@ -1493,7 +1552,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
+    containerEl.addClass("owen-editor-settings-tab");
     containerEl.createEl("h2", { text: "Owen Editor" });
+    this.createSettingsSection("Toolbar", "위치, 접기, 프리셋, 즐겨찾기 행을 관리합니다.");
 
     new Setting(containerEl)
       .setName("Show floating glass toolbar")
@@ -1502,26 +1563,6 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.showFloatingToolbar)
         .onChange(async (value) => {
           this.plugin.settings.showFloatingToolbar = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Show selection mini toolbar")
-      .setDesc("텍스트 선택 시 굵게, 기울임, 강조, 링크, kbd, blur 도구를 선택 영역 근처에 표시합니다.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.showSelectionToolbar)
-        .onChange(async (value) => {
-          this.plugin.settings.showSelectionToolbar = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Show status bar button")
-      .setDesc("상태바에서 Owen Editor 팔레트를 빠르게 엽니다.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.showStatusBarButton)
-        .onChange(async (value) => {
-          this.plugin.settings.showStatusBarButton = value;
           await this.plugin.saveSettings();
         }));
 
@@ -1572,6 +1613,32 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    this.createSettingsSection("Selection Tools", "선택한 텍스트 바로 옆에서 쓰는 인라인 작업입니다.");
+
+    new Setting(containerEl)
+      .setName("Show selection mini toolbar")
+      .setDesc("텍스트 선택 시 굵게, 기울임, 강조, 링크, kbd, blur 도구를 선택 영역 근처에 표시합니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.showSelectionToolbar)
+        .onChange(async (value) => {
+          this.plugin.settings.showSelectionToolbar = value;
+          await this.plugin.saveSettings();
+        }));
+
+    this.createSettingsSection("Shortcuts", "상태바와 빠른 실행 진입점을 설정합니다.");
+
+    new Setting(containerEl)
+      .setName("Show status bar button")
+      .setDesc("상태바에서 Owen Editor 팔레트를 빠르게 엽니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.showStatusBarButton)
+        .onChange(async (value) => {
+          this.plugin.settings.showStatusBarButton = value;
+          await this.plugin.saveSettings();
+        }));
+
+    this.createSettingsSection("Graphite Helpers", "Owen Graphite 전용 삽입물의 출력과 안내를 설정합니다.");
+
     new Setting(containerEl)
       .setName("Prefer Owen Graphite HTML tables")
       .setDesc("보고서형 표 명령에서 Owen Graphite CSS 클래스를 포함한 HTML 표를 사용합니다.")
@@ -1591,6 +1658,8 @@ class OwenEditorSettingTab extends PluginSettingTab {
           this.plugin.settings.showGraphiteThemeNotice = value;
           await this.plugin.saveSettings();
         }));
+
+    this.createSettingsSection("Favorites", "팔레트의 별 버튼으로 고정한 명령을 정리합니다.");
 
     new Setting(containerEl)
       .setName("Toolbar favorites")
@@ -1639,6 +1708,12 @@ class OwenEditorSettingTab extends PluginSettingTab {
         });
       }
     }
+  }
+
+  private createSettingsSection(title: string, description: string) {
+    const section = this.containerEl.createDiv({ cls: "owen-editor-settings-section" });
+    section.createEl("h3", { text: title });
+    section.createEl("p", { text: description });
   }
 }
 

@@ -8,11 +8,12 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 
 - Floating glass toolbar for common Markdown editing actions.
 - Selection mini toolbar for quick inline formatting near selected text.
+- Smart selection toolbar placement that avoids editor edges and flips below selected text when needed.
 - Toolbar position controls for top or bottom placement, with a collapsible compact state.
 - Toolbar presets for minimal, writer, report, full, and custom workflows.
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands, including Korean and English search aliases.
-- Recent commands appear at the top of the palette for faster repeated work.
+- Palette sections emphasize search context, recent commands, grouped browsing, and small output previews for commands that insert visible Graphite or Markdown snippets.
 - Highlight color picker with recommended soft colors for selected text.
 - Favorites that pin frequently used commands directly onto the floating toolbar.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
@@ -48,7 +49,7 @@ Open the all-commands palette and use the star buttons to pin frequent actions t
 
 Recent commands appear above the grouped command list after you use commands. Use the settings tab to reorder pinned favorites, remove items, or apply a toolbar preset.
 
-Select text in the editor to show the selection mini toolbar near the highlighted text. It provides quick access to bold, italic, highlight, link, Owen Graphite kbd, and Owen Graphite blur actions without moving to the fixed toolbar.
+Select text in the editor to show the selection mini toolbar near the highlighted text. It provides quick access to bold, italic, highlight, link, Owen Graphite kbd, and Owen Graphite blur actions without moving to the fixed toolbar. The mini toolbar stays within the active Markdown pane and flips below the selection when there is not enough room above it.
 
 Use the table builder from the Tables palette when you need a custom number of rows and columns. The builder shows the generated Markdown or HTML before insertion and can convert pasted CSV or TSV data. Markdown output works in any vault; Owen Graphite presets insert theme-classed HTML for report-ready tables.
 
@@ -65,6 +66,8 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
 - Toolbar favorites: stores command IDs pinned to the floating toolbar. This is usually managed with the star buttons in the palette.
 - Favorite order: move pinned commands up or down, or remove them without editing raw IDs.
+
+Settings are grouped by toolbar behavior, selection tools, shortcuts, Graphite helpers, and favorites so the growing command surface stays easier to scan.
 
 ## Installation
 
