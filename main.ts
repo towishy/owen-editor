@@ -9,6 +9,7 @@ interface OwenEditorSettings {
   toolbarPosition: ToolbarPosition;
   toolbarPreset: ToolbarPreset;
   toolbarCollapsed: boolean;
+  toolbarScale: number;
   mobileCompactToolbar: boolean;
   favoriteCommandIds: string[];
   recentCommandIds: string[];
@@ -23,6 +24,7 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   toolbarPosition: "top",
   toolbarPreset: "full",
   toolbarCollapsed: false,
+  toolbarScale: 100,
   mobileCompactToolbar: true,
   favoriteCommandIds: [],
   recentCommandIds: []
@@ -31,6 +33,8 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
 type ToolbarPosition = "top" | "bottom";
 type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
+
+const clampToolbarScale = (value: number) => Math.min(110, Math.max(80, Number.isFinite(value) ? value : 100));
 
 interface EditorCommand {
   id: string;
@@ -364,6 +368,7 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.addSettingTab(new OwenEditorSettingTab(this.app, this));
+    this.applyToolbarScale();
     this.refreshFloatingToolbar();
     this.refreshSelectionToolbar();
     this.refreshStatusBarButton();
@@ -389,6 +394,7 @@ export default class OwenEditorPlugin extends Plugin {
 
   onunload() {
     this.clearToolbarContentOffset();
+    document.body.style.removeProperty("--owen-editor-toolbar-scale");
     this.selectionToolbarEl?.remove();
     this.toolbarEl?.remove();
     this.statusBarItem?.remove();
@@ -396,13 +402,20 @@ export default class OwenEditorPlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings.toolbarScale = clampToolbarScale(this.settings.toolbarScale);
   }
 
   async saveSettings() {
+    this.settings.toolbarScale = clampToolbarScale(this.settings.toolbarScale);
     await this.saveData(this.settings);
+    this.applyToolbarScale();
     this.refreshFloatingToolbar();
     this.refreshSelectionToolbar();
     this.refreshStatusBarButton();
+  }
+
+  private applyToolbarScale() {
+    document.body.style.setProperty("--owen-editor-toolbar-scale", `${clampToolbarScale(this.settings.toolbarScale) / 100}`);
   }
 
   getCommands() {
@@ -1599,6 +1612,18 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.toolbarCollapsed)
         .onChange(async (value) => {
           this.plugin.settings.toolbarCollapsed = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Toolbar scale")
+      .setDesc("본문 크기에 맞춰 플로팅 툴바와 선택 미니 툴바의 버튼, 아이콘, 간격을 조절합니다.")
+      .addSlider((slider) => slider
+        .setLimits(80, 110, 5)
+        .setValue(this.plugin.settings.toolbarScale)
+        .setDynamicTooltip()
+        .onChange(async (value) => {
+          this.plugin.settings.toolbarScale = value;
           await this.plugin.saveSettings();
         }));
 

@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-04-28
+
+### Added
+
+- Added a toolbar scale setting for resizing the floating toolbar and selection mini toolbar.
+
 ## [0.6.2] - 2026-04-28
 
 ### Fixed
@@ -115,7 +121,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.2...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.3...HEAD
+[0.6.3]: https://github.com/towishy/owen-editor/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/towishy/owen-editor/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/towishy/owen-editor/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/towishy/owen-editor/compare/0.5.0...0.6.0

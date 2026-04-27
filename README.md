@@ -1,9 +1,9 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.2](https://img.shields.io/badge/release-v0.6.2-0b8bdc?style=flat-square)
+![release v0.6.3](https://img.shields.io/badge/release-v0.6.3-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
-![Settings 9 options](https://img.shields.io/badge/Settings-9%20options-0f9b8e?style=flat-square)
+![Settings 10 options](https://img.shields.io/badge/Settings-10%20options-0f9b8e?style=flat-square)
 
 Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
 
@@ -70,6 +70,7 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Toolbar position: pins the toolbar to the top or bottom of the editor.
 - Toolbar preset: applies minimal, writer, report, full, or custom toolbar layouts.
 - Start with toolbar collapsed: keeps the toolbar as a compact single-button launcher until expanded.
+- Toolbar scale: adjusts the floating toolbar and selection mini toolbar size from 80% to 110%.
 - Compact toolbar on mobile: reduces button size and allows wrapping on mobile devices.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
