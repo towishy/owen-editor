@@ -1,0 +1,11 @@
+{
+  "id": "owen-editor",
+  "name": "Owen Editor",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Markdown editing toolbar with Owen Graphite report and table helpers.",
+  "author": "Owen",
+  "authorUrl": "https://github.com/towishy",
+  "fundingUrl": "https://github.com/sponsors/towishy",
+  "isDesktopOnly": false
+}
