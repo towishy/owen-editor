@@ -2,6 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 interface OwenEditorSettings {
   showFloatingToolbar: boolean;
+  showSelectionToolbar: boolean;
   showStatusBarButton: boolean;
   insertHtmlTables: boolean;
   showGraphiteThemeNotice: boolean;
@@ -15,6 +16,7 @@ interface OwenEditorSettings {
 
 const DEFAULT_SETTINGS: OwenEditorSettings = {
   showFloatingToolbar: true,
+  showSelectionToolbar: true,
   showStatusBarButton: true,
   insertHtmlTables: true,
   showGraphiteThemeNotice: true,
@@ -332,6 +334,7 @@ export default class OwenEditorPlugin extends Plugin {
   settings: OwenEditorSettings;
   private commands: EditorCommand[] = [];
   private toolbarEl?: HTMLElement;
+  private selectionToolbarEl?: HTMLElement;
   private statusBarItem?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
   private graphiteNoticeShown = false;
@@ -362,15 +365,28 @@ export default class OwenEditorPlugin extends Plugin {
 
     this.addSettingTab(new OwenEditorSettingTab(this.app, this));
     this.refreshFloatingToolbar();
+    this.refreshSelectionToolbar();
     this.refreshStatusBarButton();
     this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
-    this.registerEvent(this.app.workspace.on("layout-change", () => this.updateToolbarContentOffset()));
-    this.registerDomEvent(window, "resize", () => this.updateToolbarContentOffset());
+    this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateSelectionToolbar()));
+    this.registerEvent(this.app.workspace.on("layout-change", () => {
+      this.updateToolbarContentOffset();
+      this.updateSelectionToolbar();
+    }));
+    this.registerDomEvent(window, "resize", () => {
+      this.updateToolbarContentOffset();
+      this.updateSelectionToolbar();
+    });
+    this.registerDomEvent(window, "scroll", () => this.updateSelectionToolbar(), true);
+    this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
+    this.registerDomEvent(document, "mouseup", () => this.updateSelectionToolbar());
+    this.registerDomEvent(document, "keyup", () => this.updateSelectionToolbar());
     this.app.workspace.onLayoutReady(() => this.updateToolbarContentOffset());
   }
 
   onunload() {
     this.clearToolbarContentOffset();
+    this.selectionToolbarEl?.remove();
     this.toolbarEl?.remove();
     this.statusBarItem?.remove();
   }
@@ -382,6 +398,7 @@ export default class OwenEditorPlugin extends Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
     this.refreshFloatingToolbar();
+    this.refreshSelectionToolbar();
     this.refreshStatusBarButton();
   }
 
@@ -500,6 +517,82 @@ export default class OwenEditorPlugin extends Plugin {
     this.statusBarItem.setText("Owen Editor");
     this.statusBarItem.setAttr("aria-label", "Open Owen Editor palette");
     this.registerDomEvent(this.statusBarItem, "click", () => this.openPalette());
+  }
+
+  private refreshSelectionToolbar() {
+    this.selectionToolbarEl?.remove();
+    this.selectionToolbarEl = undefined;
+
+    if (!this.settings.showSelectionToolbar) {
+      return;
+    }
+
+    const toolbar = document.body.createDiv({ cls: "owen-editor-selection-toolbar" });
+    toolbar.setAttr("aria-label", "Owen Editor selection toolbar");
+    toolbar.addEventListener("mousedown", (event) => event.preventDefault());
+
+    for (const id of ["bold-selection", "italic-selection", "mark-selection", "insert-link", "wrap-graphite-kbd", "wrap-graphite-blur"]) {
+      const command = this.commands.find((candidate) => candidate.id === id);
+      if (command) {
+        this.createSelectionToolbarButton(toolbar, command);
+      }
+    }
+
+    this.selectionToolbarEl = toolbar;
+    this.updateSelectionToolbar();
+  }
+
+  private updateSelectionToolbar() {
+    if (!this.settings.showSelectionToolbar || !this.selectionToolbarEl) {
+      return;
+    }
+
+    const editor = this.getActiveEditor();
+    if (!editor || !editor.getSelection()) {
+      this.selectionToolbarEl.removeClass("is-visible");
+      return;
+    }
+
+    const rect = this.getSelectionRect();
+    if (!rect) {
+      this.selectionToolbarEl.removeClass("is-visible");
+      return;
+    }
+
+    const toolbarRect = this.selectionToolbarEl.getBoundingClientRect();
+    const left = Math.min(window.innerWidth - toolbarRect.width - 12, Math.max(12, rect.left + rect.width / 2 - toolbarRect.width / 2));
+    const top = Math.max(12, rect.top - toolbarRect.height - 10);
+
+    this.selectionToolbarEl.style.setProperty("left", `${Math.round(left)}px`);
+    this.selectionToolbarEl.style.setProperty("top", `${Math.round(top)}px`);
+    this.selectionToolbarEl.addClass("is-visible");
+  }
+
+  private getSelectionRect() {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      return null;
+    }
+
+    const range = selection.getRangeAt(0);
+    const rects = Array.from(range.getClientRects()).filter((rect) => rect.width > 0 && rect.height > 0);
+    return rects[0] ?? range.getBoundingClientRect();
+  }
+
+  private createSelectionToolbarButton(toolbar: HTMLElement, command: EditorCommand) {
+    const button = toolbar.createEl("button", {
+      cls: `owen-editor-selection-toolbar-button mod-${command.category.toLowerCase().replace(/\s+/g, "-")}`,
+      attr: {
+        type: "button",
+        title: command.name,
+        "aria-label": command.name
+      }
+    });
+    setIcon(button.createSpan(), command.icon);
+    this.registerDomEvent(button, "click", () => {
+      this.runCommand(command);
+      this.selectionToolbarEl?.removeClass("is-visible");
+    });
   }
 
   private refreshFloatingToolbar() {
@@ -1409,6 +1502,16 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.showFloatingToolbar)
         .onChange(async (value) => {
           this.plugin.settings.showFloatingToolbar = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show selection mini toolbar")
+      .setDesc("텍스트 선택 시 굵게, 기울임, 강조, 링크, kbd, blur 도구를 선택 영역 근처에 표시합니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.showSelectionToolbar)
+        .onChange(async (value) => {
+          this.plugin.settings.showSelectionToolbar = value;
           await this.plugin.saveSettings();
         }));
 

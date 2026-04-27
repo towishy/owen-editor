@@ -7,6 +7,7 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 ## Features
 
 - Floating glass toolbar for common Markdown editing actions.
+- Selection mini toolbar for quick inline formatting near selected text.
 - Toolbar position controls for top or bottom placement, with a collapsible compact state.
 - Toolbar presets for minimal, writer, report, full, and custom workflows.
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
@@ -47,11 +48,14 @@ Open the all-commands palette and use the star buttons to pin frequent actions t
 
 Recent commands appear above the grouped command list after you use commands. Use the settings tab to reorder pinned favorites, remove items, or apply a toolbar preset.
 
+Select text in the editor to show the selection mini toolbar near the highlighted text. It provides quick access to bold, italic, highlight, link, Owen Graphite kbd, and Owen Graphite blur actions without moving to the fixed toolbar.
+
 Use the table builder from the Tables palette when you need a custom number of rows and columns. The builder shows the generated Markdown or HTML before insertion and can convert pasted CSV or TSV data. Markdown output works in any vault; Owen Graphite presets insert theme-classed HTML for report-ready tables.
 
 ## Settings
 
 - Show floating glass toolbar: toggles the horizontal editor toolbar.
+- Show selection mini toolbar: shows inline formatting tools near selected text.
 - Show status bar button: adds an `Owen Editor` status bar shortcut.
 - Toolbar position: pins the toolbar to the top or bottom of the editor.
 - Toolbar preset: applies minimal, writer, report, full, or custom toolbar layouts.

@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-27
+
+### Added
+
+- Selection mini toolbar for quick inline formatting near selected text.
+- Setting to enable or disable the selection mini toolbar.
+
 ## [0.4.1] - 2026-04-27
 
 ### Added
@@ -81,7 +88,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.4.1...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/towishy/owen-editor/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/towishy/owen-editor/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/towishy/owen-editor/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/towishy/owen-editor/compare/0.3.0...0.3.1
