@@ -7,6 +7,18 @@ const args = new Set(process.argv.slice(2));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const version = manifest.version;
 
+function getReleaseNotes(releaseVersion) {
+  const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
+  const heading = `## [${releaseVersion}]`;
+  const start = changelog.indexOf(heading);
+  if (start === -1) {
+    throw new Error(`CHANGELOG.md does not include ${heading}`);
+  }
+
+  const next = changelog.indexOf("\n## [", start + heading.length);
+  return changelog.slice(start, next === -1 ? undefined : next).trim();
+}
+
 function run(command, commandArgs) {
   console.log(`$ ${command} ${commandArgs.join(" ")}`);
   execFileSync(command, commandArgs, { cwd: root, stdio: "inherit" });
@@ -36,5 +48,5 @@ run("gh", [
   "--title",
   `Owen Editor ${version}`,
   "--notes",
-  `Automated release for Owen Editor ${version}.\n\nValidation:\n- npm run build\n- npm run release:check\n- git diff --check`
+  `${getReleaseNotes(version)}\n\nValidation:\n- npm run build\n- npm run release:check\n- git diff --check`
 ]);

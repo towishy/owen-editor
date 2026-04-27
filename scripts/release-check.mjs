@@ -24,6 +24,7 @@ const manifest = readJson("manifest.json");
 const versions = readJson("versions.json");
 const readme = readText("README.md");
 const license = readText("LICENSE");
+const changelog = readText("CHANGELOG.md");
 
 assert(packageJson.version === manifest.version, `Version mismatch: package.json ${packageJson.version}, manifest.json ${manifest.version}`);
 assert(packageLock.version === packageJson.version, `package-lock.json root version must be ${packageJson.version}`);
@@ -34,6 +35,9 @@ assert(manifest.name === "Owen Editor", "manifest name must be Owen Editor");
 assert(license.includes("MIT License"), "LICENSE must contain the MIT License text");
 assert(readme.includes("screenshots/owen-editor-ui-preview.png"), "README.md must include the UI preview image");
 assert(existsSync(resolve(root, "screenshots/owen-editor-ui-preview.png")), "README preview image must exist");
+assert(changelog.includes("## [Unreleased]"), "CHANGELOG.md must include an Unreleased section");
+assert(changelog.includes(`## [${manifest.version}]`), `CHANGELOG.md must include an entry for ${manifest.version}`);
+assert(changelog.includes(`[${manifest.version}]:`), `CHANGELOG.md must include a compare link for ${manifest.version}`);
 
 for (const asset of requiredAssets) {
   const stats = statSync(resolve(root, asset));

@@ -83,6 +83,17 @@ npm run release:check
 npm run release:preflight
 ```
 
+## Release Process
+
+Before every release:
+
+- Move completed notes from `CHANGELOG.md` `Unreleased` into a new version section.
+- Update `package.json`, `package-lock.json`, `manifest.json`, and `versions.json` to the same version.
+- Run `npm run release:preflight`.
+- Use `npm run release:create` only after the changelog entry and release assets are ready.
+
+`npm run release:check` verifies version alignment, release assets, license, README preview image, and the changelog entry for the current manifest version.
+
 For live rebuilds during plugin development:
 
 ```bash
