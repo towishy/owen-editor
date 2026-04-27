@@ -1,9 +1,9 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.3](https://img.shields.io/badge/release-v0.6.3-0b8bdc?style=flat-square)
+![release v0.6.4](https://img.shields.io/badge/release-v0.6.4-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
-![Settings 10 options](https://img.shields.io/badge/Settings-10%20options-0f9b8e?style=flat-square)
+![Settings 11 options](https://img.shields.io/badge/Settings-11%20options-0f9b8e?style=flat-square)
 
 Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
 
@@ -24,7 +24,7 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands, including Korean and English search aliases.
 - Palette sections emphasize search context, recent commands, grouped browsing, and small output previews for commands that insert visible Graphite or Markdown snippets.
 - Highlight color picker with recommended soft colors for selected text.
-- Favorites that pin frequently used commands directly onto the floating toolbar.
+- Favorites that pin frequently used commands directly onto the floating toolbar, with display modes for always visible, hover reveal, or hidden rows.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
 - Table builder with live preview, custom row/column counts, and CSV/TSV paste conversion.
 - Document templates for executive summaries, comparison reports, risk reviews, and meeting notes.
@@ -70,7 +70,8 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Toolbar position: pins the toolbar to the top or bottom of the editor.
 - Toolbar preset: applies minimal, writer, report, full, or custom toolbar layouts.
 - Start with toolbar collapsed: keeps the toolbar as a compact single-button launcher until expanded.
-- Toolbar scale: adjusts the floating toolbar and selection mini toolbar size from 80% to 110%.
+- Toolbar scale: adjusts the floating toolbar and selection mini toolbar size from 80% to 110%, with automatic downscaling in narrow document panes.
+- Favorite row display: shows pinned favorite commands always, on toolbar hover/focus, or hides the row.
 - Compact toolbar on mobile: reduces button size and allows wrapping on mobile devices.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.

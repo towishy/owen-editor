@@ -10,6 +10,7 @@ interface OwenEditorSettings {
   toolbarPreset: ToolbarPreset;
   toolbarCollapsed: boolean;
   toolbarScale: number;
+  favoriteDisplay: FavoriteDisplayMode;
   mobileCompactToolbar: boolean;
   favoriteCommandIds: string[];
   recentCommandIds: string[];
@@ -24,7 +25,8 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   toolbarPosition: "top",
   toolbarPreset: "full",
   toolbarCollapsed: false,
-  toolbarScale: 100,
+  toolbarScale: 90,
+  favoriteDisplay: "hover",
   mobileCompactToolbar: true,
   favoriteCommandIds: [],
   recentCommandIds: []
@@ -33,8 +35,22 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
 type ToolbarPosition = "top" | "bottom";
 type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
+type FavoriteDisplayMode = "always" | "hover" | "hidden";
 
 const clampToolbarScale = (value: number) => Math.min(110, Math.max(80, Number.isFinite(value) ? value : 100));
+const getAdaptiveToolbarScale = (scale: number, viewWidth?: number) => {
+  const configuredScale = clampToolbarScale(scale);
+  if (viewWidth === undefined) {
+    return configuredScale;
+  }
+  if (viewWidth < 520) {
+    return Math.min(configuredScale, 85);
+  }
+  if (viewWidth < 760) {
+    return Math.min(configuredScale, 90);
+  }
+  return configuredScale;
+};
 
 interface EditorCommand {
   id: string;
@@ -403,6 +419,9 @@ export default class OwenEditorPlugin extends Plugin {
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     this.settings.toolbarScale = clampToolbarScale(this.settings.toolbarScale);
+    if (!["always", "hover", "hidden"].includes(this.settings.favoriteDisplay)) {
+      this.settings.favoriteDisplay = DEFAULT_SETTINGS.favoriteDisplay;
+    }
   }
 
   async saveSettings() {
@@ -414,8 +433,8 @@ export default class OwenEditorPlugin extends Plugin {
     this.refreshStatusBarButton();
   }
 
-  private applyToolbarScale() {
-    document.body.style.setProperty("--owen-editor-toolbar-scale", `${clampToolbarScale(this.settings.toolbarScale) / 100}`);
+  private applyToolbarScale(viewWidth?: number) {
+    document.body.style.setProperty("--owen-editor-toolbar-scale", `${getAdaptiveToolbarScale(this.settings.toolbarScale, viewWidth) / 100}`);
   }
 
   getCommands() {
@@ -645,7 +664,7 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     const toolbar = document.body.createDiv({
-      cls: `owen-editor-glass-toolbar mod-${this.settings.toolbarPosition}${this.settings.toolbarCollapsed ? " is-collapsed" : ""}${this.settings.mobileCompactToolbar ? " is-mobile-compact" : ""}`
+      cls: `owen-editor-glass-toolbar mod-${this.settings.toolbarPosition} is-favorites-${this.settings.favoriteDisplay}${this.settings.toolbarCollapsed ? " is-collapsed" : ""}${this.settings.mobileCompactToolbar ? " is-mobile-compact" : ""}`
     });
     toolbar.setAttr("aria-label", "Owen Editor toolbar");
 
@@ -679,7 +698,7 @@ export default class OwenEditorPlugin extends Plugin {
       .map((id) => this.commands.find((command) => command.id === id))
       .filter((command): command is EditorCommand => Boolean(command));
 
-    if (favoriteCommands.length > 0) {
+    if (favoriteCommands.length > 0 && this.settings.favoriteDisplay !== "hidden") {
       const favoriteRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-favorites-row" });
       for (const command of favoriteCommands.slice(0, 8)) {
         this.createToolbarButton(favoriteRow, command, true);
@@ -733,6 +752,7 @@ export default class OwenEditorPlugin extends Plugin {
     if (!viewEl) {
       document.body.style.removeProperty("--owen-editor-toolbar-left");
       document.body.style.removeProperty("--owen-editor-toolbar-max-width");
+      this.applyToolbarScale();
       return;
     }
 
@@ -743,6 +763,7 @@ export default class OwenEditorPlugin extends Plugin {
 
     document.body.style.setProperty("--owen-editor-toolbar-left", `${center}px`);
     document.body.style.setProperty("--owen-editor-toolbar-max-width", `${maxWidth}px`);
+    this.applyToolbarScale(rect.width);
   }
 
   private clearToolbarContentOffset() {
@@ -1617,13 +1638,26 @@ class OwenEditorSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Toolbar scale")
-      .setDesc("본문 크기에 맞춰 플로팅 툴바와 선택 미니 툴바의 버튼, 아이콘, 간격을 조절합니다.")
+      .setDesc("본문 크기에 맞춰 플로팅 툴바와 선택 미니 툴바의 버튼, 아이콘, 간격을 조절합니다. 좁은 문서 pane에서는 자동으로 더 작아집니다.")
       .addSlider((slider) => slider
         .setLimits(80, 110, 5)
         .setValue(this.plugin.settings.toolbarScale)
         .setDynamicTooltip()
         .onChange(async (value) => {
           this.plugin.settings.toolbarScale = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Favorite row display")
+      .setDesc("고정한 즐겨찾기 명령 줄을 항상 표시하거나, 툴바에 포커스/호버될 때만 표시하거나, 숨깁니다.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("always", "Always")
+        .addOption("hover", "On hover")
+        .addOption("hidden", "Hidden")
+        .setValue(this.plugin.settings.favoriteDisplay)
+        .onChange(async (value) => {
+          this.plugin.settings.favoriteDisplay = value as FavoriteDisplayMode;
           await this.plugin.saveSettings();
         }));
 
