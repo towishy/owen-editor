@@ -1,5 +1,10 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
+![release v0.6.2](https://img.shields.io/badge/release-v0.6.2-0b8bdc?style=flat-square)
+![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
+![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
+![Settings 9 options](https://img.shields.io/badge/Settings-9%20options-0f9b8e?style=flat-square)
+
 Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
 
 # Owen Editor
