@@ -197,6 +197,7 @@ export default class OwenEditorPlugin extends Plugin {
   private commands: EditorCommand[] = [];
   private toolbarEl?: HTMLElement;
   private statusBarItem?: HTMLElement;
+  private toolbarResizeObserver?: ResizeObserver;
   private graphiteNoticeShown = false;
 
   async onload() {
@@ -221,9 +222,14 @@ export default class OwenEditorPlugin extends Plugin {
     this.addSettingTab(new OwenEditorSettingTab(this.app, this));
     this.refreshFloatingToolbar();
     this.refreshStatusBarButton();
+    this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
+    this.registerEvent(this.app.workspace.on("layout-change", () => this.updateToolbarContentOffset()));
+    this.registerDomEvent(window, "resize", () => this.updateToolbarContentOffset());
+    this.app.workspace.onLayoutReady(() => this.updateToolbarContentOffset());
   }
 
   onunload() {
+    this.clearToolbarContentOffset();
     this.toolbarEl?.remove();
     this.statusBarItem?.remove();
   }
@@ -300,10 +306,13 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private refreshFloatingToolbar() {
+    this.toolbarResizeObserver?.disconnect();
+    this.toolbarResizeObserver = undefined;
     this.toolbarEl?.remove();
     this.toolbarEl = undefined;
 
     if (!this.settings.showFloatingToolbar) {
+      this.clearToolbarContentOffset();
       return;
     }
 
@@ -361,6 +370,27 @@ export default class OwenEditorPlugin extends Plugin {
     this.registerDomEvent(paletteButton, "click", () => this.openPalette());
 
     this.toolbarEl = toolbar;
+    this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
+    this.toolbarResizeObserver.observe(toolbar);
+    this.updateToolbarContentOffset();
+  }
+
+  private updateToolbarContentOffset() {
+    if (!this.settings.showFloatingToolbar || !this.toolbarEl) {
+      this.clearToolbarContentOffset();
+      return;
+    }
+
+    const toolbarHeight = Math.ceil(this.toolbarEl.getBoundingClientRect().height);
+    document.body.classList.add("owen-editor-toolbar-offset");
+    document.body.style.setProperty("--owen-editor-toolbar-clearance", `${toolbarHeight + 28}px`);
+  }
+
+  private clearToolbarContentOffset() {
+    this.toolbarResizeObserver?.disconnect();
+    this.toolbarResizeObserver = undefined;
+    document.body.classList.remove("owen-editor-toolbar-offset");
+    document.body.style.removeProperty("--owen-editor-toolbar-clearance");
   }
 
   private createToolbarButton(toolbar: HTMLElement, command: EditorCommand, isFavorite = false) {

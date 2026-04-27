@@ -216,6 +216,15 @@ body.is-mobile .owen-editor-toolbar-button::after {
   display: none;
 }
 
+body.owen-editor-toolbar-offset .workspace-leaf-content[data-type="markdown"] .markdown-reading-view .markdown-preview-sizer,
+body.owen-editor-toolbar-offset .workspace-leaf-content[data-type="markdown"] .markdown-source-view .cm-scroller {
+  padding-top: var(--owen-editor-toolbar-clearance, 112px);
+}
+
+body.owen-editor-toolbar-offset .workspace-leaf-content[data-type="markdown"] .markdown-source-view .cm-scroller {
+  scroll-padding-top: var(--owen-editor-toolbar-clearance, 112px);
+}
+
 .owen-editor-palette {
   display: flex;
   flex-direction: column;
