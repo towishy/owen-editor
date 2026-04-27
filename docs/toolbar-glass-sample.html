@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owen Editor Toolbar Glass Sample</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --text: #111827;
+      --muted: #64748b;
+      --line: rgba(148, 163, 184, 0.34);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,250,252,0.94)),
+        radial-gradient(circle at 18% 16%, rgba(191,219,254,0.5), transparent 28%),
+        radial-gradient(circle at 82% 24%, rgba(221,214,254,0.42), transparent 30%),
+        linear-gradient(135deg, #f8fafc, #e2e8f0 54%, #fefce8);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .note {
+      position: absolute;
+      inset: 0;
+      padding: 88px 96px;
+    }
+
+    .note::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 72px;
+      height: 1px;
+      background: rgba(148, 163, 184, 0.36);
+    }
+
+    .crumbs {
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 56px;
+      margin: 176px 0 0 76px;
+      letter-spacing: 0;
+    }
+
+    .panel {
+      position: relative;
+      width: min(1180px, calc(100vw - 112px));
+      display: grid;
+      gap: 26px;
+      z-index: 1;
+    }
+
+    .label {
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-left: 10px;
+    }
+
+    .toolbar {
+      align-items: stretch;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 12px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 5px;
+      justify-self: center;
+      padding: 7px;
+      width: fit-content;
+      max-width: calc(100vw - 112px);
+    }
+
+    .toolbar.glass {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.74), rgba(241,245,249,0.46)),
+        linear-gradient(90deg, rgba(255,255,255,0.26), rgba(255,255,255,0.05));
+      backdrop-filter: blur(22px) saturate(170%);
+      -webkit-backdrop-filter: blur(22px) saturate(170%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        inset 0 -1px 0 rgba(148,163,184,0.14),
+        0 18px 42px rgba(15,23,42,0.18),
+        0 3px 10px rgba(15,23,42,0.08);
+    }
+
+    .toolbar-row {
+      align-items: center;
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .favorites {
+      border-top: 1px solid rgba(100,116,139,0.18);
+      padding-top: 5px;
+    }
+
+    .button {
+      align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(248,250,252,0.38));
+      border: 1px solid rgba(148, 163, 184, 0.38);
+      border-radius: 8px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.76),
+        0 1px 2px rgba(15,23,42,0.08);
+      color: #334155;
+      display: inline-flex;
+      font-size: 17px;
+      font-weight: 700;
+      height: 38px;
+      justify-content: center;
+      line-height: 1;
+      width: 38px;
+    }
+
+    .button.favorite {
+      background: linear-gradient(180deg, rgba(254,243,199,0.66), rgba(255,251,235,0.38));
+      border-color: rgba(245,158,11,0.38);
+      color: #92400e;
+    }
+
+    .button.selection { color: #9d174d; border-color: rgba(244,114,182,0.36); background: rgba(252,231,243,0.48); }
+    .button.links { color: #1d4ed8; border-color: rgba(96,165,250,0.38); background: rgba(219,234,254,0.5); }
+    .button.blocks { color: #854d0e; border-color: rgba(234,179,8,0.34); background: rgba(254,249,195,0.5); }
+    .button.tables { color: #0f766e; border-color: rgba(45,212,191,0.38); background: rgba(204,251,241,0.52); }
+    .button.graphite { color: #6d28d9; border-color: rgba(167,139,250,0.38); background: rgba(237,233,254,0.52); }
+
+    .separator {
+      align-self: stretch;
+      background: rgba(100,116,139,0.24);
+      width: 1px;
+      margin: 6px 4px;
+    }
+
+    .hint {
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.55;
+      margin: 0 auto;
+      max-width: 720px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="note" aria-hidden="true">
+    <div class="crumbs">outputs&nbsp;&nbsp;/&nbsp;&nbsp;drafts&nbsp;&nbsp;/&nbsp;&nbsp;서식테스트</div>
+    <h1>서식테스트</h1>
+  </div>
+
+  <main class="panel">
+    <div>
+      <div class="label">Transparent Glass Toolbar Sample</div>
+      <div class="toolbar glass" role="img" aria-label="Owen Editor transparent glass toolbar preview">
+        <div class="toolbar-row">
+          <span class="button">↶</span><span class="button">↷</span><span class="button">⌫</span>
+          <span class="separator"></span>
+          <span class="button">H₂</span><span class="button">H₃</span><span class="button">H₄</span><span class="button">B</span><span class="button">I</span><span class="button">S</span><span class="button">U</span>
+          <span class="separator"></span>
+          <span class="button">⌁</span><span class="button">⇐</span><span class="button">⇒</span><span class="button">☑</span><span class="button">•</span><span class="button">1</span>
+          <span class="separator"></span>
+          <span class="button selection">▤</span><span class="button links">🔗</span><span class="button blocks">☷</span><span class="button tables">▦</span><span class="button graphite">✧</span><span class="button">▾</span>
+        </div>
+        <div class="toolbar-row favorites">
+          <span class="button favorite">★</span><span class="button favorite">⌨</span><span class="button favorite">▦</span><span class="button favorite">☑</span><span class="button favorite">✧</span><span class="button favorite">▤</span>
+        </div>
+      </div>
+    </div>
+    <p class="hint">현재보다 배경 투명도를 조금 높이고, blur와 내부 하이라이트를 강화한 샘플입니다. 즐겨찾기는 둘째 줄에 남겨서 폭이 늘어나도 기본 툴바가 왼쪽 경계 밖으로 밀리지 않게 합니다.</p>
+  </main>
+</body>
+</html>
