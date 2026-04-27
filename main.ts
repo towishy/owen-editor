@@ -417,6 +417,26 @@ export default class OwenEditorPlugin extends Plugin {
     document.body.classList.toggle("owen-editor-toolbar-top", this.settings.toolbarPosition === "top");
     document.body.classList.toggle("owen-editor-toolbar-bottom", this.settings.toolbarPosition === "bottom");
     document.body.style.setProperty("--owen-editor-toolbar-clearance", `${toolbarHeight + 28}px`);
+    this.updateToolbarDocumentPlacement();
+  }
+
+  private updateToolbarDocumentPlacement() {
+    const activeMarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const viewEl = activeMarkdownView?.contentEl;
+
+    if (!viewEl) {
+      document.body.style.removeProperty("--owen-editor-toolbar-left");
+      document.body.style.removeProperty("--owen-editor-toolbar-max-width");
+      return;
+    }
+
+    const rect = viewEl.getBoundingClientRect();
+    const horizontalInset = 32;
+    const center = Math.round(rect.left + rect.width / 2);
+    const maxWidth = Math.max(320, Math.floor(rect.width - horizontalInset));
+
+    document.body.style.setProperty("--owen-editor-toolbar-left", `${center}px`);
+    document.body.style.setProperty("--owen-editor-toolbar-max-width", `${maxWidth}px`);
   }
 
   private clearToolbarContentOffset() {
@@ -426,6 +446,8 @@ export default class OwenEditorPlugin extends Plugin {
     document.body.classList.remove("owen-editor-toolbar-top");
     document.body.classList.remove("owen-editor-toolbar-bottom");
     document.body.style.removeProperty("--owen-editor-toolbar-clearance");
+    document.body.style.removeProperty("--owen-editor-toolbar-left");
+    document.body.style.removeProperty("--owen-editor-toolbar-max-width");
   }
 
   private createToolbarCollapseButton(container: HTMLElement, collapse: boolean) {

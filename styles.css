@@ -10,8 +10,8 @@
   flex-direction: column;
   flex-wrap: nowrap;
   gap: 5px;
-  left: calc(50% - 72px);
-  max-width: calc(100vw - 112px);
+  left: var(--owen-editor-toolbar-left, 50%);
+  max-width: min(var(--owen-editor-toolbar-max-width, calc(100vw - 112px)), calc(100vw - 112px));
   overflow: visible;
   padding: 7px;
   position: fixed;
