@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.8] - 2026-04-28
+
+### Added
+
+- Added context-aware command recommendations to the Owen Editor palette.
+- Added a Graphite report starter workflow for report scaffolds with metrics and source notes.
+- Added selection table conversion commands for Markdown and Owen Graphite HTML tables.
+- Added favorite presets for writer, research, report, and table-heavy workflows.
+- Added a docs screenshot script for regenerating the README palette sample image.
+
 ## [0.6.7] - 2026-04-28
 
 ### Added
@@ -157,7 +167,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.7...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.8...HEAD
+[0.6.8]: https://github.com/towishy/owen-editor/compare/0.6.7...0.6.8
 [0.6.7]: https://github.com/towishy/owen-editor/compare/0.6.6...0.6.7
 [0.6.6]: https://github.com/towishy/owen-editor/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/towishy/owen-editor/compare/0.6.4...0.6.5

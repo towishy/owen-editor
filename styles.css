@@ -469,6 +469,11 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   border-style: dashed;
 }
 
+.owen-editor-recommended-section {
+  background: rgba(224, 242, 254, 0.34);
+  border-color: rgba(14, 165, 233, 0.28);
+}
+
 .owen-editor-group-title {
   margin: 4px 0 0;
   color: var(--text-muted);
@@ -703,6 +708,12 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-table-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.owen-editor-report-starter {
   display: flex;
   flex-direction: column;
   gap: 10px;

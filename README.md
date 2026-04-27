@@ -1,9 +1,9 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.7](https://img.shields.io/badge/release-v0.6.7-0b8bdc?style=flat-square)
+![release v0.6.8](https://img.shields.io/badge/release-v0.6.8-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
-![Settings 15 options](https://img.shields.io/badge/Settings-15%20options-0f9b8e?style=flat-square)
+![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
 
 Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-ready wiki operations, the Owen Graphite Obsidian theme, and a fast Obsidian editing toolbar.
 
@@ -24,12 +24,16 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands, including Korean and English search aliases.
 - Palette sections emphasize search context, recent commands, grouped browsing, and small output previews for commands that insert visible Graphite or Markdown snippets.
+- Context-aware palette recommendations surface useful commands for selections, tables, code blocks, and Graphite report notes.
 - Highlight color picker with recommended soft colors for selected text.
 - Favorites that pin frequently used commands directly onto the floating toolbar, with display modes for always visible, hover reveal, or hidden rows.
+- Favorite presets switch the toolbar between writer, research, report, and table-heavy workflows.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
 - Table builder with live preview, custom row/column counts, and CSV/TSV paste conversion.
 - Table builder inference for pasted data, including header detection, uneven row normalization, and numeric column alignment.
+- Selection table conversion turns CSV, TSV, or Markdown tables into Markdown or Owen Graphite HTML tables.
 - Document templates for executive summaries, comparison reports, risk reviews, and meeting notes.
+- Graphite report starter creates a report scaffold with frontmatter, summary structure, metrics, and source notes.
 - Table helpers for basic Markdown tables and Owen Graphite report table presets.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
 - A3/PDF-friendly Owen Graphite snippets for source notes, metric rows, and decision matrices.
@@ -87,6 +91,7 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Command feedback: briefly highlights toolbar buttons after a command runs.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
+- Favorite presets: applies writer, research, report, or table-heavy favorite command sets.
 - Toolbar favorites: stores command IDs pinned to the floating toolbar. This is usually managed with the star buttons in the palette.
 - Favorite order: move pinned commands up or down, or remove them without editing raw IDs.
 - Settings JSON: export and import portable toolbar settings across vaults or devices.
@@ -110,6 +115,7 @@ Restart Obsidian or reload plugins, then enable `Owen Editor`.
 ```bash
 npm install
 npm run build
+npm run docs:screenshot
 npm run release:check
 npm run release:preflight
 ```

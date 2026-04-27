@@ -44,6 +44,8 @@ type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
 type FavoriteDisplayMode = "always" | "hover" | "hidden";
 type ToolbarDensity = "compact" | "balanced" | "comfortable" | "custom";
 type ToolbarContext = "default" | "selection" | "table" | "code" | "report";
+type FavoritePreset = "writer" | "research" | "report" | "table-heavy";
+type ReportStarterKind = "executive" | "comparison" | "risk" | "meeting";
 
 const clampToolbarScale = (value: number) => Math.min(110, Math.max(80, Number.isFinite(value) ? value : 100));
 const getAdaptiveToolbarScale = (scale: number, viewWidth?: number) => {
@@ -64,6 +66,20 @@ const TOOLBAR_DENSITY_SETTINGS: Record<Exclude<ToolbarDensity, "custom">, Pick<O
   compact: { toolbarScale: 85, favoriteDisplay: "hidden", mobileCompactToolbar: true },
   balanced: { toolbarScale: 90, favoriteDisplay: "hover", mobileCompactToolbar: true },
   comfortable: { toolbarScale: 100, favoriteDisplay: "always", mobileCompactToolbar: false }
+};
+
+const FAVORITE_PRESETS: Record<FavoritePreset, { name: string; commandIds: string[] }> = {
+  writer: { name: "Writer", commandIds: ["insert-link", "mark-selection", "insert-note-callout", "insert-footnote-reference"] },
+  research: { name: "Research", commandIds: ["insert-wikilink", "insert-footnote-reference", "insert-graphite-reference-list", "insert-graphite-source-note"] },
+  report: { name: "Report", commandIds: ["open-graphite-report-starter", "open-table-builder", "insert-graphite-wide-table", "insert-graphite-summary-callout"] },
+  "table-heavy": { name: "Table-heavy", commandIds: ["open-table-builder", "convert-selection-to-graphite-table", "insert-graphite-wide-table", "insert-graphite-numeric-table"] }
+};
+
+const REPORT_STARTER_OPTIONS: Record<ReportStarterKind, { name: string; template: "executiveSummary" | "comparisonReport" | "riskReview" | "meetingReview"; preset: TableBuilderPreset }> = {
+  executive: { name: "Executive summary", template: "executiveSummary", preset: "wide" },
+  comparison: { name: "Comparison report", template: "comparisonReport", preset: "wide" },
+  risk: { name: "Risk review", template: "riskReview", preset: "risk" },
+  meeting: { name: "Meeting review", template: "meetingReview", preset: "markdown" }
 };
 
 interface EditorCommand {
@@ -584,6 +600,12 @@ export default class OwenEditorPlugin extends Plugin {
     await this.saveSettings();
   }
 
+  async applyFavoritePreset(preset: FavoritePreset) {
+    this.settings.favoriteCommandIds = [...FAVORITE_PRESETS[preset].commandIds];
+    this.settings.toolbarPreset = "custom";
+    await this.saveSettings();
+  }
+
   async replaceSettings(nextSettings: Partial<OwenEditorSettings>) {
     this.settings = Object.assign({}, this.settings, nextSettings);
     await this.saveSettings();
@@ -604,6 +626,30 @@ export default class OwenEditorPlugin extends Plugin {
 
   openTableBuilder(editor: Editor) {
     new OwenEditorTableBuilderModal(this.app, this, editor).open();
+  }
+
+  openReportStarter(editor: Editor) {
+    new OwenEditorReportStarterModal(this.app, this, editor).open();
+  }
+
+  getRecommendedCommands(parsedQuery: ParsedCommandQuery, initialCategory?: CommandCategory) {
+    if (parsedQuery.text) {
+      return [];
+    }
+
+    const context = this.getToolbarContext();
+    const idsByContext: Record<ToolbarContext, string[]> = {
+      default: ["open-graphite-report-starter", "open-table-builder", "insert-link"],
+      selection: ["mark-selection", "insert-link", "wrap-graphite-kbd", "comment-selection"],
+      table: ["open-table-builder", "convert-selection-to-graphite-table", "insert-graphite-source-note", "insert-graphite-numeric-table"],
+      code: ["code-block-selection", "insert-mermaid-block", "comment-selection"],
+      report: ["open-graphite-report-starter", "insert-graphite-summary-callout", "insert-graphite-action-callout", "insert-graphite-source-note"]
+    };
+
+    return idsByContext[context]
+      .map((id) => this.commands.find((command) => command.id === id))
+      .filter((command): command is EditorCommand => Boolean(command))
+      .filter((command) => !initialCategory || command.category === initialCategory);
   }
 
   runCommand(command: EditorCommand) {
@@ -1210,6 +1256,27 @@ export default class OwenEditorPlugin extends Plugin {
         group: "Basic tables",
         run: (editor) => this.openTableBuilder(editor)
       },
+      {
+        id: "convert-selection-to-markdown-table",
+        name: "Convert selection to Markdown table",
+        icon: "table-2",
+        category: "Tables",
+        group: "Table conversion",
+        aliases: ["convert", "변환", "csv", "tsv", "selection"],
+        run: (editor) => convertSelectionToTable(editor, "markdown")
+      },
+      {
+        id: "convert-selection-to-graphite-table",
+        name: "Convert selection to Owen Graphite table",
+        icon: "table-properties",
+        category: "Tables",
+        group: "Table conversion",
+        aliases: ["convert", "변환", "graphite", "html", "csv", "tsv", "selection"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          convertSelectionToTable(editor, "wide");
+        }
+      },
       ...CALLOUT_OPTIONS.map(createCalloutCommand),
       {
         id: "insert-graphite-wide-table",
@@ -1252,6 +1319,15 @@ export default class OwenEditorPlugin extends Plugin {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, GRAPHITE_REFERENCE_LIST);
         }
+      },
+      {
+        id: "open-graphite-report-starter",
+        name: "Open Owen Graphite report starter",
+        icon: "file-plus-2",
+        category: "Owen Graphite",
+        group: "Document templates",
+        aliases: ["wizard", "starter", "report", "보고서", "template", "템플릿"],
+        run: (editor) => this.openReportStarter(editor)
       },
       {
         id: "insert-template-executive-summary",
@@ -1464,10 +1540,18 @@ class OwenEditorPaletteModal extends Modal {
 
     const parsedQuery = parseCommandQuery(this.query);
     const commands = this.plugin.getCommands().filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
+    const recommendedCommands = this.plugin.getRecommendedCommands(parsedQuery, this.initialCategory)
+      .filter((command) => commands.includes(command));
 
     const recentCommands = this.plugin.getRecentCommands()
       .filter((command) => !this.initialCategory || command.category === this.initialCategory)
       .filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
+
+    if (recommendedCommands.length > 0) {
+      const recommendedSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recommended-section" });
+      recommendedSection.createEl("h3", { text: "Recommended", cls: "owen-editor-group-title" });
+      this.renderCommandGrid(recommendedSection, recommendedCommands.slice(0, 4));
+    }
 
     if (recentCommands.length > 0) {
       const recentSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
@@ -1674,6 +1758,15 @@ function getCommandPreview(command: EditorCommand) {
 }
 
 function getCommandPreviewDetail(command: EditorCommand) {
+  if (command.id === "open-graphite-report-starter") {
+    return "frontmatter + summary + table + source note";
+  }
+  if (command.id === "convert-selection-to-graphite-table") {
+    return "CSV/TSV/Markdown table -> Graphite HTML";
+  }
+  if (command.id === "convert-selection-to-markdown-table") {
+    return "CSV/TSV/Markdown table -> Markdown";
+  }
   if (command.id === "insert-graphite-summary-callout") {
     return "> [!summary] Executive summary";
   }
@@ -1705,6 +1798,87 @@ function getCommandPreviewDetail(command: EditorCommand) {
     return "---\ncssclasses:\n  - ogd-report-mode\n---";
   }
   return "";
+}
+
+class OwenEditorReportStarterModal extends Modal {
+  private plugin: OwenEditorPlugin;
+  private editor: Editor;
+  private kind: ReportStarterKind = "executive";
+  private title = "Report Draft";
+  private includeMetrics = true;
+  private includeSourceNote = true;
+
+  constructor(app: App, plugin: OwenEditorPlugin, editor: Editor) {
+    super(app);
+    this.plugin = plugin;
+    this.editor = editor;
+  }
+
+  onOpen() {
+    this.titleEl.setText("Graphite report starter");
+    this.render();
+  }
+
+  private render() {
+    this.contentEl.empty();
+    this.contentEl.addClass("owen-editor-report-starter");
+
+    let previewCode: HTMLElement;
+    const refreshPreview = () => previewCode.setText(buildReportStarterDocument(this.kind, this.title, this.includeMetrics, this.includeSourceNote));
+
+    new Setting(this.contentEl)
+      .setName("Report type")
+      .addDropdown((dropdown) => dropdown
+        .addOption("executive", REPORT_STARTER_OPTIONS.executive.name)
+        .addOption("comparison", REPORT_STARTER_OPTIONS.comparison.name)
+        .addOption("risk", REPORT_STARTER_OPTIONS.risk.name)
+        .addOption("meeting", REPORT_STARTER_OPTIONS.meeting.name)
+        .setValue(this.kind)
+        .onChange((value) => {
+          this.kind = value as ReportStarterKind;
+          refreshPreview();
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Title")
+      .addText((text) => text
+        .setValue(this.title)
+        .onChange((value) => {
+          this.title = value.trim() || "Report Draft";
+          refreshPreview();
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Include metric row")
+      .addToggle((toggle) => toggle
+        .setValue(this.includeMetrics)
+        .onChange((value) => {
+          this.includeMetrics = value;
+          refreshPreview();
+        }));
+
+    new Setting(this.contentEl)
+      .setName("Include source note")
+      .addToggle((toggle) => toggle
+        .setValue(this.includeSourceNote)
+        .onChange((value) => {
+          this.includeSourceNote = value;
+          refreshPreview();
+        }));
+
+    this.contentEl.createEl("h3", { text: "Preview", cls: "owen-editor-table-builder-preview-title" });
+    const preview = this.contentEl.createEl("pre", { cls: "owen-editor-table-builder-preview" });
+    previewCode = preview.createEl("code");
+    refreshPreview();
+
+    const actions = this.contentEl.createDiv({ cls: "owen-editor-table-builder-actions" });
+    const insertButton = actions.createEl("button", { text: "Insert report", cls: "mod-cta", attr: { type: "button" } });
+    insertButton.addEventListener("click", () => {
+      this.plugin.ensureGraphiteThemeNotice();
+      insertBlock(this.editor, buildReportStarterDocument(this.kind, this.title, this.includeMetrics, this.includeSourceNote));
+      this.close();
+    });
+  }
 }
 
 class OwenEditorTableBuilderModal extends Modal {
@@ -2052,6 +2226,34 @@ class OwenEditorSettingTab extends PluginSettingTab {
     this.createSettingsSection("Favorites", "팔레트의 별 버튼으로 고정한 명령을 정리합니다.");
 
     new Setting(containerEl)
+      .setName("Favorite presets")
+      .setDesc("작업 모드에 맞는 즐겨찾기 묶음을 바로 적용합니다.")
+      .addButton((button) => button
+        .setButtonText(FAVORITE_PRESETS.writer.name)
+        .onClick(async () => {
+          await this.plugin.applyFavoritePreset("writer");
+          this.display();
+        }))
+      .addButton((button) => button
+        .setButtonText(FAVORITE_PRESETS.research.name)
+        .onClick(async () => {
+          await this.plugin.applyFavoritePreset("research");
+          this.display();
+        }))
+      .addButton((button) => button
+        .setButtonText(FAVORITE_PRESETS.report.name)
+        .onClick(async () => {
+          await this.plugin.applyFavoritePreset("report");
+          this.display();
+        }))
+      .addButton((button) => button
+        .setButtonText(FAVORITE_PRESETS["table-heavy"].name)
+        .onClick(async () => {
+          await this.plugin.applyFavoritePreset("table-heavy");
+          this.display();
+        }));
+
+    new Setting(containerEl)
       .setName("Toolbar favorites")
       .setDesc("툴바에 고정할 명령 ID를 쉼표로 구분해 입력합니다. 팔레트의 별 버튼으로도 관리할 수 있습니다.")
       .addTextArea((text) => text
@@ -2217,6 +2419,65 @@ function insertFootnote(editor: Editor) {
 function insertGraphiteBlock(plugin: OwenEditorPlugin, editor: Editor, htmlText: string, markdownText: string) {
   plugin.ensureGraphiteThemeNotice();
   insertBlock(editor, plugin.settings.insertHtmlTables ? htmlText : markdownText);
+}
+
+function buildReportStarterDocument(kind: ReportStarterKind, title: string, includeMetrics: boolean, includeSourceNote: boolean) {
+  const option = REPORT_STARTER_OPTIONS[kind];
+  const template = DOCUMENT_TEMPLATES[option.template].replace(/^title: .+$/m, `title: ${title}`).replace(/^# .+$/m, `# ${title}`);
+  const additions = [
+    includeMetrics ? `\n## Metrics\n\n${GRAPHITE_METRIC_ROW}` : "",
+    includeSourceNote ? `\n## Sources\n\n${GRAPHITE_SOURCE_NOTE}` : ""
+  ].filter(Boolean);
+
+  return [template.trimEnd(), ...additions].join("\n\n");
+}
+
+function convertSelectionToTable(editor: Editor, preset: TableBuilderPreset) {
+  const selection = editor.getSelection();
+  if (!selection.trim()) {
+    new Notice("Owen Editor: 변환할 표 텍스트를 먼저 선택하세요.");
+    return;
+  }
+
+  const rows = parseTableSelection(selection);
+  if (rows.length === 0) {
+    new Notice("Owen Editor: 선택 영역에서 표 데이터를 찾지 못했습니다.");
+    return;
+  }
+
+  const includeHeader = inferHeaderRow(rows) || isMarkdownTable(selection);
+  const options: TableBuilderOptions = {
+    rows: Math.max(1, rows.length - (includeHeader ? 1 : 0)),
+    columns: Math.max(...rows.map((row) => row.length)),
+    includeHeader,
+    preset,
+    useHtml: preset !== "markdown",
+    sourceText: ""
+  };
+
+  editor.replaceSelection(preset === "markdown" ? buildMarkdownTableFromRows(rows, includeHeader) : buildHtmlTableFromRows(options, rows));
+}
+
+function parseTableSelection(sourceText: string) {
+  if (isMarkdownTable(sourceText)) {
+    return parseMarkdownTable(sourceText);
+  }
+  return parseDelimitedTable(sourceText);
+}
+
+function isMarkdownTable(sourceText: string) {
+  return sourceText.trim().split(/\r?\n/).some((line) => /^\s*\|.*\|\s*$/.test(line));
+}
+
+function parseMarkdownTable(sourceText: string) {
+  return sourceText
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => /^\|.*\|$/.test(line))
+    .filter((line) => !/^\|\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|$/.test(line))
+    .map((line) => line.replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim()))
+    .filter((row) => row.some(Boolean));
 }
 
 function clampInteger(value: string, min: number, max: number, fallback: number) {
