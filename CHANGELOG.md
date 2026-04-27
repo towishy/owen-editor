@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-04-28
+
+### Fixed
+
+- Removed the plugin ID from command IDs for Obsidian community validation.
+- Reworked settings headings to use Obsidian setting headings.
+- Added release checks for command ID and settings heading validation rules.
+
 ## [0.6.1] - 2026-04-27
 
 ### Changed
@@ -107,7 +115,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.1...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.2...HEAD
+[0.6.2]: https://github.com/towishy/owen-editor/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/towishy/owen-editor/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/towishy/owen-editor/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/towishy/owen-editor/compare/0.4.1...0.5.0

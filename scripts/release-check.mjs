@@ -25,6 +25,7 @@ const versions = readJson("versions.json");
 const readme = readText("README.md");
 const license = readText("LICENSE");
 const changelog = readText("CHANGELOG.md");
+const source = readText("main.ts");
 
 assert(packageJson.version === manifest.version, `Version mismatch: package.json ${packageJson.version}, manifest.json ${manifest.version}`);
 assert(packageLock.version === packageJson.version, `package-lock.json root version must be ${packageJson.version}`);
@@ -38,6 +39,8 @@ assert(existsSync(resolve(root, "screenshots/owen-editor-ui-preview.png")), "REA
 assert(changelog.includes("## [Unreleased]"), "CHANGELOG.md must include an Unreleased section");
 assert(changelog.includes(`## [${manifest.version}]`), `CHANGELOG.md must include an entry for ${manifest.version}`);
 assert(changelog.includes(`[${manifest.version}]:`), `CHANGELOG.md must include a compare link for ${manifest.version}`);
+assert(!source.match(/id:\s*["'][^"']*owen-editor[^"']*["']/), "Command IDs must not include the plugin ID; Obsidian prefixes them automatically");
+assert(!source.match(/createEl\(["']h[12]["']/), "Settings headings should use Setting#setHeading instead of direct h1/h2 elements");
 
 for (const asset of requiredAssets) {
   const stats = statSync(resolve(root, asset));

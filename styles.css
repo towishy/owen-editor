@@ -526,32 +526,6 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   flex: 0 0 auto;
 }
 
-.owen-editor-settings-heading {
-  color: var(--text-muted);
-  font-size: var(--font-ui-small);
-  margin: 18px 0 8px;
-  text-transform: uppercase;
-}
-
-.owen-editor-settings-section {
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
-  margin: 18px 0 6px;
-  padding: 10px 12px;
-}
-
-.owen-editor-settings-section h3 {
-  font-size: var(--font-ui-medium);
-  margin: 0;
-}
-
-.owen-editor-settings-section p {
-  color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
-  margin: 3px 0 0;
-}
-
 .owen-editor-favorite-settings-list {
   display: flex;
   flex-direction: column;

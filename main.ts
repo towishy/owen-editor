@@ -345,12 +345,12 @@ export default class OwenEditorPlugin extends Plugin {
 
     this.addRibbonIcon("pencil-line", "Owen Editor", () => this.openPalette());
     this.addCommand({
-      id: "open-owen-editor-palette",
+      id: "open-palette",
       name: "Open Owen Editor palette",
       callback: () => this.openPalette()
     });
     this.addCommand({
-      id: "toggle-owen-editor-toolbar-collapse",
+      id: "toggle-toolbar-collapse",
       name: "Toggle Owen Editor toolbar collapse",
       callback: () => this.toggleToolbarCollapsed()
     });
@@ -1553,7 +1553,6 @@ class OwenEditorSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.addClass("owen-editor-settings-tab");
-    containerEl.createEl("h2", { text: "Owen Editor" });
     this.createSettingsSection("Toolbar", "위치, 접기, 프리셋, 즐겨찾기 행을 관리합니다.");
 
     new Setting(containerEl)
@@ -1613,7 +1612,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection("Selection Tools", "선택한 텍스트 바로 옆에서 쓰는 인라인 작업입니다.");
+    this.createSettingsSection("Selection tools", "선택한 텍스트 바로 옆에서 쓰는 인라인 작업입니다.");
 
     new Setting(containerEl)
       .setName("Show selection mini toolbar")
@@ -1637,7 +1636,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection("Graphite Helpers", "Owen Graphite 전용 삽입물의 출력과 안내를 설정합니다.");
+    this.createSettingsSection("Graphite helpers", "Owen Graphite 전용 삽입물의 출력과 안내를 설정합니다.");
 
     new Setting(containerEl)
       .setName("Prefer Owen Graphite HTML tables")
@@ -1681,7 +1680,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
       .filter(Boolean);
 
     if (favoriteCommands.length > 0) {
-      containerEl.createEl("h3", { text: "Favorite order", cls: "owen-editor-settings-heading" });
+      new Setting(containerEl)
+        .setName("Favorite order")
+        .setHeading();
       const favoriteList = containerEl.createDiv({ cls: "owen-editor-favorite-settings-list" });
       for (const favorite of favoriteCommands) {
         const commandId = typeof favorite === "string" ? favorite : favorite.id;
@@ -1711,9 +1712,10 @@ class OwenEditorSettingTab extends PluginSettingTab {
   }
 
   private createSettingsSection(title: string, description: string) {
-    const section = this.containerEl.createDiv({ cls: "owen-editor-settings-section" });
-    section.createEl("h3", { text: title });
-    section.createEl("p", { text: description });
+    new Setting(this.containerEl)
+      .setName(title)
+      .setDesc(description)
+      .setHeading();
   }
 }
 
