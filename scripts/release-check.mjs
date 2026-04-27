@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -8,6 +8,10 @@ function readJson(path) {
   return JSON.parse(readFileSync(resolve(root, path), "utf8"));
 }
 
+function readText(path) {
+  return readFileSync(resolve(root, path), "utf8");
+}
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
@@ -15,13 +19,21 @@ function assert(condition, message) {
 }
 
 const packageJson = readJson("package.json");
+const packageLock = readJson("package-lock.json");
 const manifest = readJson("manifest.json");
 const versions = readJson("versions.json");
+const readme = readText("README.md");
+const license = readText("LICENSE");
 
 assert(packageJson.version === manifest.version, `Version mismatch: package.json ${packageJson.version}, manifest.json ${manifest.version}`);
+assert(packageLock.version === packageJson.version, `package-lock.json root version must be ${packageJson.version}`);
+assert(packageLock.packages?.[""]?.version === packageJson.version, `package-lock.json package version must be ${packageJson.version}`);
 assert(versions[manifest.version] === manifest.minAppVersion, `versions.json is missing ${manifest.version}: ${manifest.minAppVersion}`);
 assert(manifest.id === "owen-editor", "manifest id must be owen-editor");
 assert(manifest.name === "Owen Editor", "manifest name must be Owen Editor");
+assert(license.includes("MIT License"), "LICENSE must contain the MIT License text");
+assert(readme.includes("screenshots/owen-editor-ui-preview.png"), "README.md must include the UI preview image");
+assert(existsSync(resolve(root, "screenshots/owen-editor-ui-preview.png")), "README preview image must exist");
 
 for (const asset of requiredAssets) {
   const stats = statSync(resolve(root, asset));

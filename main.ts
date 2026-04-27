@@ -5,6 +5,9 @@ interface OwenEditorSettings {
   showStatusBarButton: boolean;
   insertHtmlTables: boolean;
   showGraphiteThemeNotice: boolean;
+  toolbarPosition: ToolbarPosition;
+  toolbarCollapsed: boolean;
+  mobileCompactToolbar: boolean;
   favoriteCommandIds: string[];
 }
 
@@ -13,10 +16,14 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   showStatusBarButton: true,
   insertHtmlTables: true,
   showGraphiteThemeNotice: true,
+  toolbarPosition: "top",
+  toolbarCollapsed: false,
+  mobileCompactToolbar: true,
   favoriteCommandIds: []
 };
 
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
+type ToolbarPosition = "top" | "bottom";
 
 interface EditorCommand {
   id: string;
@@ -24,6 +31,7 @@ interface EditorCommand {
   icon: string;
   category: CommandCategory;
   group?: string;
+  aliases?: string[];
   run: (editor: Editor) => void;
 }
 
@@ -210,6 +218,11 @@ export default class OwenEditorPlugin extends Plugin {
       name: "Open Owen Editor palette",
       callback: () => this.openPalette()
     });
+    this.addCommand({
+      id: "toggle-owen-editor-toolbar-collapse",
+      name: "Toggle Owen Editor toolbar collapse",
+      callback: () => this.toggleToolbarCollapsed()
+    });
 
     for (const command of this.commands) {
       this.addCommand({
@@ -261,6 +274,11 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.settings.favoriteCommandIds = [...favoriteIds];
+    await this.saveSettings();
+  }
+
+  async toggleToolbarCollapsed() {
+    this.settings.toolbarCollapsed = !this.settings.toolbarCollapsed;
     await this.saveSettings();
   }
 
@@ -316,8 +334,20 @@ export default class OwenEditorPlugin extends Plugin {
       return;
     }
 
-    const toolbar = document.body.createDiv({ cls: "owen-editor-glass-toolbar" });
+    const toolbar = document.body.createDiv({
+      cls: `owen-editor-glass-toolbar mod-${this.settings.toolbarPosition}${this.settings.toolbarCollapsed ? " is-collapsed" : ""}${this.settings.mobileCompactToolbar ? " is-mobile-compact" : ""}`
+    });
     toolbar.setAttr("aria-label", "Owen Editor toolbar");
+
+    if (this.settings.toolbarCollapsed) {
+      this.createToolbarCollapseButton(toolbar, false);
+      this.toolbarEl = toolbar;
+      this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
+      this.toolbarResizeObserver.observe(toolbar);
+      this.updateToolbarContentOffset();
+      return;
+    }
+
     const primaryRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-primary-row" });
 
     const groups = [
@@ -368,6 +398,7 @@ export default class OwenEditorPlugin extends Plugin {
     });
     setIcon(paletteButton.createSpan(), "panel-top-open");
     this.registerDomEvent(paletteButton, "click", () => this.openPalette());
+    this.createToolbarCollapseButton(primaryRow, true);
 
     this.toolbarEl = toolbar;
     this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
@@ -383,6 +414,8 @@ export default class OwenEditorPlugin extends Plugin {
 
     const toolbarHeight = Math.ceil(this.toolbarEl.getBoundingClientRect().height);
     document.body.classList.add("owen-editor-toolbar-offset");
+    document.body.classList.toggle("owen-editor-toolbar-top", this.settings.toolbarPosition === "top");
+    document.body.classList.toggle("owen-editor-toolbar-bottom", this.settings.toolbarPosition === "bottom");
     document.body.style.setProperty("--owen-editor-toolbar-clearance", `${toolbarHeight + 28}px`);
   }
 
@@ -390,7 +423,24 @@ export default class OwenEditorPlugin extends Plugin {
     this.toolbarResizeObserver?.disconnect();
     this.toolbarResizeObserver = undefined;
     document.body.classList.remove("owen-editor-toolbar-offset");
+    document.body.classList.remove("owen-editor-toolbar-top");
+    document.body.classList.remove("owen-editor-toolbar-bottom");
     document.body.style.removeProperty("--owen-editor-toolbar-clearance");
+  }
+
+  private createToolbarCollapseButton(container: HTMLElement, collapse: boolean) {
+    const label = collapse ? "Collapse Owen Editor toolbar" : "Expand Owen Editor toolbar";
+    const button = container.createEl("button", {
+      cls: "owen-editor-toolbar-button owen-editor-toolbar-collapse",
+      attr: {
+        type: "button",
+        title: label,
+        "aria-label": label,
+        "data-tooltip": label
+      }
+    });
+    setIcon(button.createSpan(), collapse ? "chevrons-up-down" : "panel-top-open");
+    this.registerDomEvent(button, "click", () => this.toggleToolbarCollapsed());
   }
 
   private createToolbarButton(toolbar: HTMLElement, command: EditorCommand, isFavorite = false) {
@@ -833,7 +883,7 @@ class OwenEditorPaletteModal extends Modal {
     });
 
     const commands = this.plugin.getCommands().filter((command) => {
-      const haystack = `${command.category} ${command.name}`.toLowerCase();
+      const haystack = getCommandSearchText(command);
       return (!this.initialCategory || command.category === this.initialCategory) && haystack.includes(this.query);
     });
 
@@ -889,6 +939,51 @@ class OwenEditorPaletteModal extends Modal {
   }
 }
 
+function getCommandSearchText(command: EditorCommand) {
+  return [
+    command.id,
+    command.category,
+    command.group ?? "",
+    command.name,
+    ...getCommandSearchAliases(command)
+  ].join(" ").toLowerCase();
+}
+
+function getCommandSearchAliases(command: EditorCommand) {
+  const aliases = [...(command.aliases ?? [])];
+  const categoryAliases: Record<CommandCategory, string[]> = {
+    "Basic Markdown": ["markdown", "md", "마크다운", "기본", "서식", "format"],
+    Selection: ["selection", "select", "선택", "감싸기", "wrap", "quote", "인용", "comment", "주석"],
+    Links: ["link", "links", "링크", "위키", "wiki", "embed", "임베드", "attachment", "첨부", "image", "이미지", "footnote", "각주"],
+    Blocks: ["block", "blocks", "블록", "문서", "frontmatter", "프론트매터", "mermaid", "머메이드", "align", "정렬", "callout", "콜아웃"],
+    Tables: ["table", "tables", "표", "테이블", "matrix", "매트릭스", "risk", "리스크", "numeric", "숫자", "wide", "넓은표"],
+    "Owen Graphite": ["owen", "graphite", "그래파이트", "오웬", "theme", "테마", "report", "보고서", "badge", "배지", "blur", "숨김", "secret", "비밀"]
+  };
+
+  aliases.push(...categoryAliases[command.category]);
+
+  if (command.id.includes("table")) {
+    aliases.push("표", "테이블", "grid", "그리드");
+  }
+  if (command.id.includes("highlight") || command.id.includes("mark")) {
+    aliases.push("highlight", "강조", "하이라이트", "mark", "형광펜");
+  }
+  if (command.id.includes("graphite")) {
+    aliases.push("owen graphite", "그래파이트", "테마", "보고서", "ogd");
+  }
+  if (command.id.includes("callout")) {
+    aliases.push("callout", "콜아웃", "알림", "notice");
+  }
+  if (command.id.includes("link")) {
+    aliases.push("link", "링크", "url", "주소");
+  }
+  if (command.id.includes("list")) {
+    aliases.push("list", "목록", "리스트", "bullet", "번호");
+  }
+
+  return aliases;
+}
+
 class OwenEditorTableBuilderModal extends Modal {
   private plugin: OwenEditorPlugin;
   private editor: Editor;
@@ -915,12 +1010,18 @@ class OwenEditorTableBuilderModal extends Modal {
     this.contentEl.empty();
     this.contentEl.addClass("owen-editor-table-builder");
 
+    let previewCode: HTMLElement;
+    const refreshPreview = () => {
+      previewCode.setText(buildTableFromOptions(this.options));
+    };
+
     new Setting(this.contentEl)
       .setName("Rows")
       .addText((text) => text
         .setValue(String(this.options.rows))
         .onChange((value) => {
           this.options.rows = clampInteger(value, 1, 20, 3);
+          refreshPreview();
         }));
 
     new Setting(this.contentEl)
@@ -929,6 +1030,7 @@ class OwenEditorTableBuilderModal extends Modal {
         .setValue(String(this.options.columns))
         .onChange((value) => {
           this.options.columns = clampInteger(value, 1, 12, 3);
+          refreshPreview();
         }));
 
     new Setting(this.contentEl)
@@ -937,6 +1039,7 @@ class OwenEditorTableBuilderModal extends Modal {
         .setValue(this.options.includeHeader)
         .onChange((value) => {
           this.options.includeHeader = value;
+          refreshPreview();
         }));
 
     new Setting(this.contentEl)
@@ -949,6 +1052,8 @@ class OwenEditorTableBuilderModal extends Modal {
         .setValue(this.options.preset)
         .onChange((value) => {
           this.options.preset = value as TableBuilderPreset;
+          this.options.useHtml = this.options.preset !== "markdown" || this.options.useHtml;
+          refreshPreview();
         }));
 
     new Setting(this.contentEl)
@@ -958,7 +1063,13 @@ class OwenEditorTableBuilderModal extends Modal {
         .setValue(this.options.useHtml)
         .onChange((value) => {
           this.options.useHtml = value;
+          refreshPreview();
         }));
+
+    this.contentEl.createEl("h3", { text: "Preview", cls: "owen-editor-table-builder-preview-title" });
+    const preview = this.contentEl.createEl("pre", { cls: "owen-editor-table-builder-preview" });
+    previewCode = preview.createEl("code");
+    refreshPreview();
 
     const actions = this.contentEl.createDiv({ cls: "owen-editor-table-builder-actions" });
     const insertButton = actions.createEl("button", { text: "Insert table", cls: "mod-cta", attr: { type: "button" } });
@@ -1041,6 +1152,38 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.showStatusBarButton)
         .onChange(async (value) => {
           this.plugin.settings.showStatusBarButton = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Toolbar position")
+      .setDesc("상단 또는 하단에 툴바를 고정합니다. 하단은 문서 제목 영역을 더 넓게 쓰고 싶을 때 좋습니다.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("top", "Top")
+        .addOption("bottom", "Bottom")
+        .setValue(this.plugin.settings.toolbarPosition)
+        .onChange(async (value) => {
+          this.plugin.settings.toolbarPosition = value as ToolbarPosition;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Start with toolbar collapsed")
+      .setDesc("툴바를 작은 버튼 하나로 접어두고 필요할 때 펼칩니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.toolbarCollapsed)
+        .onChange(async (value) => {
+          this.plugin.settings.toolbarCollapsed = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Compact toolbar on mobile")
+      .setDesc("모바일에서는 툴바 버튼을 더 작게 표시하고 줄바꿈을 허용합니다.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.mobileCompactToolbar)
+        .onChange(async (value) => {
+          this.plugin.settings.mobileCompactToolbar = value;
           await this.plugin.saveSettings();
         }));
 
