@@ -1,0 +1,40 @@
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const root = resolve(import.meta.dirname, "..");
+const args = new Set(process.argv.slice(2));
+const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
+const version = manifest.version;
+
+function run(command, commandArgs) {
+  console.log(`$ ${command} ${commandArgs.join(" ")}`);
+  execFileSync(command, commandArgs, { cwd: root, stdio: "inherit" });
+}
+
+run("npm", ["run", "build"]);
+run("npm", ["run", "release:check"]);
+run("git", ["diff", "--check"]);
+
+if (!args.has("--create")) {
+  console.log(`Release preflight passed for Owen Editor ${version}. Use npm run release:create to create the GitHub release.`);
+  process.exit(0);
+}
+
+run("git", ["tag", version]);
+run("git", ["push", "origin", "main"]);
+run("git", ["push", "origin", version]);
+run("gh", [
+  "release",
+  "create",
+  version,
+  "main.js",
+  "manifest.json",
+  "styles.css",
+  "--repo",
+  "towishy/owen-editor",
+  "--title",
+  `Owen Editor ${version}`,
+  "--notes",
+  `Automated release for Owen Editor ${version}.\n\nValidation:\n- npm run build\n- npm run release:check\n- git diff --check`
+]);

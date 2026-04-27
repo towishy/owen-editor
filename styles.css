@@ -365,6 +365,35 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   flex: 0 0 auto;
 }
 
+.owen-editor-settings-heading {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  margin: 18px 0 8px;
+  text-transform: uppercase;
+}
+
+.owen-editor-favorite-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.owen-editor-favorite-settings-row {
+  align-items: center;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  padding: 6px;
+}
+
+.owen-editor-favorite-settings-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .owen-editor-status-button {
   cursor: pointer;
 }
@@ -443,6 +472,10 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-table-builder input[type="text"] {
   width: 88px;
+}
+
+.owen-editor-table-builder textarea {
+  min-height: 82px;
 }
 
 .owen-editor-table-builder-preview-title {

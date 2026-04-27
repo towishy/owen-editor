@@ -8,12 +8,15 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 
 - Floating glass toolbar for common Markdown editing actions.
 - Toolbar position controls for top or bottom placement, with a collapsible compact state.
+- Toolbar presets for minimal, writer, report, full, and custom workflows.
 - Direct buttons for undo, redo, headings, bold, italic, strikethrough, underline, highlight, indent, outdent, tasks, and lists.
 - Category palettes for selection tools, links, blocks, tables, Owen Graphite helpers, and all commands, including Korean and English search aliases.
+- Recent commands appear at the top of the palette for faster repeated work.
 - Highlight color picker with recommended soft colors for selected text.
 - Favorites that pin frequently used commands directly onto the floating toolbar.
 - Expanded Obsidian callout support, including note, info, tip, important, success, question, warning, failure, danger, bug, example, quote, abstract, and todo.
-- Table builder with live preview for quick Markdown tables and Owen Graphite-styled HTML table layouts.
+- Table builder with live preview, custom row/column counts, and CSV/TSV paste conversion.
+- Document templates for executive summaries, comparison reports, risk reviews, and meeting notes.
 - Table helpers for basic Markdown tables and Owen Graphite report table presets.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
 
@@ -42,18 +45,22 @@ Most commands are also available from Obsidian's command palette under `Owen Edi
 
 Open the all-commands palette and use the star buttons to pin frequent actions to the glass toolbar. Pinned commands appear between the common Markdown controls and the category icons.
 
-Use the table builder from the Tables palette when you need a custom number of rows and columns. The builder shows the generated Markdown or HTML before insertion. Markdown output works in any vault; Owen Graphite presets insert theme-classed HTML for report-ready tables.
+Recent commands appear above the grouped command list after you use commands. Use the settings tab to reorder pinned favorites, remove items, or apply a toolbar preset.
+
+Use the table builder from the Tables palette when you need a custom number of rows and columns. The builder shows the generated Markdown or HTML before insertion and can convert pasted CSV or TSV data. Markdown output works in any vault; Owen Graphite presets insert theme-classed HTML for report-ready tables.
 
 ## Settings
 
 - Show floating glass toolbar: toggles the horizontal editor toolbar.
 - Show status bar button: adds an `Owen Editor` status bar shortcut.
 - Toolbar position: pins the toolbar to the top or bottom of the editor.
+- Toolbar preset: applies minimal, writer, report, full, or custom toolbar layouts.
 - Start with toolbar collapsed: keeps the toolbar as a compact single-button launcher until expanded.
 - Compact toolbar on mobile: reduces button size and allows wrapping on mobile devices.
 - Prefer Owen Graphite HTML tables: inserts HTML tables with Owen Graphite classes instead of plain Markdown table fallbacks for supported table presets.
 - Warn when Owen Graphite is not active: shows a one-time notice before inserting theme-specific snippets if the Owen Graphite theme is not active.
 - Toolbar favorites: stores command IDs pinned to the floating toolbar. This is usually managed with the star buttons in the palette.
+- Favorite order: move pinned commands up or down, or remove them without editing raw IDs.
 
 ## Installation
 
@@ -73,6 +80,7 @@ Restart Obsidian or reload plugins, then enable `Owen Editor`.
 npm install
 npm run build
 npm run release:check
+npm run release:preflight
 ```
 
 For live rebuilds during plugin development:

@@ -6,9 +6,11 @@ interface OwenEditorSettings {
   insertHtmlTables: boolean;
   showGraphiteThemeNotice: boolean;
   toolbarPosition: ToolbarPosition;
+  toolbarPreset: ToolbarPreset;
   toolbarCollapsed: boolean;
   mobileCompactToolbar: boolean;
   favoriteCommandIds: string[];
+  recentCommandIds: string[];
 }
 
 const DEFAULT_SETTINGS: OwenEditorSettings = {
@@ -17,13 +19,16 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   insertHtmlTables: true,
   showGraphiteThemeNotice: true,
   toolbarPosition: "top",
+  toolbarPreset: "full",
   toolbarCollapsed: false,
   mobileCompactToolbar: true,
-  favoriteCommandIds: []
+  favoriteCommandIds: [],
+  recentCommandIds: []
 };
 
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
 type ToolbarPosition = "top" | "bottom";
+type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
 
 interface EditorCommand {
   id: string;
@@ -51,6 +56,7 @@ interface TableBuilderOptions {
   includeHeader: boolean;
   preset: TableBuilderPreset;
   useHtml: boolean;
+  sourceText: string;
 }
 
 const HIGHLIGHT_COLOR_OPTIONS: HighlightColorOption[] = [
@@ -199,6 +205,128 @@ const GRAPHITE_MATRIX_MARKDOWN_TABLE = `| 영향도 \\ 가능성 | Low | Medium 
 | High | M | H | H |
 | Medium | L | M | H |
 | Low | L | L | M |`;
+const DOCUMENT_TEMPLATES = {
+  executiveSummary: `---
+title: Executive Summary
+tags:
+  - report
+cssclasses:
+  - ogd-report-mode
+  - ogd-modern-tables
+---
+
+# Executive Summary
+
+> [!summary] 핵심 결론
+> 의사결정자가 먼저 봐야 할 결론을 3문장 이내로 작성합니다.
+
+## Key Findings
+
+- Finding 1:
+- Finding 2:
+- Finding 3:
+
+## Recommendation
+
+- Owner:
+- Due date:
+- Next step:
+`,
+  comparisonReport: `---
+title: Comparison Matrix
+tags:
+  - report
+cssclasses:
+  - ogd-report-mode
+  - ogd-modern-tables
+  - ogd-print-avoid-breaks
+---
+
+# Comparison Matrix
+
+${GRAPHITE_WIDE_TABLE}
+
+## Notes
+
+- 비교 기준:
+- 예외 사항:
+- 권장안:
+`,
+  riskReview: `---
+title: Risk Review
+tags:
+  - risk
+cssclasses:
+  - ogd-report-mode
+  - ogd-modern-tables
+---
+
+# Risk Review
+
+${GRAPHITE_RISK_TABLE}
+
+## Mitigation Plan
+
+- High:
+- Medium:
+- Follow-up:
+`,
+  meetingReview: `---
+title: Meeting Review
+tags:
+  - meeting
+---
+
+# Meeting Review
+
+## Agenda
+
+-
+
+## Decisions
+
+-
+
+## Action Items
+
+> [!action] Next steps
+> - 담당자:
+> - 기한:
+> - 다음 단계:
+`
+};
+
+function getToolbarCommandGroups(preset: ToolbarPreset) {
+  if (preset === "minimal") {
+    return [
+      ["undo-edit", "redo-edit"],
+      ["bold-selection", "italic-selection", "mark-selection"],
+      ["insert-link", "toggle-task"]
+    ];
+  }
+
+  if (preset === "writer") {
+    return [
+      ["undo-edit", "redo-edit", "clear-formatting-selection"],
+      ["heading-2", "heading-3", "bold-selection", "italic-selection", "mark-selection"],
+      ["insert-link", "insert-wikilink", "toggle-task", "insert-bulleted-list", "insert-numbered-list"]
+    ];
+  }
+
+  if (preset === "report") {
+    return [
+      ["undo-edit", "redo-edit", "clear-formatting-selection"],
+      ["heading-2", "heading-3", "bold-selection", "mark-selection"],
+      ["open-table-builder", "insert-markdown-table", "insert-note-callout", "insert-important-callout", "insert-graphite-summary-callout"]
+    ];
+  }
+
+  return [
+    ["undo-edit", "redo-edit", "clear-formatting-selection"],
+    ["heading-2", "heading-3", "heading-4", "bold-selection", "italic-selection", "strikethrough-selection", "underline-selection"],
+    ["mark-selection", "outdent-lines", "indent-lines", "toggle-task", "insert-bulleted-list", "insert-numbered-list"]
+  ];
+}
 
 export default class OwenEditorPlugin extends Plugin {
   settings: OwenEditorSettings;
@@ -228,7 +356,7 @@ export default class OwenEditorPlugin extends Plugin {
       this.addCommand({
         id: command.id,
         name: command.name,
-        editorCallback: (editor) => command.run(editor)
+        editorCallback: (editor) => this.executeCommand(command, editor)
       });
     }
 
@@ -265,6 +393,12 @@ export default class OwenEditorPlugin extends Plugin {
     return this.settings.favoriteCommandIds.includes(commandId);
   }
 
+  getRecentCommands() {
+    return this.settings.recentCommandIds
+      .map((id) => this.commands.find((command) => command.id === id))
+      .filter((command): command is EditorCommand => Boolean(command));
+  }
+
   async toggleFavoriteCommand(commandId: string) {
     const favoriteIds = new Set(this.settings.favoriteCommandIds);
     if (favoriteIds.has(commandId)) {
@@ -274,6 +408,41 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.settings.favoriteCommandIds = [...favoriteIds];
+    this.settings.toolbarPreset = "custom";
+    await this.saveSettings();
+  }
+
+  async moveFavoriteCommand(commandId: string, direction: "up" | "down") {
+    const ids = [...this.settings.favoriteCommandIds];
+    const index = ids.indexOf(commandId);
+    const nextIndex = direction === "up" ? index - 1 : index + 1;
+    if (index < 0 || nextIndex < 0 || nextIndex >= ids.length) {
+      return;
+    }
+
+    [ids[index], ids[nextIndex]] = [ids[nextIndex], ids[index]];
+    this.settings.favoriteCommandIds = ids;
+    this.settings.toolbarPreset = "custom";
+    await this.saveSettings();
+  }
+
+  async removeFavoriteCommand(commandId: string) {
+    this.settings.favoriteCommandIds = this.settings.favoriteCommandIds.filter((id) => id !== commandId);
+    this.settings.toolbarPreset = "custom";
+    await this.saveSettings();
+  }
+
+  async applyToolbarPreset(preset: ToolbarPreset) {
+    this.settings.toolbarPreset = preset;
+    if (preset === "minimal") {
+      this.settings.favoriteCommandIds = [];
+    } else if (preset === "writer") {
+      this.settings.favoriteCommandIds = ["insert-link", "mark-selection", "insert-note-callout", "insert-footnote-reference"];
+    } else if (preset === "report") {
+      this.settings.favoriteCommandIds = ["open-table-builder", "insert-graphite-wide-table", "insert-graphite-report-frontmatter", "insert-graphite-summary-callout"];
+    } else if (preset === "full") {
+      this.settings.favoriteCommandIds = [];
+    }
     await this.saveSettings();
   }
 
@@ -300,7 +469,17 @@ export default class OwenEditorPlugin extends Plugin {
       new Notice("Owen Editor: 활성 Markdown 편집기를 찾을 수 없습니다.");
       return;
     }
+    this.executeCommand(command, editor);
+  }
+
+  private executeCommand(command: EditorCommand, editor: Editor) {
     command.run(editor);
+    void this.recordRecentCommand(command.id);
+  }
+
+  private async recordRecentCommand(commandId: string) {
+    this.settings.recentCommandIds = [commandId, ...this.settings.recentCommandIds.filter((id) => id !== commandId)].slice(0, 8);
+    await this.saveData(this.settings);
   }
 
   private getActiveEditor(): Editor | null {
@@ -350,11 +529,7 @@ export default class OwenEditorPlugin extends Plugin {
 
     const primaryRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-primary-row" });
 
-    const groups = [
-      ["undo-edit", "redo-edit", "clear-formatting-selection"],
-      ["heading-2", "heading-3", "heading-4", "bold-selection", "italic-selection", "strikethrough-selection", "underline-selection"],
-      ["mark-selection", "outdent-lines", "indent-lines", "toggle-task", "insert-bulleted-list", "insert-numbered-list"]
-    ];
+    const groups = getToolbarCommandGroups(this.settings.toolbarPreset);
 
     groups.forEach((group, groupIndex) => {
       if (groupIndex > 0) {
@@ -782,6 +957,51 @@ export default class OwenEditorPlugin extends Plugin {
         }
       },
       {
+        id: "insert-template-executive-summary",
+        name: "Insert executive summary document template",
+        icon: "file-text",
+        category: "Owen Graphite",
+        group: "Document templates",
+        aliases: ["template", "템플릿", "요약", "summary", "executive"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, DOCUMENT_TEMPLATES.executiveSummary);
+        }
+      },
+      {
+        id: "insert-template-comparison-report",
+        name: "Insert comparison report template",
+        icon: "columns-3",
+        category: "Owen Graphite",
+        group: "Document templates",
+        aliases: ["template", "템플릿", "comparison", "비교", "matrix", "매트릭스"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, DOCUMENT_TEMPLATES.comparisonReport);
+        }
+      },
+      {
+        id: "insert-template-risk-review",
+        name: "Insert risk review template",
+        icon: "shield-alert",
+        category: "Owen Graphite",
+        group: "Document templates",
+        aliases: ["template", "템플릿", "risk", "리스크", "review", "검토"],
+        run: (editor) => {
+          this.ensureGraphiteThemeNotice();
+          insertBlock(editor, DOCUMENT_TEMPLATES.riskReview);
+        }
+      },
+      {
+        id: "insert-template-meeting-review",
+        name: "Insert meeting review template",
+        icon: "calendar-check",
+        category: "Blocks",
+        group: "Document templates",
+        aliases: ["template", "템플릿", "meeting", "회의", "review", "검토"],
+        run: (editor) => insertBlock(editor, DOCUMENT_TEMPLATES.meetingReview)
+      },
+      {
         id: "insert-graphite-report-frontmatter",
         name: "Insert Owen Graphite report frontmatter",
         icon: "file-sliders",
@@ -909,6 +1129,15 @@ class OwenEditorPaletteModal extends Modal {
       return (!this.initialCategory || command.category === this.initialCategory) && haystack.includes(this.query);
     });
 
+    const recentCommands = this.plugin.getRecentCommands()
+      .filter((command) => !this.initialCategory || command.category === this.initialCategory)
+      .filter((command) => getCommandSearchText(command).includes(this.query));
+
+    if (recentCommands.length > 0) {
+      this.contentEl.createEl("h3", { text: "Recent", cls: "owen-editor-group-title" });
+      this.renderCommandGrid(recentCommands.slice(0, 6));
+    }
+
     for (const category of ["Basic Markdown", "Selection", "Links", "Blocks", "Tables", "Owen Graphite"] as CommandCategory[]) {
       if (this.initialCategory && category !== this.initialCategory) {
         continue;
@@ -925,39 +1154,43 @@ class OwenEditorPaletteModal extends Modal {
         if (commandGroups.length > 1) {
           this.contentEl.createEl("h4", { text: commandGroup, cls: "owen-editor-subgroup-title" });
         }
-        const grid = this.contentEl.createDiv({ cls: "owen-editor-command-grid" });
-        for (const command of groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup)) {
-          const item = grid.createDiv({ cls: "owen-editor-command-item" });
-          const button = item.createEl("button", {
-            cls: "owen-editor-command-button",
-            attr: { type: "button" }
-          });
-          const icon = button.createSpan({ cls: "owen-editor-command-icon" });
-          setIcon(icon, command.icon);
-          button.createSpan({ text: command.name, cls: "owen-editor-command-label" });
-          button.addEventListener("click", () => {
-            this.plugin.runCommand(command);
-            this.close();
-          });
-
-          const favoriteButton = item.createEl("button", {
-            cls: `owen-editor-favorite-button${this.plugin.isFavoriteCommand(command.id) ? " is-active" : ""}`,
-            attr: {
-              type: "button",
-              "aria-label": this.plugin.isFavoriteCommand(command.id) ? `Remove ${command.name} from toolbar favorites` : `Add ${command.name} to toolbar favorites`,
-              title: this.plugin.isFavoriteCommand(command.id) ? "Remove from toolbar favorites" : "Add to toolbar favorites"
-            }
-          });
-          setIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
-          favoriteButton.addEventListener("click", async () => {
-            await this.plugin.toggleFavoriteCommand(command.id);
-            this.render();
-          });
-        }
+        this.renderCommandGrid(groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup));
       }
     }
 
     searchInput.focus();
+  }
+
+  private renderCommandGrid(commands: EditorCommand[]) {
+    const grid = this.contentEl.createDiv({ cls: "owen-editor-command-grid" });
+    for (const command of commands) {
+      const item = grid.createDiv({ cls: "owen-editor-command-item" });
+      const button = item.createEl("button", {
+        cls: "owen-editor-command-button",
+        attr: { type: "button" }
+      });
+      const icon = button.createSpan({ cls: "owen-editor-command-icon" });
+      setIcon(icon, command.icon);
+      button.createSpan({ text: command.name, cls: "owen-editor-command-label" });
+      button.addEventListener("click", () => {
+        this.plugin.runCommand(command);
+        this.close();
+      });
+
+      const favoriteButton = item.createEl("button", {
+        cls: `owen-editor-favorite-button${this.plugin.isFavoriteCommand(command.id) ? " is-active" : ""}`,
+        attr: {
+          type: "button",
+          "aria-label": this.plugin.isFavoriteCommand(command.id) ? `Remove ${command.name} from toolbar favorites` : `Add ${command.name} to toolbar favorites`,
+          title: this.plugin.isFavoriteCommand(command.id) ? "Remove from toolbar favorites" : "Add to toolbar favorites"
+        }
+      });
+      setIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
+      favoriteButton.addEventListener("click", async () => {
+        await this.plugin.toggleFavoriteCommand(command.id);
+        this.render();
+      });
+    }
   }
 }
 
@@ -1014,7 +1247,8 @@ class OwenEditorTableBuilderModal extends Modal {
     columns: 3,
     includeHeader: true,
     preset: "markdown",
-    useHtml: false
+    useHtml: false,
+    sourceText: ""
   };
 
   constructor(app: App, plugin: OwenEditorPlugin, editor: Editor) {
@@ -1085,6 +1319,17 @@ class OwenEditorTableBuilderModal extends Modal {
         .setValue(this.options.useHtml)
         .onChange((value) => {
           this.options.useHtml = value;
+          refreshPreview();
+        }));
+
+    new Setting(this.contentEl)
+      .setName("CSV or TSV source")
+      .setDesc("붙여넣은 표 데이터가 있으면 rows/columns 대신 이 값을 사용합니다.")
+      .addTextArea((text) => text
+        .setPlaceholder("Name\tStatus\tOwner\nItem A\tReady\tOwen")
+        .setValue(this.options.sourceText)
+        .onChange((value) => {
+          this.options.sourceText = value;
           refreshPreview();
         }));
 
@@ -1190,6 +1435,21 @@ class OwenEditorSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
+      .setName("Toolbar preset")
+      .setDesc("작업 방식에 맞는 기본 툴바 구성을 빠르게 적용합니다.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("minimal", "Minimal")
+        .addOption("writer", "Writer")
+        .addOption("report", "Report")
+        .addOption("full", "Full")
+        .addOption("custom", "Custom")
+        .setValue(this.plugin.settings.toolbarPreset)
+        .onChange(async (value) => {
+          await this.plugin.applyToolbarPreset(value as ToolbarPreset);
+          this.display();
+        }));
+
+    new Setting(containerEl)
       .setName("Start with toolbar collapsed")
       .setDesc("툴바를 작은 버튼 하나로 접어두고 필요할 때 펼칩니다.")
       .addToggle((toggle) => toggle
@@ -1240,8 +1500,42 @@ class OwenEditorSettingTab extends PluginSettingTab {
             .split(",")
             .map((item) => item.trim())
             .filter(Boolean);
+          this.plugin.settings.toolbarPreset = "custom";
           await this.plugin.saveSettings();
         }));
+
+    const favoriteCommands = this.plugin.settings.favoriteCommandIds
+      .map((id) => this.plugin.getCommands().find((command) => command.id === id) ?? id)
+      .filter(Boolean);
+
+    if (favoriteCommands.length > 0) {
+      containerEl.createEl("h3", { text: "Favorite order", cls: "owen-editor-settings-heading" });
+      const favoriteList = containerEl.createDiv({ cls: "owen-editor-favorite-settings-list" });
+      for (const favorite of favoriteCommands) {
+        const commandId = typeof favorite === "string" ? favorite : favorite.id;
+        const label = typeof favorite === "string" ? favorite : favorite.name;
+        const row = favoriteList.createDiv({ cls: "owen-editor-favorite-settings-row" });
+        row.createSpan({ text: label, cls: "owen-editor-favorite-settings-label" });
+
+        const moveUp = row.createEl("button", { text: "Up", attr: { type: "button" } });
+        moveUp.addEventListener("click", async () => {
+          await this.plugin.moveFavoriteCommand(commandId, "up");
+          this.display();
+        });
+
+        const moveDown = row.createEl("button", { text: "Down", attr: { type: "button" } });
+        moveDown.addEventListener("click", async () => {
+          await this.plugin.moveFavoriteCommand(commandId, "down");
+          this.display();
+        });
+
+        const remove = row.createEl("button", { text: "Remove", attr: { type: "button" } });
+        remove.addEventListener("click", async () => {
+          await this.plugin.removeFavoriteCommand(commandId);
+          this.display();
+        });
+      }
+    }
   }
 }
 
@@ -1334,10 +1628,62 @@ function clampInteger(value: string, min: number, max: number, fallback: number)
 }
 
 function buildTableFromOptions(options: TableBuilderOptions) {
+  const sourceRows = parseDelimitedTable(options.sourceText);
+  if (sourceRows.length > 0) {
+    return options.useHtml || options.preset !== "markdown" ? buildHtmlTableFromRows(options, sourceRows) : buildMarkdownTableFromRows(sourceRows, options.includeHeader);
+  }
+
   if (options.useHtml || options.preset !== "markdown") {
     return buildHtmlTable(options);
   }
   return buildMarkdownTable(options);
+}
+
+function parseDelimitedTable(sourceText: string) {
+  const trimmed = sourceText.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  const delimiter = trimmed.includes("\t") ? "\t" : ",";
+  return trimmed
+    .split(/\r?\n/)
+    .map((line) => line.split(delimiter).map((cell) => cell.trim()))
+    .filter((row) => row.some(Boolean));
+}
+
+function buildMarkdownTableFromRows(rows: string[][], includeHeader: boolean) {
+  const width = Math.max(...rows.map((row) => row.length));
+  const normalizedRows = rows.map((row) => normalizeTableRow(row, width));
+  const headers = includeHeader ? normalizedRows[0] : Array.from({ length: width }, (_, index) => `Column ${index + 1}`);
+  const bodyRows = includeHeader ? normalizedRows.slice(1) : normalizedRows;
+  const headerLine = `| ${headers.join(" | ")} |`;
+  const dividerLine = `| ${headers.map(() => "---").join(" | ")} |`;
+  const bodyLines = bodyRows.map((row) => `| ${row.join(" | ")} |`);
+  return [headerLine, dividerLine, ...bodyLines].join("\n");
+}
+
+function buildHtmlTableFromRows(options: TableBuilderOptions, rows: string[][]) {
+  const width = Math.max(...rows.map((row) => row.length));
+  const normalizedRows = rows.map((row) => normalizeTableRow(row, width));
+  const headers = options.includeHeader ? normalizedRows[0] : Array.from({ length: width }, (_, index) => `Column ${index + 1}`);
+  const bodyRows = options.includeHeader ? normalizedRows.slice(1) : normalizedRows;
+  const headerHtml = `\n  <thead>\n    <tr>\n${headers.map((header) => `      <th>${escapeHtml(header)}</th>`).join("\n")}\n    </tr>\n  </thead>`;
+  const bodyHtml = `\n  <tbody>\n${bodyRows.map((row) => `    <tr>\n${row.map((cell, index) => `      <td${getCellClass(options.preset, index)}>${escapeHtml(cell)}</td>`).join("\n")}\n    </tr>`).join("\n")}\n  </tbody>`;
+  const classes = getTablePresetClasses(options.preset);
+  return `<table${classes ? ` class="${classes}"` : ""}>${headerHtml}${bodyHtml}\n</table>`;
+}
+
+function normalizeTableRow(row: string[], width: number) {
+  return Array.from({ length: width }, (_, index) => row[index] ?? "");
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function buildMarkdownTable(options: TableBuilderOptions) {

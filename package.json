@@ -1,12 +1,14 @@
 {
   "name": "owen-editor",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Markdown editing toolbar and Owen Graphite helpers for Obsidian.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "release:check": "node scripts/release-check.mjs"
+    "release:check": "node scripts/release-check.mjs",
+    "release:preflight": "node scripts/release.mjs",
+    "release:create": "node scripts/release.mjs --create"
   },
   "keywords": [
     "obsidian",
