@@ -309,6 +309,7 @@ export default class OwenEditorPlugin extends Plugin {
 
     const toolbar = document.body.createDiv({ cls: "owen-editor-glass-toolbar" });
     toolbar.setAttr("aria-label", "Owen Editor toolbar");
+    const primaryRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-primary-row" });
 
     const groups = [
       ["undo-edit", "redo-edit", "clear-formatting-selection"],
@@ -318,13 +319,13 @@ export default class OwenEditorPlugin extends Plugin {
 
     groups.forEach((group, groupIndex) => {
       if (groupIndex > 0) {
-        toolbar.createDiv({ cls: "owen-editor-toolbar-separator" });
+        primaryRow.createDiv({ cls: "owen-editor-toolbar-separator" });
       }
 
       for (const id of group) {
         const command = this.commands.find((candidate) => candidate.id === id);
         if (command) {
-          this.createToolbarButton(toolbar, command);
+          this.createToolbarButton(primaryRow, command);
         }
       }
     });
@@ -334,20 +335,20 @@ export default class OwenEditorPlugin extends Plugin {
       .filter((command): command is EditorCommand => Boolean(command));
 
     if (favoriteCommands.length > 0) {
-      toolbar.createDiv({ cls: "owen-editor-toolbar-separator" });
+      const favoriteRow = toolbar.createDiv({ cls: "owen-editor-toolbar-row owen-editor-toolbar-favorites-row" });
       for (const command of favoriteCommands.slice(0, 8)) {
-        this.createToolbarButton(toolbar, command, true);
+        this.createToolbarButton(favoriteRow, command, true);
       }
     }
 
-    toolbar.createDiv({ cls: "owen-editor-toolbar-separator" });
-    this.createToolbarGroupButton(toolbar, "text-select", "Open selection tools", "Selection");
-    this.createToolbarGroupButton(toolbar, "link", "Open link tools", "Links");
-    this.createToolbarGroupButton(toolbar, "list-plus", "Open block tools", "Blocks");
-    this.createToolbarGroupButton(toolbar, "table-2", "Open table tools", "Tables");
-    this.createToolbarGroupButton(toolbar, "sparkles", "Open Owen Graphite tools", "Owen Graphite");
+    primaryRow.createDiv({ cls: "owen-editor-toolbar-separator" });
+    this.createToolbarGroupButton(primaryRow, "text-select", "Open selection tools", "Selection");
+    this.createToolbarGroupButton(primaryRow, "link", "Open link tools", "Links");
+    this.createToolbarGroupButton(primaryRow, "list-plus", "Open block tools", "Blocks");
+    this.createToolbarGroupButton(primaryRow, "table-2", "Open table tools", "Tables");
+    this.createToolbarGroupButton(primaryRow, "sparkles", "Open Owen Graphite tools", "Owen Graphite");
 
-    const paletteButton = toolbar.createEl("button", {
+    const paletteButton = primaryRow.createEl("button", {
       cls: "owen-editor-toolbar-button owen-editor-toolbar-palette mod-all-commands",
       attr: {
         type: "button",
@@ -779,6 +780,7 @@ class OwenEditorPaletteModal extends Modal {
   }
 
   onOpen() {
+    this.modalEl.addClass("owen-editor-palette-modal");
     this.titleEl.setText("Owen Editor");
     this.render();
   }
@@ -830,7 +832,7 @@ class OwenEditorPaletteModal extends Modal {
           });
           const icon = button.createSpan({ cls: "owen-editor-command-icon" });
           setIcon(icon, command.icon);
-          button.createSpan({ text: command.name });
+          button.createSpan({ text: command.name, cls: "owen-editor-command-label" });
           button.addEventListener("click", () => {
             this.plugin.runCommand(command);
             this.close();

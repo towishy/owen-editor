@@ -1,12 +1,13 @@
 .owen-editor-glass-toolbar {
-  align-items: center;
+  align-items: stretch;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   background: rgba(248, 250, 252, 0.7);
   border: 1px solid rgba(148, 163, 184, 0.5);
   border-radius: 8px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 12px 30px rgba(15, 23, 42, 0.18);
-  display: flex;
+  display: inline-flex;
+  flex-direction: column;
   flex-wrap: nowrap;
   gap: 4px;
   left: calc(50% - 72px);
@@ -18,6 +19,26 @@
   transform: translateX(-50%);
   width: max-content;
   z-index: var(--layer-popover);
+}
+
+.owen-editor-toolbar-row {
+  align-items: center;
+  display: flex;
+  flex: 0 1 auto;
+  gap: 4px;
+  justify-content: center;
+  min-width: 0;
+}
+
+.owen-editor-toolbar-primary-row {
+  flex-wrap: nowrap;
+}
+
+.owen-editor-toolbar-favorites-row {
+  border-top: 1px solid rgba(100, 116, 139, 0.16);
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 4px;
 }
 
 .owen-editor-toolbar-button {
@@ -107,7 +128,10 @@
 }
 
 .owen-editor-toolbar-button.is-favorite {
+  background: rgba(255, 251, 235, 0.72);
+  border-color: rgba(245, 158, 11, 0.34);
   box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.22);
+  color: #92400e;
 }
 
 .owen-editor-toolbar-palette {
@@ -181,6 +205,11 @@ body.is-mobile .owen-editor-glass-toolbar {
   width: fit-content;
 }
 
+body.is-mobile .owen-editor-toolbar-primary-row,
+body.is-mobile .owen-editor-toolbar-favorites-row {
+  flex-wrap: wrap;
+}
+
 body.is-mobile .owen-editor-toolbar-button::before,
 body.is-mobile .owen-editor-toolbar-button::after {
   display: none;
@@ -190,6 +219,11 @@ body.is-mobile .owen-editor-toolbar-button::after {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.modal.owen-editor-palette-modal {
+  max-width: calc(100vw - 72px);
+  width: min(1120px, calc(100vw - 72px));
 }
 
 .owen-editor-search {
@@ -213,15 +247,15 @@ body.is-mobile .owen-editor-toolbar-button::after {
 
 .owen-editor-command-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 10px;
 }
 
 .owen-editor-command-item {
   align-items: stretch;
   display: grid;
-  gap: 6px;
-  grid-template-columns: minmax(0, 1fr) 32px;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 36px;
 }
 
 .owen-editor-command-button {
@@ -231,10 +265,17 @@ body.is-mobile .owen-editor-toolbar-button::after {
   display: flex;
   gap: 8px;
   justify-content: flex-start;
-  min-height: 36px;
-  padding: 6px 8px;
+  min-height: 44px;
+  padding: 8px 10px;
   text-align: left;
   width: 100%;
+}
+
+.owen-editor-command-label {
+  line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .owen-editor-command-button:hover,
@@ -249,7 +290,7 @@ body.is-mobile .owen-editor-toolbar-button::after {
   color: var(--text-faint);
   display: inline-flex;
   justify-content: center;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0;
 }
 
