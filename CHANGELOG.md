@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-04-28
+
+### Fixed
+
+- Kept command palette labels and preview snippets inside their panels on narrow or dense layouts.
+
 ## [0.6.5] - 2026-04-28
 
 ### Added
@@ -145,7 +151,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.5...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.6...HEAD
+[0.6.6]: https://github.com/towishy/owen-editor/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/towishy/owen-editor/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/towishy/owen-editor/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/towishy/owen-editor/compare/0.6.2...0.6.3

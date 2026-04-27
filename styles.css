@@ -490,7 +490,7 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-command-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 10px;
 }
 
@@ -499,16 +499,20 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   display: grid;
   gap: 8px;
   grid-template-columns: minmax(0, 1fr) 36px;
+  min-width: 0;
 }
 
 .owen-editor-command-button {
   align-items: center;
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
+  box-sizing: border-box;
   display: flex;
   gap: 8px;
+  height: auto;
   justify-content: flex-start;
   min-height: 44px;
+  min-width: 0;
   padding: 8px 10px;
   text-align: left;
   width: 100%;
@@ -522,6 +526,7 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-command-label {
+  display: block;
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -533,10 +538,12 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 5px;
+  box-sizing: border-box;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   line-height: 1.2;
   max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   padding: 2px 6px;
   text-overflow: ellipsis;
@@ -547,12 +554,16 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 5px;
+  box-sizing: border-box;
   color: var(--text-muted);
   display: block;
   font-size: var(--font-ui-smaller);
   line-height: 1.25;
   max-height: 54px;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
+  overflow-wrap: anywhere;
   padding: 4px 6px;
   white-space: pre-wrap;
 }

@@ -20,8 +20,9 @@ function getReleaseNotes(releaseVersion) {
 }
 
 function run(command, commandArgs) {
+  const useShell = process.platform === "win32" && command === "npm";
   console.log(`$ ${command} ${commandArgs.join(" ")}`);
-  execFileSync(command, commandArgs, { cwd: root, stdio: "inherit" });
+  execFileSync(command, commandArgs, { cwd: root, shell: useShell, stdio: "inherit" });
 }
 
 run("npm", ["run", "build"]);
