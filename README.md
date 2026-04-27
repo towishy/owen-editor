@@ -1,6 +1,6 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.6](https://img.shields.io/badge/release-v0.6.6-0b8bdc?style=flat-square)
+![release v0.6.7](https://img.shields.io/badge/release-v0.6.7-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 15 options](https://img.shields.io/badge/Settings-15%20options-0f9b8e?style=flat-square)
@@ -33,6 +33,12 @@ Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolb
 - Table helpers for basic Markdown tables and Owen Graphite report table presets.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
 - A3/PDF-friendly Owen Graphite snippets for source notes, metric rows, and decision matrices.
+
+## v0.6.6 Palette Layout Sample
+
+Version 0.6.6 keeps long command labels, preview chips, and code snippets inside each command panel on dense palette layouts.
+
+![Owen Editor v0.6.6 command palette overflow sample](screenshots/owen-editor-v0.6.6-palette-overflow.png)
 
 ## Owen Graphite Theme Notice
 

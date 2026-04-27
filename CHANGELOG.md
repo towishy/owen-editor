@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-04-28
+
+### Added
+
+- Added a README sample image showing the v0.6.6 command palette overflow fix.
+
 ## [0.6.6] - 2026-04-28
 
 ### Fixed
@@ -151,7 +157,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.6...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.7...HEAD
+[0.6.7]: https://github.com/towishy/owen-editor/compare/0.6.6...0.6.7
 [0.6.6]: https://github.com/towishy/owen-editor/compare/0.6.5...0.6.6
 [0.6.5]: https://github.com/towishy/owen-editor/compare/0.6.4...0.6.5
 [0.6.4]: https://github.com/towishy/owen-editor/compare/0.6.3...0.6.4

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owen Editor v0.6.6 palette overflow sample</title>
+  <style>
+    :root {
+      --background-primary: #f8fafc;
+      --background-secondary: #eef2f7;
+      --background-modifier-border: #d8dee8;
+      --text-normal: #172033;
+      --text-muted: #69758a;
+      --text-faint: #8792a4;
+      --text-accent: #5b6ee1;
+      --accent: #6d28d9;
+      --success: #0f9f6e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      align-items: center;
+      background: #e7ecf3;
+      color: var(--text-normal);
+      display: flex;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      justify-content: center;
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .frame {
+      background: rgba(248, 250, 252, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      border-radius: 8px;
+      box-shadow: 0 24px 54px rgba(15, 23, 42, 0.16);
+      overflow: hidden;
+      width: 1040px;
+    }
+
+    .chrome {
+      align-items: center;
+      background: #f2f5f9;
+      border-bottom: 1px solid var(--background-modifier-border);
+      display: flex;
+      gap: 10px;
+      height: 42px;
+      padding: 0 14px;
+    }
+
+    .dot {
+      background: #cbd5e1;
+      border-radius: 999px;
+      height: 9px;
+      width: 9px;
+    }
+
+    .title {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 650;
+      margin-left: 6px;
+    }
+
+    .panel {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .search {
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      color: var(--text-faint);
+      display: flex;
+      font-size: 13px;
+      height: 38px;
+      padding: 0 12px;
+    }
+
+    .section {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .section-title {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .sub-title {
+      color: var(--text-faint);
+      font-size: 12px;
+      font-weight: 650;
+      margin: 0 0 -4px;
+    }
+
+    .command-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    }
+
+    .command-item {
+      align-items: stretch;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) 36px;
+      min-width: 0;
+    }
+
+    .command-button,
+    .favorite-button {
+      background: #f9fbfd;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      color: var(--text-normal);
+      min-height: 44px;
+    }
+
+    .command-button {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      height: auto;
+      justify-content: flex-start;
+      min-width: 0;
+      padding: 8px 10px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .favorite-button {
+      align-items: center;
+      color: #b45309;
+      display: inline-flex;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .icon {
+      align-items: center;
+      color: var(--text-accent);
+      display: inline-flex;
+      flex: 0 0 auto;
+      font-size: 17px;
+      justify-content: center;
+      width: 18px;
+    }
+
+    .copy {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      font-weight: 620;
+      line-height: 1.25;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
+    .preview {
+      align-self: flex-start;
+      background: rgba(237, 233, 254, 0.48);
+      border: 1px solid rgba(167, 139, 250, 0.34);
+      border-radius: 5px;
+      color: var(--accent);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.2;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
+      padding: 2px 6px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail {
+      background: #ffffff;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 5px;
+      color: var(--text-muted);
+      display: block;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.25;
+      max-height: 54px;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      padding: 4px 6px;
+      white-space: pre-wrap;
+    }
+
+    .callout {
+      align-items: center;
+      background: #ecfdf5;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 6px;
+      color: #047857;
+      display: flex;
+      font-size: 12px;
+      font-weight: 650;
+      gap: 8px;
+      padding: 8px 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="frame" aria-label="Owen Editor v0.6.6 command palette overflow sample">
+    <div class="chrome">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="title">Owen Editor command palette - v0.6.6</span>
+    </div>
+    <div class="panel">
+      <div class="search">Search commands, snippets, Graphite helpers...</div>
+      <section class="section">
+        <h2 class="section-title">Tables</h2>
+        <p class="sub-title">Owen Graphite tables</p>
+        <div class="command-grid">
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">▦</span>
+              <span class="copy">
+                <span class="label">Insert Owen Graphite wide comparison table</span>
+                <span class="preview">Graphite table preset</span>
+                <code class="detail">&lt;table class=&quot;wide-table print-fit-table comparison-table wrap-table&quot;&gt;</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">☆</button>
+          </div>
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">▣</span>
+              <span class="copy">
+                <span class="label">Insert Owen Graphite risk matrix</span>
+                <span class="preview">Graphite table preset</span>
+                <code class="detail">&lt;table class=&quot;matrix-table compact-table&quot;&gt;</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">☆</button>
+          </div>
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">▥</span>
+              <span class="copy">
+                <span class="label">Insert Owen Graphite numeric table</span>
+                <span class="preview">Graphite table preset</span>
+                <code class="detail">&lt;table class=&quot;numeric-table compact-table wrap-table&quot;&gt;</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">☆</button>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <h2 class="section-title">Owen Graphite</h2>
+        <p class="sub-title">Report helpers</p>
+        <div class="command-grid">
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">▤</span>
+              <span class="copy">
+                <span class="label">Insert comparison report template with long preview content</span>
+                <span class="preview">document template</span>
+                <code class="detail">---
+cssclasses:
+  - ogd-report-mode
+---</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">☆</button>
+          </div>
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">▨</span>
+              <span class="copy">
+                <span class="label">Insert Owen Graphite executive summary</span>
+                <span class="preview">Graphite callout sample</span>
+                <code class="detail">&gt; [!summary] Executive summary</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">★</button>
+          </div>
+          <div class="command-item">
+            <button class="command-button" type="button">
+              <span class="icon">◈</span>
+              <span class="copy">
+                <span class="label">Insert Owen Graphite decision matrix</span>
+                <span class="preview">Graphite table preset</span>
+                <code class="detail">&lt;table class=&quot;matrix-table compact-table&quot;&gt;</code>
+              </span>
+            </button>
+            <button class="favorite-button" type="button">☆</button>
+          </div>
+        </div>
+      </section>
+      <div class="callout">v0.6.6 keeps long labels, preview chips, and code snippets inside each command panel.</div>
+    </div>
+  </main>
+</body>
+</html>
