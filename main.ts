@@ -1092,7 +1092,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "clear-formatting-selection",
-        name: "Clear common Markdown formatting",
+        name: "Clear common markdown formatting",
         icon: "eraser",
         category: "Basic Markdown",
         run: (editor) => clearCommonFormatting(editor)
@@ -1147,7 +1147,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-link",
-        name: "Insert Markdown link",
+        name: "Insert markdown link",
         icon: "link",
         category: "Links",
         group: "Link inserts",
@@ -1259,7 +1259,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-mermaid-block",
-        name: "Insert Mermaid block",
+        name: "Insert mermaid block",
         icon: "workflow",
         category: "Blocks",
         group: "Document blocks",
@@ -1305,7 +1305,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-markdown-table",
-        name: "Insert Markdown table",
+        name: "Insert markdown table",
         icon: "table-2",
         category: "Tables",
         group: "Basic tables",
@@ -1321,7 +1321,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "convert-selection-to-markdown-table",
-        name: "Convert selection to Markdown table",
+        name: "Convert selection to markdown table",
         icon: "table-2",
         category: "Tables",
         group: "Table conversion",
@@ -1330,7 +1330,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "convert-selection-to-graphite-table",
-        name: "Convert selection to Owen Graphite table",
+        name: "Convert selection to owen graphite table",
         icon: "table-properties",
         category: "Tables",
         group: "Table conversion",
@@ -1343,7 +1343,7 @@ export default class OwenEditorPlugin extends Plugin {
       ...CALLOUT_OPTIONS.map(createCalloutCommand),
       {
         id: "insert-graphite-wide-table",
-        name: "Insert Owen Graphite wide comparison table",
+        name: "Insert owen graphite wide comparison table",
         icon: "table-properties",
         category: "Tables",
         group: "Owen Graphite table presets",
@@ -1351,7 +1351,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-risk-table",
-        name: "Insert Owen Graphite risk table",
+        name: "Insert owen graphite risk table",
         icon: "shield-alert",
         category: "Tables",
         group: "Owen Graphite table presets",
@@ -1359,7 +1359,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-numeric-table",
-        name: "Insert Owen Graphite numeric table",
+        name: "Insert owen graphite numeric table",
         icon: "chart-no-axes-column-increasing",
         category: "Tables",
         group: "Owen Graphite table presets",
@@ -1367,7 +1367,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-matrix-table",
-        name: "Insert Owen Graphite risk matrix",
+        name: "Insert owen graphite risk matrix",
         icon: "grid-3x3",
         category: "Tables",
         group: "Owen Graphite table presets",
@@ -1375,7 +1375,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-reference-list",
-        name: "Insert Owen Graphite reference list",
+        name: "Insert owen graphite reference list",
         icon: "library",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1385,7 +1385,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "open-graphite-report-starter",
-        name: "Open Owen Graphite report starter",
+        name: "Open owen graphite report starter",
         icon: "file-plus-2",
         category: "Owen Graphite",
         group: "Document templates",
@@ -1439,7 +1439,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-report-frontmatter",
-        name: "Insert Owen Graphite report frontmatter",
+        name: "Insert owen graphite report frontmatter",
         icon: "file-sliders",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1449,7 +1449,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "wrap-graphite-kbd",
-        name: "Wrap selection with Owen Graphite keyboard tag",
+        name: "Wrap selection with owen graphite keyboard tag",
         icon: "keyboard",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1459,7 +1459,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "wrap-graphite-blur",
-        name: "Wrap selection with Owen Graphite blur",
+        name: "Wrap selection with owen graphite blur",
         icon: "eye-off",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1469,7 +1469,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-secret-callout",
-        name: "Insert Owen Graphite secret callout",
+        name: "Insert owen graphite secret callout",
         icon: "lock-keyhole",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1479,7 +1479,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-summary-callout",
-        name: "Insert Owen Graphite executive summary",
+        name: "Insert owen graphite executive summary",
         icon: "notebook-text",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1489,7 +1489,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-action-callout",
-        name: "Insert Owen Graphite action summary",
+        name: "Insert owen graphite action summary",
         icon: "list-checks",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1499,7 +1499,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-status-badge",
-        name: "Insert Owen Graphite status badge",
+        name: "Insert owen graphite status badge",
         icon: "badge-check",
         category: "Owen Graphite",
         run: (editor) => {
@@ -1509,7 +1509,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-source-note",
-        name: "Insert Owen Graphite source note",
+        name: "Insert owen graphite source note",
         icon: "text-quote",
         category: "Owen Graphite",
         group: "A3/PDF snippets",
@@ -1521,7 +1521,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-metric-row",
-        name: "Insert Owen Graphite metric row",
+        name: "Insert owen graphite metric row",
         icon: "gauge",
         category: "Owen Graphite",
         group: "A3/PDF snippets",
@@ -1533,7 +1533,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-decision-matrix",
-        name: "Insert Owen Graphite decision matrix",
+        name: "Insert owen graphite decision matrix",
         icon: "git-branch-plus",
         category: "Owen Graphite",
         group: "A3/PDF snippets",
