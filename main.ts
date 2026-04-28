@@ -860,8 +860,7 @@ export default class OwenEditorPlugin extends Plugin {
     if (this.settings.toolbarCollapsed) {
       this.createToolbarCollapseButton(toolbar, false);
       this.toolbarEl = toolbar;
-      this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
-      this.toolbarResizeObserver.observe(toolbar);
+      this.observeToolbarResize(toolbar);
       this.updateToolbarContentOffset();
       return;
     }
@@ -916,8 +915,7 @@ export default class OwenEditorPlugin extends Plugin {
     this.createToolbarCollapseButton(primaryRow, true);
 
     this.toolbarEl = toolbar;
-    this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
-    this.toolbarResizeObserver.observe(toolbar);
+    this.observeToolbarResize(toolbar);
     this.updateToolbarContentOffset();
   }
 
@@ -965,6 +963,15 @@ export default class OwenEditorPlugin extends Plugin {
     document.body.style.removeProperty("--owen-editor-toolbar-clearance");
     document.body.style.removeProperty("--owen-editor-toolbar-left");
     document.body.style.removeProperty("--owen-editor-toolbar-max-width");
+  }
+
+  private observeToolbarResize(toolbar: HTMLElement) {
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    this.toolbarResizeObserver = new ResizeObserver(() => this.updateToolbarContentOffset());
+    this.toolbarResizeObserver.observe(toolbar);
   }
 
   private createToolbarCollapseButton(container: HTMLElement, collapse: boolean) {

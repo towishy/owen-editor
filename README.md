@@ -1,6 +1,6 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.9](https://img.shields.io/badge/release-v0.6.9-0b8bdc?style=flat-square)
+![release v0.6.10](https://img.shields.io/badge/release-v0.6.10-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -12,6 +12,33 @@ Owen Editor is part of a Markdown-based knowledge work stack that connects LLM-r
 Owen Editor is an Obsidian plugin that brings a practical Markdown editing toolbar together with quick helpers for the Owen Graphite theme.
 
 ![Owen Editor glass toolbar preview](screenshots/owen-editor-ui-preview.png)
+
+## Installation
+
+After the plugin is accepted into Obsidian Community Plugins, install it from Obsidian's Community Plugins browser.
+
+### Manual zip installation
+
+Use the release zip that contains the plugin files. Do not install GitHub's automatic `Source code.zip` or `Source code.tar.gz` archive.
+
+1. Download `owen-editor-<version>.zip` from the GitHub release assets.
+2. Extract the zip file.
+3. Make sure the extracted plugin folder is named exactly `owen-editor`.
+4. Open your vault's plugin folder: `.obsidian/plugins/`.
+5. Copy the `owen-editor` folder into `.obsidian/plugins/`.
+6. Confirm that the plugin files are directly inside `.obsidian/plugins/owen-editor/`.
+
+The final vault layout must be:
+
+```text
+.obsidian/plugins/owen-editor/main.js
+.obsidian/plugins/owen-editor/manifest.json
+.obsidian/plugins/owen-editor/styles.css
+```
+
+Do not leave the zip file directly inside `.obsidian/plugins/`, and do not use a nested folder layout such as `.obsidian/plugins/owen-editor/owen-editor/main.js`.
+
+Restart Obsidian or reload plugins, then enable `Owen Editor`.
 
 ## Features
 
@@ -97,18 +124,6 @@ Use the table builder from the Tables palette when you need a custom number of r
 - Settings JSON: export and import portable toolbar settings across vaults or devices.
 
 Settings are grouped by toolbar behavior, selection tools, shortcuts, Graphite helpers, and favorites so the growing command surface stays easier to scan.
-
-## Installation
-
-After the plugin is accepted into Obsidian Community Plugins, install it from Obsidian's Community Plugins browser.
-
-For manual installation, download the release assets and copy these files into `.obsidian/plugins/owen-editor/` in your vault:
-
-- `main.js`
-- `manifest.json`
-- `styles.css`
-
-Restart Obsidian or reload plugins, then enable `Owen Editor`.
 
 ## Development
 

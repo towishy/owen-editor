@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.10] - 2026-04-28
+
+### Fixed
+
+- Guarded toolbar resize observation so Owen Editor can still load when `ResizeObserver` is unavailable.
+- Clarified manual zip installation steps before the feature overview.
+- Added a versioned release zip asset for manual installation.
+
 ## [0.6.9] - 2026-04-28
 
 ### Fixed
@@ -175,7 +183,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.9...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.10...HEAD
+[0.6.10]: https://github.com/towishy/owen-editor/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/towishy/owen-editor/compare/0.6.8...0.6.9
 [0.6.8]: https://github.com/towishy/owen-editor/compare/0.6.7...0.6.8
 [0.6.7]: https://github.com/towishy/owen-editor/compare/0.6.6...0.6.7

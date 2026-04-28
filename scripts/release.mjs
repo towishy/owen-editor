@@ -6,6 +6,7 @@ const root = resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const version = manifest.version;
+const releaseZip = `owen-editor-${version}.zip`;
 
 function getReleaseNotes(releaseVersion) {
   const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
@@ -37,10 +38,12 @@ if (!args.has("--create")) {
 run("git", ["tag", version]);
 run("git", ["push", "origin", "main"]);
 run("git", ["push", "origin", version]);
+run("zip", ["-j", releaseZip, "main.js", "manifest.json", "styles.css"]);
 run("gh", [
   "release",
   "create",
   version,
+  releaseZip,
   "main.js",
   "manifest.json",
   "styles.css",
