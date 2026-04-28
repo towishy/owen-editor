@@ -38,7 +38,7 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   recentCommandIds: []
 };
 
-type CommandCategory = "Basic markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen graphite";
+type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
 type ToolbarPosition = "top" | "bottom";
 type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
 type FavoriteDisplayMode = "always" | "hover" | "hidden";
@@ -112,7 +112,7 @@ interface TableBuilderOptions {
 }
 
 const HIGHLIGHT_COLOR_OPTIONS: HighlightColorOption[] = [
-  { name: "Default markdown", description: "Obsidian 기본 ==highlight==", background: "#fff3a3", foreground: "#1f2937", format: "markdown" },
+  { name: "Default Markdown", description: "Obsidian 기본 ==highlight==", background: "#fff3a3", foreground: "#1f2937", format: "markdown" },
   { name: "Soft yellow", description: "중요 문장", background: "#fef3c7", foreground: "#1f2937", format: "html" },
   { name: "Mint", description: "완료/긍정", background: "#d1fae5", foreground: "#064e3b", format: "html" },
   { name: "Sky", description: "정보/참고", background: "#dbeafe", foreground: "#1e3a8a", format: "html" },
@@ -277,7 +277,7 @@ const GRAPHITE_DECISION_MATRIX = `<table class="matrix-table compact-table print
 </table>`;
 const DOCUMENT_TEMPLATES = {
   executiveSummary: `---
-title: Executive Summary
+title: Executive summary
 tags:
   - report
 cssclasses:
@@ -285,12 +285,12 @@ cssclasses:
   - ogd-modern-tables
 ---
 
-# Executive Summary
+# Executive summary
 
 > [!summary] 핵심 결론
 > 의사결정자가 먼저 봐야 할 결론을 3문장 이내로 작성합니다.
 
-## Key Findings
+## Key findings
 
 - Finding 1:
 - Finding 2:
@@ -303,7 +303,7 @@ cssclasses:
 - Next step:
 `,
   comparisonReport: `---
-title: Comparison Matrix
+title: Comparison matrix
 tags:
   - report
 cssclasses:
@@ -312,7 +312,7 @@ cssclasses:
   - ogd-print-avoid-breaks
 ---
 
-# Comparison Matrix
+# Comparison matrix
 
 ${GRAPHITE_WIDE_TABLE}
 
@@ -323,7 +323,7 @@ ${GRAPHITE_WIDE_TABLE}
 - 권장안:
 `,
   riskReview: `---
-title: Risk Review
+title: Risk review
 tags:
   - risk
 cssclasses:
@@ -331,23 +331,23 @@ cssclasses:
   - ogd-modern-tables
 ---
 
-# Risk Review
+# Risk review
 
 ${GRAPHITE_RISK_TABLE}
 
-## Mitigation Plan
+## Mitigation plan
 
 - High:
 - Medium:
 - Follow-up:
 `,
   meetingReview: `---
-title: Meeting Review
+title: Meeting review
 tags:
   - meeting
 ---
 
-# Meeting Review
+# Meeting review
 
 ## Agenda
 
@@ -357,7 +357,7 @@ tags:
 
 -
 
-## Action Items
+## Action items
 
 > [!action] Next steps
 > - 담당자:
@@ -444,7 +444,7 @@ export default class OwenEditorPlugin extends Plugin {
     await this.loadSettings();
     this.commands = this.buildCommands();
 
-    this.addRibbonIcon("pencil-line", "Owen editor", () => this.openPalette());
+    this.addRibbonIcon("pencil-line", "Owen Editor", () => this.openPalette());
     this.addCommand({
       id: "open-palette",
       name: "Open palette",
@@ -655,7 +655,7 @@ export default class OwenEditorPlugin extends Plugin {
   runCommand(command: EditorCommand) {
     const editor = this.getActiveEditor();
     if (!editor) {
-      new Notice("Owen editor: 활성 markdown 편집기를 찾을 수 없습니다.");
+      new Notice("Owen Editor: 활성 Markdown 편집기를 찾을 수 없습니다.");
       return;
     }
     this.executeCommand(command, editor);
@@ -700,7 +700,7 @@ export default class OwenEditorPlugin extends Plugin {
 
     this.statusBarItem = this.addStatusBarItem();
     this.statusBarItem.addClass("owen-editor-status-button");
-    this.statusBarItem.setText("Owen editor");
+    this.statusBarItem.setText("Owen Editor");
     this.statusBarItem.setAttr("aria-label", "Open palette");
     this.registerDomEvent(this.statusBarItem, "click", () => this.openPalette());
   }
@@ -900,7 +900,7 @@ export default class OwenEditorPlugin extends Plugin {
     this.createToolbarGroupButton(primaryRow, "link", "Open link tools", "Links");
     this.createToolbarGroupButton(primaryRow, "list-plus", "Open block tools", "Blocks");
     this.createToolbarGroupButton(primaryRow, "table-2", "Open table tools", "Tables");
-    this.createToolbarGroupButton(primaryRow, "sparkles", "Open Owen graphite tools", "Owen graphite");
+    this.createToolbarGroupButton(primaryRow, "sparkles", "Open Owen Graphite tools", "Owen Graphite");
 
     const paletteButton = primaryRow.createEl("button", {
       cls: "owen-editor-toolbar-button owen-editor-toolbar-palette mod-all-commands",
@@ -1017,21 +1017,21 @@ export default class OwenEditorPlugin extends Plugin {
         id: "undo-edit",
         name: "Undo edit",
         icon: "undo-2",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => runEditorHistory(editor, "undo")
       },
       {
         id: "redo-edit",
         name: "Redo edit",
         icon: "redo-2",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => runEditorHistory(editor, "redo")
       },
       {
         id: "clear-formatting-selection",
-        name: "Clear common markdown formatting",
+        name: "Clear common Markdown formatting",
         icon: "eraser",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => clearCommonFormatting(editor)
       },
       {
@@ -1084,7 +1084,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-link",
-        name: "Insert markdown link",
+        name: "Insert Markdown link",
         icon: "link",
         category: "Links",
         group: "Link inserts",
@@ -1102,14 +1102,14 @@ export default class OwenEditorPlugin extends Plugin {
         id: "outdent-lines",
         name: "Outdent line or selection",
         icon: "indent-decrease",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => adjustLineIndent(editor, "outdent")
       },
       {
         id: "indent-lines",
         name: "Indent line or selection",
         icon: "indent-increase",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => adjustLineIndent(editor, "indent")
       },
       {
@@ -1140,21 +1140,21 @@ export default class OwenEditorPlugin extends Plugin {
         id: "heading-2",
         name: "Convert line to heading 2",
         icon: "heading-2",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => setCurrentLinePrefix(editor, "## ")
       },
       {
         id: "heading-3",
         name: "Convert line to heading 3",
         icon: "heading-3",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => setCurrentLinePrefix(editor, "### ")
       },
       {
         id: "heading-4",
         name: "Convert line to heading 4",
         icon: "heading-4",
-        category: "Basic markdown",
+        category: "Basic Markdown",
         run: (editor) => setCurrentLinePrefix(editor, "#### ")
       },
       {
@@ -1196,7 +1196,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-mermaid-block",
-        name: "Insert mermaid block",
+        name: "Insert Mermaid block",
         icon: "workflow",
         category: "Blocks",
         group: "Document blocks",
@@ -1242,7 +1242,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-markdown-table",
-        name: "Insert markdown table",
+        name: "Insert Markdown table",
         icon: "table-2",
         category: "Tables",
         group: "Basic tables",
@@ -1258,7 +1258,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "convert-selection-to-markdown-table",
-        name: "Convert selection to markdown table",
+        name: "Convert selection to Markdown table",
         icon: "table-2",
         category: "Tables",
         group: "Table conversion",
@@ -1267,7 +1267,7 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "convert-selection-to-graphite-table",
-        name: "Convert selection to Owen graphite table",
+        name: "Convert selection to Owen Graphite table",
         icon: "table-properties",
         category: "Tables",
         group: "Table conversion",
@@ -1280,41 +1280,41 @@ export default class OwenEditorPlugin extends Plugin {
       ...CALLOUT_OPTIONS.map(createCalloutCommand),
       {
         id: "insert-graphite-wide-table",
-        name: "Insert Owen graphite wide comparison table",
+        name: "Insert Owen Graphite wide comparison table",
         icon: "table-properties",
         category: "Tables",
-        group: "Owen graphite table presets",
+        group: "Owen Graphite table presets",
         run: (editor) => insertGraphiteBlock(this, editor, GRAPHITE_WIDE_TABLE, GRAPHITE_WIDE_MARKDOWN_TABLE)
       },
       {
         id: "insert-graphite-risk-table",
-        name: "Insert Owen graphite risk table",
+        name: "Insert Owen Graphite risk table",
         icon: "shield-alert",
         category: "Tables",
-        group: "Owen graphite table presets",
+        group: "Owen Graphite table presets",
         run: (editor) => insertGraphiteBlock(this, editor, GRAPHITE_RISK_TABLE, GRAPHITE_RISK_MARKDOWN_TABLE)
       },
       {
         id: "insert-graphite-numeric-table",
-        name: "Insert Owen graphite numeric table",
+        name: "Insert Owen Graphite numeric table",
         icon: "chart-no-axes-column-increasing",
         category: "Tables",
-        group: "Owen graphite table presets",
+        group: "Owen Graphite table presets",
         run: (editor) => insertGraphiteBlock(this, editor, GRAPHITE_NUMERIC_TABLE, GRAPHITE_NUMERIC_MARKDOWN_TABLE)
       },
       {
         id: "insert-graphite-matrix-table",
-        name: "Insert Owen graphite risk matrix",
+        name: "Insert Owen Graphite risk matrix",
         icon: "grid-3x3",
         category: "Tables",
-        group: "Owen graphite table presets",
+        group: "Owen Graphite table presets",
         run: (editor) => insertGraphiteBlock(this, editor, GRAPHITE_MATRIX_TABLE, GRAPHITE_MATRIX_MARKDOWN_TABLE)
       },
       {
         id: "insert-graphite-reference-list",
-        name: "Insert Owen graphite reference list",
+        name: "Insert Owen Graphite reference list",
         icon: "library",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, GRAPHITE_REFERENCE_LIST);
@@ -1322,9 +1322,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "open-graphite-report-starter",
-        name: "Open Owen graphite report starter",
+        name: "Open Owen Graphite report starter",
         icon: "file-plus-2",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "Document templates",
         aliases: ["wizard", "starter", "report", "보고서", "template", "템플릿"],
         run: (editor) => this.openReportStarter(editor)
@@ -1333,7 +1333,7 @@ export default class OwenEditorPlugin extends Plugin {
         id: "insert-template-executive-summary",
         name: "Insert executive summary document template",
         icon: "file-text",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "Document templates",
         aliases: ["template", "템플릿", "요약", "summary", "executive"],
         run: (editor) => {
@@ -1345,7 +1345,7 @@ export default class OwenEditorPlugin extends Plugin {
         id: "insert-template-comparison-report",
         name: "Insert comparison report template",
         icon: "columns-3",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "Document templates",
         aliases: ["template", "템플릿", "comparison", "비교", "matrix", "매트릭스"],
         run: (editor) => {
@@ -1357,7 +1357,7 @@ export default class OwenEditorPlugin extends Plugin {
         id: "insert-template-risk-review",
         name: "Insert risk review template",
         icon: "shield-alert",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "Document templates",
         aliases: ["template", "템플릿", "risk", "리스크", "review", "검토"],
         run: (editor) => {
@@ -1376,9 +1376,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-report-frontmatter",
-        name: "Insert Owen graphite report frontmatter",
+        name: "Insert Owen Graphite report frontmatter",
         icon: "file-sliders",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "---\ntitle: 보고서 제목\ndate: 2026-04-27\ntags:\n  - report\ncssclasses:\n  - ogd-report-mode\n  - ogd-page-a3-land\n  - ogd-modern-tables\n  - ogd-print-avoid-breaks\ncover: true\n---");
@@ -1386,9 +1386,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "wrap-graphite-kbd",
-        name: "Wrap selection with Owen graphite kbd",
+        name: "Wrap selection with Owen Graphite keyboard tag",
         icon: "keyboard",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           wrapSelection(editor, "<kbd>", "</kbd>", "Cmd+K");
@@ -1396,9 +1396,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "wrap-graphite-blur",
-        name: "Wrap selection with Owen graphite blur",
+        name: "Wrap selection with Owen Graphite blur",
         icon: "eye-off",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           wrapSelection(editor, "<span class=\"ogd-blur\">", "</span>", "비공개 내용");
@@ -1406,9 +1406,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-secret-callout",
-        name: "Insert Owen graphite secret callout",
+        name: "Insert Owen Graphite secret callout",
         icon: "lock-keyhole",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "> [!secret] Restricted\n> hover 시 표시할 내용을 입력합니다.");
@@ -1416,9 +1416,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-summary-callout",
-        name: "Insert Owen graphite executive summary",
+        name: "Insert Owen Graphite executive summary",
         icon: "notebook-text",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "> [!summary] Executive summary\n> 핵심 판단과 근거를 간결하게 정리합니다.");
@@ -1426,9 +1426,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-action-callout",
-        name: "Insert Owen graphite action summary",
+        name: "Insert Owen Graphite action summary",
         icon: "list-checks",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "> [!action] Action items\n> - 담당자: \n> - 기한: \n> - 다음 단계:");
@@ -1436,9 +1436,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-status-badge",
-        name: "Insert Owen graphite status badge",
+        name: "Insert Owen Graphite status badge",
         icon: "badge-check",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         run: (editor) => {
           this.ensureGraphiteThemeNotice();
           insertBlock(editor, "<span class=\"ogd-status-badge is-e5\">E5</span> <span class=\"ogd-status-badge is-payg\">PAYG</span> <span class=\"ogd-status-badge is-addon\">Add-on</span>");
@@ -1446,9 +1446,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-source-note",
-        name: "Insert Owen graphite source note",
+        name: "Insert Owen Graphite source note",
         icon: "text-quote",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "A3/PDF snippets",
         aliases: ["source", "출처", "pdf", "a3", "print"],
         run: (editor) => {
@@ -1458,9 +1458,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-metric-row",
-        name: "Insert Owen graphite metric row",
+        name: "Insert Owen Graphite metric row",
         icon: "gauge",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "A3/PDF snippets",
         aliases: ["metric", "지표", "kpi", "pdf", "a3", "print"],
         run: (editor) => {
@@ -1470,9 +1470,9 @@ export default class OwenEditorPlugin extends Plugin {
       },
       {
         id: "insert-graphite-decision-matrix",
-        name: "Insert Owen graphite decision matrix",
+        name: "Insert Owen Graphite decision matrix",
         icon: "git-branch-plus",
-        category: "Owen graphite",
+        category: "Owen Graphite",
         group: "A3/PDF snippets",
         aliases: ["decision", "의사결정", "matrix", "매트릭스", "pdf", "a3", "print"],
         run: (editor) => {
@@ -1489,7 +1489,7 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.graphiteNoticeShown = true;
-    new Notice("Owen editor: Owen graphite 테마가 활성화되어야 graphite 전용 스타일이 적용됩니다.");
+    new Notice("Owen Editor: Owen Graphite 테마가 활성화되어야 Graphite 전용 스타일이 적용됩니다.");
   }
 
   private isOwenGraphiteThemeActive() {
@@ -1513,7 +1513,7 @@ class OwenEditorPaletteModal extends Modal {
 
   onOpen() {
     this.modalEl.addClass("owen-editor-palette-modal");
-    this.titleEl.setText("Owen editor");
+    this.titleEl.setText("Owen Editor");
     this.render();
   }
 
@@ -1560,7 +1560,7 @@ class OwenEditorPaletteModal extends Modal {
       this.renderCommandGrid(recentSection, recentCommands.slice(0, 6));
     }
 
-    for (const category of ["Basic markdown", "Selection", "Links", "Blocks", "Tables", "Owen graphite"] as CommandCategory[]) {
+    for (const category of ["Basic Markdown", "Selection", "Links", "Blocks", "Tables", "Owen Graphite"] as CommandCategory[]) {
       if (this.initialCategory && category !== this.initialCategory) {
         continue;
       }
@@ -1651,18 +1651,18 @@ function parseCommandQuery(query: string): ParsedCommandQuery {
     table: "Tables",
     tables: "Tables",
     "표": "Tables",
-    graphite: "Owen graphite",
-    ogd: "Owen graphite",
-    owen: "Owen graphite",
+    graphite: "Owen Graphite",
+    ogd: "Owen Graphite",
+    owen: "Owen Graphite",
     link: "Links",
     links: "Links",
     block: "Blocks",
     blocks: "Blocks",
     selection: "Selection",
     select: "Selection",
-    basic: "Basic markdown",
-    markdown: "Basic markdown",
-    md: "Basic markdown"
+    basic: "Basic Markdown",
+    markdown: "Basic Markdown",
+    md: "Basic Markdown"
   };
   return { category: categoryMap[match[1]], text: match[2] };
 }
@@ -1703,12 +1703,12 @@ function fuzzyIncludes(haystack: string, needle: string) {
 function getCommandSearchAliases(command: EditorCommand) {
   const aliases = [...(command.aliases ?? [])];
   const categoryAliases: Record<CommandCategory, string[]> = {
-    "Basic markdown": ["markdown", "md", "마크다운", "기본", "서식", "format"],
+    "Basic Markdown": ["markdown", "md", "마크다운", "기본", "서식", "format"],
     Selection: ["selection", "select", "선택", "감싸기", "wrap", "quote", "인용", "comment", "주석"],
     Links: ["link", "links", "링크", "위키", "wiki", "embed", "임베드", "attachment", "첨부", "image", "이미지", "footnote", "각주"],
     Blocks: ["block", "blocks", "블록", "문서", "frontmatter", "프론트매터", "mermaid", "머메이드", "align", "정렬", "callout", "콜아웃"],
     Tables: ["table", "tables", "표", "테이블", "matrix", "매트릭스", "risk", "리스크", "numeric", "숫자", "wide", "넓은표"],
-    "Owen graphite": ["owen", "graphite", "그래파이트", "오웬", "theme", "테마", "report", "보고서", "badge", "배지", "blur", "숨김", "secret", "비밀"]
+    "Owen Graphite": ["owen", "graphite", "그래파이트", "오웬", "theme", "테마", "report", "보고서", "badge", "배지", "blur", "숨김", "secret", "비밀"]
   };
 
   aliases.push(...categoryAliases[command.category]);
@@ -1746,7 +1746,7 @@ function getCommandPreview(command: EditorCommand) {
     return "Graphite table preset";
   }
   if (command.id.includes("callout")) {
-    return command.category === "Owen graphite" ? "Graphite callout sample" : "Obsidian callout";
+    return command.category === "Owen Graphite" ? "Graphite callout sample" : "Obsidian callout";
   }
   if (command.id.includes("template")) {
     return "document template";
@@ -1762,10 +1762,10 @@ function getCommandPreviewDetail(command: EditorCommand) {
     return "frontmatter + summary + table + source note";
   }
   if (command.id === "convert-selection-to-graphite-table") {
-    return "Csv/tsv/markdown table -> graphite html";
+    return "CSV/TSV/Markdown table -> Graphite HTML";
   }
   if (command.id === "convert-selection-to-markdown-table") {
-    return "Csv/tsv/markdown table -> markdown";
+    return "CSV/TSV/Markdown table -> Markdown";
   }
   if (command.id === "insert-graphite-summary-callout") {
     return "> [!summary] Executive summary";
@@ -1804,7 +1804,7 @@ class OwenEditorReportStarterModal extends Modal {
   private plugin: OwenEditorPlugin;
   private editor: Editor;
   private kind: ReportStarterKind = "executive";
-  private title = "Report Draft";
+  private title = "Report draft";
   private includeMetrics = true;
   private includeSourceNote = true;
 
@@ -1844,7 +1844,7 @@ class OwenEditorReportStarterModal extends Modal {
       .addText((text) => text
         .setValue(this.title)
         .onChange((value) => {
-          this.title = value.trim() || "Report Draft";
+          this.title = value.trim() || "Report draft";
           refreshPreview();
         }));
 
@@ -1946,9 +1946,9 @@ class OwenEditorTableBuilderModal extends Modal {
       .setName("Preset")
       .addDropdown((dropdown) => dropdown
         .addOption("markdown", "Markdown")
-        .addOption("wide", "Owen graphite wide")
-        .addOption("risk", "Owen graphite risk")
-        .addOption("numeric", "Owen graphite numeric")
+        .addOption("wide", "Owen Graphite wide")
+        .addOption("risk", "Owen Graphite risk")
+        .addOption("numeric", "Owen Graphite numeric")
         .setValue(this.options.preset)
         .onChange((value) => {
           this.options.preset = value as TableBuilderPreset;
@@ -1957,8 +1957,8 @@ class OwenEditorTableBuilderModal extends Modal {
         }));
 
     new Setting(this.contentEl)
-      .setName("Use html table")
-      .setDesc("Html tables can carry Owen graphite css classes.")
+      .setName("Use HTML table")
+      .setDesc("HTML tables can carry Owen Graphite CSS classes.")
       .addToggle((toggle) => toggle
         .setValue(this.options.useHtml)
         .onChange((value) => {
@@ -1967,7 +1967,7 @@ class OwenEditorTableBuilderModal extends Modal {
         }));
 
     new Setting(this.contentEl)
-      .setName("Csv or tsv source")
+      .setName("CSV or TSV source")
       .setDesc("붙여넣은 표 데이터가 있으면 rows/columns 대신 이 값을 사용합니다. 헤더와 숫자 컬럼은 자동 추정합니다.")
       .addTextArea((text) => text
         .setPlaceholder("Name\tStatus\tOwner\nItem A\tReady\tOwen")
@@ -2159,7 +2159,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Context-aware toolbar")
-      .setDesc("선택 영역, markdown 표, 코드블록, Owen graphite 보고서 문맥에 맞춰 주요 툴바 명령을 자동으로 바꿉니다.")
+      .setDesc("선택 영역, Markdown 표, 코드블록, Owen Graphite 보고서 문맥에 맞춰 주요 툴바 명령을 자동으로 바꿉니다.")
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.contextAwareToolbar)
         .onChange(async (value) => {
@@ -2193,7 +2193,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Show status bar button")
-      .setDesc("상태바에서 Owen editor 팔레트를 빠르게 엽니다.")
+      .setDesc("상태바에서 Owen Editor 팔레트를 빠르게 엽니다.")
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showStatusBarButton)
         .onChange(async (value) => {
@@ -2201,11 +2201,11 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection("Graphite helpers", "Owen graphite 전용 삽입물의 출력과 안내를 설정합니다.");
+    this.createSettingsSection("Graphite helpers", "Owen Graphite 전용 삽입물의 출력과 안내를 설정합니다.");
 
     new Setting(containerEl)
-      .setName("Prefer Owen graphite html tables")
-      .setDesc("보고서형 표 명령에서 Owen graphite css 클래스를 포함한 html 표를 사용합니다.")
+      .setName("Prefer Owen Graphite HTML tables")
+      .setDesc("보고서형 표 명령에서 Owen Graphite CSS 클래스를 포함한 HTML 표를 사용합니다.")
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.insertHtmlTables)
         .onChange(async (value) => {
@@ -2214,8 +2214,8 @@ class OwenEditorSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName("Warn when Owen graphite is not active")
-      .setDesc("Owen graphite 전용 스니펫을 사용할 때 테마가 활성화되어 있지 않으면 한 번 안내합니다.")
+      .setName("Warn when Owen Graphite is not active")
+      .setDesc("Owen Graphite 전용 스니펫을 사용할 때 테마가 활성화되어 있지 않으면 한 번 안내합니다.")
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showGraphiteThemeNotice)
         .onChange(async (value) => {
@@ -2304,8 +2304,8 @@ class OwenEditorSettingTab extends PluginSettingTab {
 
     let settingsJson = JSON.stringify(getPortableSettings(this.plugin.settings), null, 2);
     new Setting(containerEl)
-      .setName("Settings json")
-      .setDesc("현재 툴바 설정을 내보내거나, 이전에 내보낸 json을 붙여넣어 가져옵니다.")
+      .setName("Settings JSON")
+      .setDesc("현재 툴바 설정을 내보내거나, 이전에 내보낸 JSON을 붙여넣어 가져옵니다.")
       .addTextArea((text) => text
         .setValue(settingsJson)
         .onChange((value) => {
@@ -2313,16 +2313,16 @@ class OwenEditorSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName("Import or refresh json")
+      .setName("Import or refresh JSON")
       .addButton((button) => button
         .setButtonText("Import")
         .onClick(async () => {
           try {
             await this.plugin.replaceSettings(parsePortableSettings(settingsJson));
-            new Notice("Owen editor settings imported.");
+            new Notice("Owen Editor settings imported.");
             this.display();
           } catch (error) {
-            new Notice(`Owen editor import failed: ${error instanceof Error ? error.message : "Invalid json"}`);
+            new Notice(`Owen Editor import failed: ${error instanceof Error ? error.message : "Invalid JSON"}`);
           }
         }))
       .addButton((button) => button
@@ -2432,13 +2432,13 @@ function buildReportStarterDocument(kind: ReportStarterKind, title: string, incl
 function convertSelectionToTable(editor: Editor, preset: TableBuilderPreset) {
   const selection = editor.getSelection();
   if (!selection.trim()) {
-    new Notice("Owen editor: 변환할 표 텍스트를 먼저 선택하세요.");
+    new Notice("Owen Editor: 변환할 표 텍스트를 먼저 선택하세요.");
     return;
   }
 
   const rows = parseTableSelection(selection);
   if (rows.length === 0) {
-    new Notice("Owen editor: 선택 영역에서 표 데이터를 찾지 못했습니다.");
+    new Notice("Owen Editor: 선택 영역에서 표 데이터를 찾지 못했습니다.");
     return;
   }
 
@@ -2638,7 +2638,7 @@ function getPortableSettings(settings: OwenEditorSettings) {
 function parsePortableSettings(value: string): Partial<OwenEditorSettings> {
   const parsed = JSON.parse(value) as Partial<OwenEditorSettings>;
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error("Expected a json object");
+    throw new Error("Expected a JSON object");
   }
   return parsed;
 }
