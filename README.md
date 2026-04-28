@@ -21,6 +21,8 @@ After the plugin is accepted into Obsidian Community Plugins, install it from Ob
 
 > **⚠️ Source code (zip)을 다운받지 마세요.** GitHub 릴리스 페이지 하단의 "Source code (zip)"은 소스코드 전체 아카이브이며 `main.js`가 포함되어 있지 않아 Obsidian에서 플러그인이 활성화되지 않습니다. 반드시 **Assets** 섹션의 `owen-editor.zip`을 다운로드하세요.
 
+![GitHub release download guide](screenshots/github-release-download-guide.svg)
+
 1. [**owen-editor.zip** 다운로드 (GitHub Assets)](https://github.com/towishy/owen-editor/releases/latest/download/owen-editor.zip) — 약 22 KB, `main.js` · `manifest.json` · `styles.css` 3개 파일만 포함.
 2. 압축을 풀면 `owen-editor` 폴더가 생깁니다. 폴더명이 `owen-editor-0.6.x` 등 버전 접미사가 붙어 있다면 Source code (zip)을 받은 것이니 1번 링크에서 다시 받으세요.
 3. 볼트의 `.obsidian/plugins/` 폴더를 엽니다.

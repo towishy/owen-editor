@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="560" viewBox="0 0 680 560">
+  <defs>
+    <style>
+      .bg { fill: #0d1117; }
+      .card { fill: #161b22; stroke: #30363d; stroke-width: 1; rx: 8; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 600; fill: #e6edf3; }
+      .section-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; fill: #8b949e; }
+      .file-name { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; fill: #58a6ff; }
+      .file-size { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; fill: #8b949e; }
+      .row { fill: #161b22; }
+      .row-alt { fill: #1c2129; }
+      .badge-ok { fill: #238636; rx: 12; }
+      .badge-no { fill: #da3633; rx: 12; }
+      .badge-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #ffffff; }
+      .highlight-box { fill: none; stroke: #3fb950; stroke-width: 3; rx: 8; }
+      .warn-box { fill: none; stroke: #f85149; stroke-width: 3; rx: 8; stroke-dasharray: 8 4; }
+      .label-ok { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #3fb950; }
+      .label-no { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #f85149; }
+      .icon { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; }
+      .divider { stroke: #30363d; stroke-width: 1; }
+      .note { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; fill: #8b949e; }
+      .note-warn { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 12px; fill: #f85149; }
+    </style>
+  </defs>
+
+  <rect width="680" height="560" class="bg"/>
+
+  <text x="30" y="36" class="title">🏷️ Owen Editor 0.6.14</text>
+  <text x="270" y="36" class="file-size">Latest</text>
+  <line x1="24" y1="52" x2="656" y2="52" class="divider"/>
+
+  <!-- Green banner -->
+  <rect x="24" y="68" width="632" height="32" rx="8" fill="#0f291a" stroke="#238636" stroke-width="1"/>
+  <text x="40" y="89" class="label-ok">✅ 여기서 다운로드 — Assets 섹션의 owen-editor.zip (22 KB)</text>
+
+  <text x="36" y="124" class="section-label">Assets</text>
+
+  <rect x="24" y="136" width="632" height="164" class="card"/>
+  <rect x="24" y="136" width="632" height="40" class="highlight-box"/>
+
+  <rect x="26" y="138" width="628" height="36" rx="6" fill="#0f291a"/>
+  <text x="44" y="161" class="icon">📦</text>
+  <text x="68" y="161" class="file-name" font-weight="700">owen-editor.zip</text>
+  <rect x="200" y="148" width="78" height="20" class="badge-ok"/>
+  <text x="210" y="162" class="badge-text">main.js 포함</text>
+  <text x="560" y="161" class="file-size">22 KB</text>
+
+  <rect x="26" y="176" width="628" height="30" class="row-alt"/>
+  <text x="44" y="196" class="icon">📄</text>
+  <text x="68" y="196" class="file-name">main.js</text>
+  <text x="560" y="196" class="file-size">70 KB</text>
+
+  <rect x="26" y="206" width="628" height="30" class="row"/>
+  <text x="44" y="226" class="icon">📄</text>
+  <text x="68" y="226" class="file-name">manifest.json</text>
+  <text x="560" y="226" class="file-size">338 B</text>
+
+  <rect x="26" y="236" width="628" height="30" class="row-alt"/>
+  <text x="44" y="256" class="icon">📄</text>
+  <text x="68" y="256" class="file-name">styles.css</text>
+  <text x="560" y="256" class="file-size">21 KB</text>
+
+  <!-- Red banner -->
+  <rect x="24" y="324" width="632" height="32" rx="8" fill="#2d1215" stroke="#da3633" stroke-width="1"/>
+  <text x="40" y="345" class="label-no">❌ 아래는 받지 마세요 — main.js 없어 플러그인 작동 안 함</text>
+
+  <rect x="24" y="368" width="632" height="80" class="card"/>
+  <rect x="24" y="368" width="632" height="80" class="warn-box"/>
+
+  <rect x="26" y="370" width="628" height="36" rx="6" fill="#2d1215" opacity="0.5"/>
+  <text x="44" y="394" class="icon">📁</text>
+  <text x="68" y="394" class="file-name" opacity="0.6">Source code (zip)</text>
+  <rect x="260" y="382" width="90" height="20" class="badge-no"/>
+  <text x="268" y="396" class="badge-text">main.js 미포함</text>
+  <text x="540" y="394" class="file-size">640 KB</text>
+
+  <rect x="26" y="408" width="628" height="36" class="row-alt" opacity="0.5"/>
+  <text x="44" y="432" class="icon">📁</text>
+  <text x="68" y="432" class="file-name" opacity="0.6">Source code (tar.gz)</text>
+  <text x="540" y="432" class="file-size">620 KB</text>
+
+  <!-- Bottom info -->
+  <rect x="24" y="472" width="632" height="72" rx="8" fill="#1c1c2e" stroke="#30363d" stroke-width="1"/>
+  <text x="40" y="498" class="section-label" fill="#e6edf3">💡 구분 방법</text>
+  <text x="40" y="516" class="note">✅ owen-editor.zip → 약 22 KB · 파일 3개 · 폴더명 owen-editor</text>
+  <text x="40" y="534" class="note-warn">❌ Source code (zip) → 약 640 KB · 소스코드 전체 · 폴더명 owen-editor-0.6.14 · main.js 없음</text>
+</svg>
