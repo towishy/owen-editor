@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -7,6 +7,8 @@ const args = new Set(process.argv.slice(2));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const version = manifest.version;
 const releaseZip = `owen-editor-${version}.zip`;
+const releaseStagingRoot = resolve(root, ".release");
+const releasePluginDir = resolve(releaseStagingRoot, "owen-editor");
 
 function getReleaseNotes(releaseVersion) {
   const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
@@ -20,15 +22,28 @@ function getReleaseNotes(releaseVersion) {
   return changelog.slice(start, next === -1 ? undefined : next).trim();
 }
 
-function run(command, commandArgs) {
+function run(command, commandArgs, cwd = root) {
   const useShell = process.platform === "win32" && command === "npm";
   console.log(`$ ${command} ${commandArgs.join(" ")}`);
-  execFileSync(command, commandArgs, { cwd: root, shell: useShell, stdio: "inherit" });
+  execFileSync(command, commandArgs, { cwd, shell: useShell, stdio: "inherit" });
+}
+
+function createReleaseZip() {
+  rmSync(releaseStagingRoot, { recursive: true, force: true });
+  rmSync(resolve(root, releaseZip), { force: true });
+  mkdirSync(releasePluginDir, { recursive: true });
+
+  for (const asset of ["main.js", "manifest.json", "styles.css"]) {
+    copyFileSync(resolve(root, asset), resolve(releasePluginDir, asset));
+  }
+
+  run("zip", ["-r", resolve(root, releaseZip), "owen-editor"], releaseStagingRoot);
 }
 
 run("npm", ["run", "build"]);
 run("npm", ["run", "release:check"]);
 run("git", ["diff", "--check"]);
+createReleaseZip();
 
 if (!args.has("--create")) {
   console.log(`Release preflight passed for Owen Editor ${version}. Use npm run release:create to create the GitHub release.`);
@@ -38,7 +53,6 @@ if (!args.has("--create")) {
 run("git", ["tag", version]);
 run("git", ["push", "origin", "main"]);
 run("git", ["push", "origin", version]);
-run("zip", ["-j", releaseZip, "main.js", "manifest.json", "styles.css"]);
 run("gh", [
   "release",
   "create",

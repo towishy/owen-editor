@@ -2,5 +2,6 @@ node_modules/
 main.js
 *.map
 owen-editor-*.zip
+.release/
 .DS_Store
 .obsidian/

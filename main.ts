@@ -455,9 +455,22 @@ export default class OwenEditorPlugin extends Plugin {
   private optionalUiWarningShown = false;
 
   async onload() {
-    await this.loadSettings();
-    this.commands = this.buildCommands();
+    try {
+      await this.loadSettings();
+      this.commands = this.buildCommands();
+      this.registerPluginCommands();
+      this.addSettingTab(new OwenEditorSettingTab(this.app, this));
+      this.initializePluginUi();
+    } catch (error) {
+      console.error("Owen Editor failed to initialize", error);
+      this.settings = Object.assign({}, DEFAULT_SETTINGS);
+      this.commands = [];
+      this.runOptionalUiSetup("settings tab", () => this.addSettingTab(new OwenEditorSettingTab(this.app, this)));
+      this.showOptionalUiWarning("startup fallback");
+    }
+  }
 
+  private registerPluginCommands() {
     this.runOptionalUiSetup("ribbon shortcut", () => this.addRibbonIcon("pencil-line", "Owen Editor", () => this.openPalette()));
     this.addCommand({
       id: "open-palette",
@@ -477,8 +490,9 @@ export default class OwenEditorPlugin extends Plugin {
         editorCallback: (editor) => this.executeCommand(command, editor)
       });
     }
+  }
 
-    this.addSettingTab(new OwenEditorSettingTab(this.app, this));
+  private initializePluginUi() {
     this.runOptionalUiSetup("toolbar scale", () => this.applyToolbarScale());
     this.runOptionalUiSetup("floating toolbar", () => this.refreshFloatingToolbar());
     this.runOptionalUiSetup("selection toolbar", () => this.refreshSelectionToolbar());
@@ -515,10 +529,20 @@ export default class OwenEditorPlugin extends Plugin {
     try {
       setup();
     } catch {
-      if (!this.optionalUiWarningShown) {
-        this.optionalUiWarningShown = true;
-        new Notice(`Owen Editor: ${label} could not initialize. Commands are still available.`);
-      }
+      this.showOptionalUiWarning(label);
+    }
+  }
+
+  private showOptionalUiWarning(label: string) {
+    if (this.optionalUiWarningShown) {
+      return;
+    }
+
+    this.optionalUiWarningShown = true;
+    try {
+      new Notice(`Owen Editor: ${label} could not initialize. Commands are still available.`);
+    } catch {
+      console.warn(`Owen Editor: ${label} could not initialize.`);
     }
   }
 
@@ -531,7 +555,12 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   async loadSettings() {
-    const loadedSettings = await this.loadData();
+    let loadedSettings: Partial<OwenEditorSettings> | null = null;
+    try {
+      loadedSettings = await this.loadData();
+    } catch (error) {
+      console.warn("Owen Editor could not load saved settings; using defaults.", error);
+    }
     this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedSettings);
     this.settings.toolbarScale = clampToolbarScale(this.settings.toolbarScale);
     if (!["compact", "balanced", "comfortable", "custom"].includes(this.settings.toolbarDensity)) {

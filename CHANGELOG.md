@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.12] - 2026-04-28
+
+### Fixed
+
+- Prevented startup errors from disabling the plugin toggle during core initialization.
+- Fell back to default settings when saved plugin data cannot be loaded.
+- Packaged the manual install zip with a top-level `owen-editor` folder.
+
 ## [0.6.11] - 2026-04-28
 
 ### Fixed
@@ -189,7 +197,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.11...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.12...HEAD
+[0.6.12]: https://github.com/towishy/owen-editor/compare/0.6.11...0.6.12
 [0.6.11]: https://github.com/towishy/owen-editor/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/towishy/owen-editor/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/towishy/owen-editor/compare/0.6.8...0.6.9
