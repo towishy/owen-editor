@@ -40,7 +40,10 @@ assert(changelog.includes("## [Unreleased]"), "CHANGELOG.md must include an Unre
 assert(changelog.includes(`## [${manifest.version}]`), `CHANGELOG.md must include an entry for ${manifest.version}`);
 assert(changelog.includes(`[${manifest.version}]:`), `CHANGELOG.md must include a compare link for ${manifest.version}`);
 assert(!source.match(/id:\s*["'][^"']*owen-editor[^"']*["']/), "Command IDs must not include the plugin ID; Obsidian prefixes them automatically");
+assert(!source.match(/name:\s*["'][^"']*Owen Editor[^"']*["']/), "Command names must not include the plugin name; Obsidian shows it separately");
 assert(!source.match(/createEl\(["']h[12]["']/), "Settings headings should use Setting#setHeading instead of direct h1/h2 elements");
+assert(!source.includes('String(vaultWithConfig.getConfig?.("cssTheme") ?? "")'), "cssTheme config must be type-checked before string methods are used");
+assert(!source.match(/addEventListener\([^\n]+async\s*\(/), "DOM event listeners must not return promises; wrap async work with void");
 
 for (const asset of requiredAssets) {
   const stats = statSync(resolve(root, asset));
