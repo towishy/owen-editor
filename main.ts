@@ -82,6 +82,19 @@ const REPORT_STARTER_OPTIONS: Record<ReportStarterKind, { name: string; template
   meeting: { name: "Meeting review", template: "meetingReview", preset: "markdown" }
 };
 
+function setSafeIcon(element: HTMLElement, icon: string) {
+  try {
+    setIcon(element, icon);
+  } catch {
+    element.replaceChildren();
+  }
+
+  if (!element.querySelector("svg") && !element.textContent?.trim()) {
+    element.setText("*");
+    element.addClass("owen-editor-icon-fallback");
+  }
+}
+
 interface EditorCommand {
   id: string;
   name: string;
@@ -439,12 +452,13 @@ export default class OwenEditorPlugin extends Plugin {
   private toolbarResizeObserver?: ResizeObserver;
   private currentToolbarContext: ToolbarContext = "default";
   private graphiteNoticeShown = false;
+  private optionalUiWarningShown = false;
 
   async onload() {
     await this.loadSettings();
     this.commands = this.buildCommands();
 
-    this.addRibbonIcon("pencil-line", "Owen Editor", () => this.openPalette());
+    this.runOptionalUiSetup("ribbon shortcut", () => this.addRibbonIcon("pencil-line", "Owen Editor", () => this.openPalette()));
     this.addCommand({
       id: "open-palette",
       name: "Open palette",
@@ -465,34 +479,47 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.addSettingTab(new OwenEditorSettingTab(this.app, this));
-    this.applyToolbarScale();
-    this.refreshFloatingToolbar();
-    this.refreshSelectionToolbar();
-    this.refreshStatusBarButton();
-    this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
-    this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateSelectionToolbar()));
-    this.registerEvent(this.app.workspace.on("layout-change", () => {
-      this.updateToolbarContentOffset();
-      this.updateSelectionToolbar();
-    }));
-    this.registerDomEvent(window, "resize", () => {
-      this.updateToolbarContentOffset();
-      this.updateSelectionToolbar();
+    this.runOptionalUiSetup("toolbar scale", () => this.applyToolbarScale());
+    this.runOptionalUiSetup("floating toolbar", () => this.refreshFloatingToolbar());
+    this.runOptionalUiSetup("selection toolbar", () => this.refreshSelectionToolbar());
+    this.runOptionalUiSetup("status bar button", () => this.refreshStatusBarButton());
+    this.runOptionalUiSetup("toolbar events", () => {
+      this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
+      this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateSelectionToolbar()));
+      this.registerEvent(this.app.workspace.on("layout-change", () => {
+        this.updateToolbarContentOffset();
+        this.updateSelectionToolbar();
+      }));
+      this.registerDomEvent(window, "resize", () => {
+        this.updateToolbarContentOffset();
+        this.updateSelectionToolbar();
+      });
+      this.registerDomEvent(window, "scroll", () => this.updateSelectionToolbar(), true);
+      this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
+      this.registerDomEvent(document, "mouseup", () => {
+        this.updateSelectionToolbar();
+        this.refreshToolbarForContext();
+      });
+      this.registerDomEvent(document, "keyup", () => {
+        this.updateSelectionToolbar();
+        this.refreshToolbarForContext();
+      });
+      this.app.workspace.onLayoutReady(() => {
+        this.updateToolbarContentOffset();
+        this.updateSelectionToolbar();
+      });
     });
-    this.registerDomEvent(window, "scroll", () => this.updateSelectionToolbar(), true);
-    this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
-    this.registerDomEvent(document, "mouseup", () => {
-      this.updateSelectionToolbar();
-      this.refreshToolbarForContext();
-    });
-    this.registerDomEvent(document, "keyup", () => {
-      this.updateSelectionToolbar();
-      this.refreshToolbarForContext();
-    });
-    this.app.workspace.onLayoutReady(() => {
-      this.updateToolbarContentOffset();
-      this.updateSelectionToolbar();
-    });
+  }
+
+  private runOptionalUiSetup(label: string, setup: () => void) {
+    try {
+      setup();
+    } catch {
+      if (!this.optionalUiWarningShown) {
+        this.optionalUiWarningShown = true;
+        new Notice(`Owen Editor: ${label} could not initialize. Commands are still available.`);
+      }
+    }
   }
 
   onunload() {
@@ -833,7 +860,7 @@ export default class OwenEditorPlugin extends Plugin {
         "aria-label": command.name
       }
     });
-    setIcon(button.createSpan(), command.icon);
+    setSafeIcon(button.createSpan(), command.icon);
     this.registerDomEvent(button, "click", () => {
       this.runCommand(command);
       this.selectionToolbarEl?.removeClass("is-visible");
@@ -910,7 +937,7 @@ export default class OwenEditorPlugin extends Plugin {
         "data-tooltip": "Open all commands"
       }
     });
-    setIcon(paletteButton.createSpan(), "panel-top-open");
+    setSafeIcon(paletteButton.createSpan(), "panel-top-open");
     this.registerDomEvent(paletteButton, "click", () => this.openPalette());
     this.createToolbarCollapseButton(primaryRow, true);
 
@@ -985,7 +1012,7 @@ export default class OwenEditorPlugin extends Plugin {
         "data-tooltip": label
       }
     });
-    setIcon(button.createSpan(), collapse ? "chevrons-up-down" : "panel-top-open");
+    setSafeIcon(button.createSpan(), collapse ? "chevrons-up-down" : "panel-top-open");
     this.registerDomEvent(button, "click", () => this.toggleToolbarCollapsed());
   }
 
@@ -1000,7 +1027,7 @@ export default class OwenEditorPlugin extends Plugin {
         "data-tooltip": command.name
       }
     });
-    setIcon(button.createSpan(), command.icon);
+    setSafeIcon(button.createSpan(), command.icon);
     this.registerDomEvent(button, "click", () => this.runCommand(command));
   }
 
@@ -1014,7 +1041,7 @@ export default class OwenEditorPlugin extends Plugin {
         "data-tooltip": title
       }
     });
-    setIcon(button.createSpan(), icon);
+    setSafeIcon(button.createSpan(), icon);
     this.registerDomEvent(button, "click", () => this.openPalette(category));
   }
 
@@ -1600,7 +1627,7 @@ class OwenEditorPaletteModal extends Modal {
         attr: { type: "button" }
       });
       const icon = button.createSpan({ cls: "owen-editor-command-icon" });
-      setIcon(icon, command.icon);
+      setSafeIcon(icon, command.icon);
       const copy = button.createDiv({ cls: "owen-editor-command-copy" });
       copy.createSpan({ text: command.name, cls: "owen-editor-command-label" });
       const preview = getCommandPreview(command);
@@ -1624,7 +1651,7 @@ class OwenEditorPaletteModal extends Modal {
           title: this.plugin.isFavoriteCommand(command.id) ? "Remove from toolbar favorites" : "Add to toolbar favorites"
         }
       });
-      setIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
+      setSafeIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
       favoriteButton.addEventListener("click", () => {
         void this.plugin.toggleFavoriteCommand(command.id).then(() => this.render());
       });
