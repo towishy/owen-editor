@@ -1,6 +1,6 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.13](https://img.shields.io/badge/release-v0.6.13-0b8bdc?style=flat-square)
+![release v0.6.14](https://img.shields.io/badge/release-v0.6.14-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -19,14 +19,13 @@ After the plugin is accepted into Obsidian Community Plugins, install it from Ob
 
 ### Manual zip installation
 
-Use the release zip that contains the plugin files. Do not install GitHub's automatic `Source code.zip` or `Source code.tar.gz` archive.
+> **⚠️ Source code (zip)을 다운받지 마세요.** GitHub 릴리스 페이지 하단의 "Source code (zip)"은 소스코드 전체 아카이브이며 `main.js`가 포함되어 있지 않아 Obsidian에서 플러그인이 활성화되지 않습니다. 반드시 **Assets** 섹션의 `owen-editor.zip`을 다운로드하세요.
 
-1. Download `owen-editor.zip` from the GitHub release assets.
-2. Extract the zip file.
-3. Confirm that the extracted folder is named exactly `owen-editor`. If you see a folder such as `owen-editor-0.6.x`, you downloaded an older asset or GitHub's source archive.
-4. Open your vault's plugin folder: `.obsidian/plugins/`.
-5. Copy the `owen-editor` folder into `.obsidian/plugins/`.
-6. Confirm that the plugin files are directly inside `.obsidian/plugins/owen-editor/`.
+1. [**owen-editor.zip** 다운로드 (GitHub Assets)](https://github.com/towishy/owen-editor/releases/latest/download/owen-editor.zip) — 약 22 KB, `main.js` · `manifest.json` · `styles.css` 3개 파일만 포함.
+2. 압축을 풀면 `owen-editor` 폴더가 생깁니다. 폴더명이 `owen-editor-0.6.x` 등 버전 접미사가 붙어 있다면 Source code (zip)을 받은 것이니 1번 링크에서 다시 받으세요.
+3. 볼트의 `.obsidian/plugins/` 폴더를 엽니다.
+4. `owen-editor` 폴더를 `.obsidian/plugins/` 안에 복사합니다.
+5. 아래 3개 파일이 `owen-editor` 폴더 바로 안에 있는지 확인합니다.
 
 The final vault layout must be:
 
