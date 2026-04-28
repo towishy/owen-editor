@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.13] - 2026-04-28
+
+### Fixed
+
+- Renamed the manual install release asset to `owen-editor.zip` so extracted folders are named `owen-editor`.
+
 ## [0.6.12] - 2026-04-28
 
 ### Fixed
@@ -197,7 +203,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.12...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.13...HEAD
+[0.6.13]: https://github.com/towishy/owen-editor/compare/0.6.12...0.6.13
 [0.6.12]: https://github.com/towishy/owen-editor/compare/0.6.11...0.6.12
 [0.6.11]: https://github.com/towishy/owen-editor/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/towishy/owen-editor/compare/0.6.9...0.6.10

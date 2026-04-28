@@ -1,6 +1,6 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
-![release v0.6.12](https://img.shields.io/badge/release-v0.6.12-0b8bdc?style=flat-square)
+![release v0.6.13](https://img.shields.io/badge/release-v0.6.13-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -21,9 +21,9 @@ After the plugin is accepted into Obsidian Community Plugins, install it from Ob
 
 Use the release zip that contains the plugin files. Do not install GitHub's automatic `Source code.zip` or `Source code.tar.gz` archive.
 
-1. Download `owen-editor-<version>.zip` from the GitHub release assets.
+1. Download `owen-editor.zip` from the GitHub release assets.
 2. Extract the zip file.
-3. Confirm that the extracted folder is named exactly `owen-editor`.
+3. Confirm that the extracted folder is named exactly `owen-editor`. If you see a folder such as `owen-editor-0.6.x`, you downloaded an older asset or GitHub's source archive.
 4. Open your vault's plugin folder: `.obsidian/plugins/`.
 5. Copy the `owen-editor` folder into `.obsidian/plugins/`.
 6. Confirm that the plugin files are directly inside `.obsidian/plugins/owen-editor/`.

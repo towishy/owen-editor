@@ -6,9 +6,8 @@ const root = resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const version = manifest.version;
-const releaseZip = `owen-editor-${version}.zip`;
+const releaseZip = "owen-editor.zip";
 const releaseStagingRoot = resolve(root, ".release");
-const releasePluginDir = resolve(releaseStagingRoot, "owen-editor");
 
 function getReleaseNotes(releaseVersion) {
   const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
@@ -31,13 +30,13 @@ function run(command, commandArgs, cwd = root) {
 function createReleaseZip() {
   rmSync(releaseStagingRoot, { recursive: true, force: true });
   rmSync(resolve(root, releaseZip), { force: true });
-  mkdirSync(releasePluginDir, { recursive: true });
+  mkdirSync(releaseStagingRoot, { recursive: true });
 
   for (const asset of ["main.js", "manifest.json", "styles.css"]) {
-    copyFileSync(resolve(root, asset), resolve(releasePluginDir, asset));
+    copyFileSync(resolve(root, asset), resolve(releaseStagingRoot, asset));
   }
 
-  run("zip", ["-r", resolve(root, releaseZip), "owen-editor"], releaseStagingRoot);
+  run("zip", ["-r", resolve(root, releaseZip), "main.js", "manifest.json", "styles.css"], releaseStagingRoot);
 }
 
 run("npm", ["run", "build"]);

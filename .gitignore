@@ -1,6 +1,7 @@
 node_modules/
 main.js
 *.map
+owen-editor.zip
 owen-editor-*.zip
 .release/
 .DS_Store
