@@ -66,6 +66,10 @@ Restart Obsidian or reload plugins, then enable `Owen Editor`.
 - Owen Graphite snippets for report frontmatter, wide comparison tables, risk tables, numeric tables, risk matrices, reference lists, keyboard tags, blur spans, status badges, and theme callouts.
 - A3/PDF-friendly Owen Graphite snippets for source notes, metric rows, and decision matrices.
 
+## AI Writing Guide
+
+Use [docs/llm-wiki-owen-editor-ai-guide.md](docs/llm-wiki-owen-editor-ai-guide.md) when wiring LLM-wiki or other AI writing workflows to Owen Editor. The guide maps Owen Editor commands to Markdown, Owen Graphite classes, report frontmatter, callouts, table presets, and reusable AI prompt instructions.
+
 ## v0.6.6 Palette Layout Sample
 
 Version 0.6.6 keeps long command labels, preview chips, and code snippets inside each command panel on dense palette layouts.
@@ -141,6 +145,7 @@ npm run release:preflight
 Before every release:
 
 - Move completed notes from `CHANGELOG.md` `Unreleased` into a new version section.
+- Review [docs/llm-wiki-owen-editor-ai-guide.md](docs/llm-wiki-owen-editor-ai-guide.md) whenever editor commands, document templates, Graphite snippets, or table helpers change, and release the guide update with the same version.
 - Update `package.json`, `package-lock.json`, `manifest.json`, and `versions.json` to the same version.
 - Run `npm run release:preflight`.
 - Use `npm run release:create` only after the changelog entry and release assets are ready.
