@@ -1,5 +1,7 @@
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
+![Owen AI document production merged model](screenshots/owen-ai-document-merged-model.svg)
+
 ![release v0.6.14](https://img.shields.io/badge/release-v0.6.14-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
