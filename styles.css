@@ -9,6 +9,7 @@
   border: 1px solid rgba(255, 255, 255, 0.44);
   border-radius: 16px;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.2), 0 6px 16px rgba(15, 23, 42, 0.1), 0 0 24px rgba(15, 23, 42, 0.08);
+  contain: layout style;
   display: inline-flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -20,6 +21,7 @@
   padding: calc(6px * var(--owen-editor-toolbar-scale, 1));
   position: fixed;
   transform: translateX(-50%);
+  will-change: transform;
   width: max-content;
   z-index: var(--layer-popover);
 }
@@ -307,6 +309,7 @@
   border: 1px solid rgba(255, 255, 255, 0.44);
   border-radius: 14px;
   box-shadow: 0 11px 26px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08);
+  contain: layout style;
   display: inline-flex;
   gap: calc(4px * var(--owen-editor-toolbar-scale, 1));
   isolation: isolate;
@@ -316,6 +319,7 @@
   position: fixed;
   transform: translateY(4px) scale(0.98);
   transition: opacity 80ms ease, transform 80ms ease;
+  will-change: opacity, transform;
   z-index: calc(var(--layer-popover) + 3);
 }
 
@@ -442,6 +446,7 @@
 .theme-dark .owen-editor-selection-toolbar-button {
   background: linear-gradient(180deg, rgba(51, 65, 85, 0.38), rgba(15, 23, 42, 0.2));
   border-color: rgba(203, 213, 225, 0.17);
+  color: var(--text-normal);
 }
 
 body.is-mobile .owen-editor-glass-toolbar {
@@ -646,8 +651,14 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-command-button:hover,
-.owen-editor-command-button:focus-visible {
+.owen-editor-command-button:focus-visible,
+.owen-editor-command-button.is-selected {
   border-color: var(--interactive-accent);
+}
+
+.owen-editor-command-button.is-selected {
+  background: var(--background-modifier-hover);
+  box-shadow: inset 0 0 0 1px var(--interactive-accent);
 }
 
 .owen-editor-favorite-button {
@@ -821,4 +832,26 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   display: flex;
   justify-content: flex-end;
   padding-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owen-editor-toolbar-button,
+  .owen-editor-toolbar-button::before,
+  .owen-editor-toolbar-button::after,
+  .owen-editor-toolbar-favorites-row,
+  .owen-editor-selection-toolbar,
+  .owen-editor-selection-toolbar-button {
+    transition: none;
+  }
+
+  .owen-editor-toolbar-button:hover,
+  .owen-editor-toolbar-button:focus-visible,
+  .owen-editor-toolbar-button:active,
+  .owen-editor-selection-toolbar,
+  .owen-editor-selection-toolbar.is-visible,
+  .owen-editor-selection-toolbar-button:hover,
+  .owen-editor-selection-toolbar-button:focus-visible,
+  .owen-editor-selection-toolbar-button:active {
+    transform: none;
+  }
 }

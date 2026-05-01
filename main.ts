@@ -455,6 +455,7 @@ export default class OwenEditorPlugin extends Plugin {
   private liquidGlassFilterEl?: SVGSVGElement;
   private statusBarItem?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
+  private selectionToolbarFrame?: number;
   private currentToolbarContext: ToolbarContext = "default";
   private graphiteNoticeShown = false;
   private optionalUiWarningShown = false;
@@ -505,28 +506,28 @@ export default class OwenEditorPlugin extends Plugin {
     this.runOptionalUiSetup("status bar button", () => this.refreshStatusBarButton());
     this.runOptionalUiSetup("toolbar events", () => {
       this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
-      this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateSelectionToolbar()));
+      this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.scheduleSelectionToolbarUpdate()));
       this.registerEvent(this.app.workspace.on("layout-change", () => {
         this.updateToolbarContentOffset();
-        this.updateSelectionToolbar();
+        this.scheduleSelectionToolbarUpdate();
       }));
       this.registerDomEvent(window, "resize", () => {
         this.updateToolbarContentOffset();
-        this.updateSelectionToolbar();
+        this.scheduleSelectionToolbarUpdate();
       });
-      this.registerDomEvent(window, "scroll", () => this.updateSelectionToolbar(), true);
-      this.registerDomEvent(document, "selectionchange", () => this.updateSelectionToolbar());
+      this.registerDomEvent(window, "scroll", () => this.scheduleSelectionToolbarUpdate(), true);
+      this.registerDomEvent(document, "selectionchange", () => this.scheduleSelectionToolbarUpdate());
       this.registerDomEvent(document, "mouseup", () => {
-        this.updateSelectionToolbar();
+        this.scheduleSelectionToolbarUpdate();
         this.refreshToolbarForContext();
       });
       this.registerDomEvent(document, "keyup", () => {
-        this.updateSelectionToolbar();
+        this.scheduleSelectionToolbarUpdate();
         this.refreshToolbarForContext();
       });
       this.app.workspace.onLayoutReady(() => {
         this.updateToolbarContentOffset();
-        this.updateSelectionToolbar();
+        this.scheduleSelectionToolbarUpdate();
       });
     });
   }
@@ -553,6 +554,10 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   onunload() {
+    if (this.selectionToolbarFrame !== undefined) {
+      window.cancelAnimationFrame(this.selectionToolbarFrame);
+      this.selectionToolbarFrame = undefined;
+    }
     this.clearToolbarContentOffset();
     document.body.style.removeProperty("--owen-editor-toolbar-scale");
     this.selectionToolbarEl?.remove();
@@ -844,6 +849,17 @@ export default class OwenEditorPlugin extends Plugin {
     this.updateSelectionToolbar();
   }
 
+  private scheduleSelectionToolbarUpdate() {
+    if (this.selectionToolbarFrame !== undefined) {
+      return;
+    }
+
+    this.selectionToolbarFrame = window.requestAnimationFrame(() => {
+      this.selectionToolbarFrame = undefined;
+      this.updateSelectionToolbar();
+    });
+  }
+
   private refreshToolbarForContext() {
     if (!this.settings.showFloatingToolbar || !this.settings.contextAwareToolbar || this.settings.toolbarCollapsed) {
       return;
@@ -953,7 +969,7 @@ export default class OwenEditorPlugin extends Plugin {
     this.registerDomEvent(button, "click", () => {
       this.runCommand(command);
       this.selectionToolbarEl?.removeClass("is-visible");
-      window.setTimeout(() => this.updateSelectionToolbar(), 80);
+      window.setTimeout(() => this.scheduleSelectionToolbarUpdate(), 80);
     });
   }
 
@@ -1627,6 +1643,8 @@ class OwenEditorPaletteModal extends Modal {
   private plugin: OwenEditorPlugin;
   private initialCategory?: CommandCategory;
   private query = "";
+  private selectedCommandId?: string;
+  private renderAbortController?: AbortController;
 
   constructor(app: App, plugin: OwenEditorPlugin, initialCategory?: CommandCategory) {
     super(app);
@@ -1640,7 +1658,14 @@ class OwenEditorPaletteModal extends Modal {
     this.render();
   }
 
+  onClose() {
+    this.renderAbortController?.abort();
+    this.renderAbortController = undefined;
+  }
+
   private render() {
+    this.renderAbortController?.abort();
+    this.renderAbortController = new AbortController();
     this.contentEl.empty();
     this.contentEl.addClass("owen-editor-palette");
 
@@ -1652,10 +1677,6 @@ class OwenEditorPaletteModal extends Modal {
       }
     });
     searchInput.value = this.query;
-    searchInput.addEventListener("input", () => {
-      this.query = searchInput.value.toLowerCase();
-      this.render();
-    });
 
     this.contentEl.createDiv({
       cls: "owen-editor-palette-context",
@@ -1664,6 +1685,14 @@ class OwenEditorPaletteModal extends Modal {
 
     const parsedQuery = parseCommandQuery(this.query);
     const commands = this.plugin.getCommands().filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
+    const navigableCommands: EditorCommand[] = [];
+    const addNavigableCommands = (items: EditorCommand[]) => {
+      for (const command of items) {
+        if (!navigableCommands.some((candidate) => candidate.id === command.id)) {
+          navigableCommands.push(command);
+        }
+      }
+    };
     const recommendedCommands = this.plugin.getRecommendedCommands(parsedQuery, this.initialCategory)
       .filter((command) => commands.includes(command));
 
@@ -1674,13 +1703,17 @@ class OwenEditorPaletteModal extends Modal {
     if (recommendedCommands.length > 0) {
       const recommendedSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recommended-section" });
       recommendedSection.createEl("h3", { text: "Recommended", cls: "owen-editor-group-title" });
-      this.renderCommandGrid(recommendedSection, recommendedCommands.slice(0, 4));
+      const shownRecommendedCommands = recommendedCommands.slice(0, 4);
+      addNavigableCommands(shownRecommendedCommands);
+      this.renderCommandGrid(recommendedSection, shownRecommendedCommands);
     }
 
     if (recentCommands.length > 0) {
       const recentSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
       recentSection.createEl("h3", { text: "Recent", cls: "owen-editor-group-title" });
-      this.renderCommandGrid(recentSection, recentCommands.slice(0, 6));
+      const shownRecentCommands = recentCommands.slice(0, 6);
+      addNavigableCommands(shownRecentCommands);
+      this.renderCommandGrid(recentSection, shownRecentCommands);
     }
 
     for (const category of ["Basic Markdown", "Selection", "Links", "Blocks", "Tables", "Owen Graphite"] as CommandCategory[]) {
@@ -1700,11 +1733,90 @@ class OwenEditorPaletteModal extends Modal {
         if (commandGroups.length > 1) {
           section.createEl("h4", { text: commandGroup, cls: "owen-editor-subgroup-title" });
         }
-        this.renderCommandGrid(section, groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup));
+        const shownGroupCommands = groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup);
+        addNavigableCommands(shownGroupCommands);
+        this.renderCommandGrid(section, shownGroupCommands);
       }
     }
 
+    this.ensureSelectedCommand(navigableCommands);
+    this.registerRenderEvent(searchInput, "input", () => {
+      this.query = searchInput.value.toLowerCase();
+      this.selectedCommandId = undefined;
+      this.render();
+    });
+    this.registerRenderEvent(searchInput, "keydown", (event: KeyboardEvent) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        this.moveSelectedCommand(navigableCommands, 1);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        this.moveSelectedCommand(navigableCommands, -1);
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        this.runSelectedCommand(navigableCommands);
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        this.close();
+      }
+    });
+    this.updatePaletteSelection(false);
     searchInput.focus();
+  }
+
+  private registerRenderEvent<K extends keyof HTMLElementEventMap>(element: HTMLElement, type: K, listener: (event: HTMLElementEventMap[K]) => void) {
+    element.addEventListener(type, listener, { signal: this.renderAbortController?.signal });
+  }
+
+  private ensureSelectedCommand(commands: EditorCommand[]) {
+    if (commands.length === 0) {
+      this.selectedCommandId = undefined;
+      return;
+    }
+
+    if (!this.selectedCommandId || !commands.some((command) => command.id === this.selectedCommandId)) {
+      this.selectedCommandId = commands[0].id;
+    }
+  }
+
+  private moveSelectedCommand(commands: EditorCommand[], offset: number) {
+    this.ensureSelectedCommand(commands);
+    if (!this.selectedCommandId || commands.length === 0) {
+      return;
+    }
+
+    const currentIndex = Math.max(0, commands.findIndex((command) => command.id === this.selectedCommandId));
+    const nextIndex = (currentIndex + offset + commands.length) % commands.length;
+    this.selectedCommandId = commands[nextIndex].id;
+    this.updatePaletteSelection(true);
+  }
+
+  private runSelectedCommand(commands: EditorCommand[]) {
+    this.ensureSelectedCommand(commands);
+    const command = commands.find((candidate) => candidate.id === this.selectedCommandId);
+    if (!command) {
+      return;
+    }
+
+    this.plugin.runCommand(command);
+    this.close();
+  }
+
+  private updatePaletteSelection(scrollIntoView: boolean) {
+    const buttons = Array.from(this.contentEl.querySelectorAll<HTMLElement>(".owen-editor-command-button[data-command-id]"));
+    let selectedButton: HTMLElement | undefined;
+    for (const button of buttons) {
+      const isSelected = button.getAttribute("data-command-id") === this.selectedCommandId;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-selected", String(isSelected));
+      if (isSelected && !selectedButton) {
+        selectedButton = button;
+      }
+    }
+
+    if (scrollIntoView) {
+      selectedButton?.scrollIntoView({ block: "nearest" });
+    }
   }
 
   private renderCommandGrid(container: HTMLElement, commands: EditorCommand[]) {
@@ -1713,7 +1825,11 @@ class OwenEditorPaletteModal extends Modal {
       const item = grid.createDiv({ cls: "owen-editor-command-item" });
       const button = item.createEl("button", {
         cls: "owen-editor-command-button",
-        attr: { type: "button" }
+        attr: {
+          type: "button",
+          "aria-selected": "false",
+          "data-command-id": command.id
+        }
       });
       const icon = button.createSpan({ cls: "owen-editor-command-icon" });
       setSafeIcon(icon, command.icon);
@@ -1727,7 +1843,7 @@ class OwenEditorPaletteModal extends Modal {
       if (detail) {
         copy.createEl("code", { text: detail, cls: "owen-editor-command-detail-preview" });
       }
-      button.addEventListener("click", () => {
+      this.registerRenderEvent(button, "click", () => {
         this.plugin.runCommand(command);
         this.close();
       });
@@ -1741,8 +1857,18 @@ class OwenEditorPaletteModal extends Modal {
         }
       });
       setSafeIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
-      favoriteButton.addEventListener("click", () => {
-        void this.plugin.toggleFavoriteCommand(command.id).then(() => this.render());
+      this.registerRenderEvent(favoriteButton, "click", () => {
+        favoriteButton.disabled = true;
+        void this.plugin.toggleFavoriteCommand(command.id)
+          .then(() => {
+            if (this.modalEl.isConnected) {
+              this.render();
+            }
+          })
+          .catch((error) => {
+            favoriteButton.disabled = false;
+            new Notice(`Owen Editor favorite update failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+          });
       });
     }
   }

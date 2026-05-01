@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.17] - 2026-05-01
+
+### Added
+
+- Added a reusable Obsidian vault sync script and CI workflow for build and release checks.
+- Added keyboard navigation to the command palette with arrow-key selection and Enter execution.
+
+### Changed
+
+- Batched selection toolbar positioning updates with `requestAnimationFrame` to reduce layout work during scroll and selection changes.
+- Added reduced-motion handling, dark-mode mini-toolbar contrast, and lightweight rendering hints for the glass toolbars.
+- Extended release checks to catch stale README release badges.
+
 ## [0.6.16] - 2026-05-01
 
 ### Changed
@@ -221,7 +234,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.16...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.17...HEAD
+[0.6.17]: https://github.com/towishy/owen-editor/compare/0.6.16...0.6.17
 [0.6.16]: https://github.com/towishy/owen-editor/compare/0.6.15...0.6.16
 [0.6.15]: https://github.com/towishy/owen-editor/compare/0.6.14...0.6.15
 [0.6.14]: https://github.com/towishy/owen-editor/compare/0.6.13...0.6.14
