@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.16] - 2026-05-01
+
+### Changed
+
+- Reworked the floating and selection toolbar glass styling with SVG lens displacement, stronger specular highlights, and light/dark liquid glass layers.
+
 ## [0.6.15] - 2026-04-29
 
 ### Changed
@@ -215,7 +221,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.15...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.16...HEAD
+[0.6.16]: https://github.com/towishy/owen-editor/compare/0.6.15...0.6.16
 [0.6.15]: https://github.com/towishy/owen-editor/compare/0.6.14...0.6.15
 [0.6.14]: https://github.com/towishy/owen-editor/compare/0.6.13...0.6.14
 [0.6.13]: https://github.com/towishy/owen-editor/compare/0.6.12...0.6.13

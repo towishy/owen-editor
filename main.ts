@@ -38,6 +38,10 @@ const DEFAULT_SETTINGS: OwenEditorSettings = {
   recentCommandIds: []
 };
 
+const LIQUID_GLASS_FILTER_ID = "owen-editor-liquid-glass-filter";
+const LIQUID_GLASS_FILTER_SVG_ID = "owen-editor-liquid-glass-filter-svg";
+const SVG_NS = "http://www.w3.org/2000/svg";
+
 type CommandCategory = "Basic Markdown" | "Selection" | "Links" | "Blocks" | "Tables" | "Owen Graphite";
 type ToolbarPosition = "top" | "bottom";
 type ToolbarPreset = "minimal" | "writer" | "report" | "full" | "custom";
@@ -448,6 +452,7 @@ export default class OwenEditorPlugin extends Plugin {
   private commands: EditorCommand[] = [];
   private toolbarEl?: HTMLElement;
   private selectionToolbarEl?: HTMLElement;
+  private liquidGlassFilterEl?: SVGSVGElement;
   private statusBarItem?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
   private currentToolbarContext: ToolbarContext = "default";
@@ -493,6 +498,7 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private initializePluginUi() {
+    this.runOptionalUiSetup("liquid glass filter", () => this.ensureLiquidGlassFilter());
     this.runOptionalUiSetup("toolbar scale", () => this.applyToolbarScale());
     this.runOptionalUiSetup("floating toolbar", () => this.refreshFloatingToolbar());
     this.runOptionalUiSetup("selection toolbar", () => this.refreshSelectionToolbar());
@@ -551,7 +557,61 @@ export default class OwenEditorPlugin extends Plugin {
     document.body.style.removeProperty("--owen-editor-toolbar-scale");
     this.selectionToolbarEl?.remove();
     this.toolbarEl?.remove();
+    this.liquidGlassFilterEl?.remove();
     this.statusBarItem?.remove();
+  }
+
+  private ensureLiquidGlassFilter() {
+    if (this.liquidGlassFilterEl?.isConnected) {
+      return;
+    }
+
+    document.getElementById(LIQUID_GLASS_FILTER_SVG_ID)?.remove();
+
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.id = LIQUID_GLASS_FILTER_SVG_ID;
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.style.position = "absolute";
+    svg.style.width = "0";
+    svg.style.height = "0";
+    svg.style.overflow = "hidden";
+    svg.style.pointerEvents = "none";
+
+    const filter = document.createElementNS(SVG_NS, "filter");
+    filter.id = LIQUID_GLASS_FILTER_ID;
+    filter.setAttribute("x", "0%");
+    filter.setAttribute("y", "0%");
+    filter.setAttribute("width", "100%");
+    filter.setAttribute("height", "100%");
+    filter.setAttribute("filterUnits", "objectBoundingBox");
+
+    const componentTransfer = document.createElementNS(SVG_NS, "feComponentTransfer");
+    componentTransfer.setAttribute("in", "SourceAlpha");
+    componentTransfer.setAttribute("result", "alpha");
+
+    const alpha = document.createElementNS(SVG_NS, "feFuncA");
+    alpha.setAttribute("type", "identity");
+    componentTransfer.appendChild(alpha);
+
+    const blur = document.createElementNS(SVG_NS, "feGaussianBlur");
+    blur.setAttribute("in", "alpha");
+    blur.setAttribute("stdDeviation", "16");
+    blur.setAttribute("result", "blur");
+
+    const displacement = document.createElementNS(SVG_NS, "feDisplacementMap");
+    displacement.setAttribute("in", "SourceGraphic");
+    displacement.setAttribute("in2", "blur");
+    displacement.setAttribute("scale", "16");
+    displacement.setAttribute("xChannelSelector", "A");
+    displacement.setAttribute("yChannelSelector", "A");
+
+    filter.appendChild(componentTransfer);
+    filter.appendChild(blur);
+    filter.appendChild(displacement);
+    svg.appendChild(filter);
+    document.body.appendChild(svg);
+    this.liquidGlassFilterEl = svg;
   }
 
   async loadSettings() {
