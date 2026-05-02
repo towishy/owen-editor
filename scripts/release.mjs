@@ -8,6 +8,8 @@ const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8")
 const version = manifest.version;
 const releaseZip = "owen-editor.zip";
 const releaseStagingRoot = resolve(root, ".release");
+const releaseZipPath = resolve(root, releaseZip);
+const releaseAssets = ["main.js", "manifest.json", "styles.css"];
 
 function getReleaseNotes(releaseVersion) {
   const changelog = readFileSync(resolve(root, "CHANGELOG.md"), "utf8");
@@ -27,16 +29,37 @@ function run(command, commandArgs, cwd = root) {
   execFileSync(command, commandArgs, { cwd, shell: useShell, stdio: "inherit" });
 }
 
+function quotePowerShellString(value) {
+  return `'${value.replaceAll("'", "''")}'`;
+}
+
+function zipReleaseAssets() {
+  try {
+    run("zip", ["-r", releaseZipPath, ...releaseAssets], releaseStagingRoot);
+  } catch (error) {
+    if (process.platform !== "win32" || error?.code !== "ENOENT") {
+      throw error;
+    }
+
+    const literalPaths = releaseAssets.map(quotePowerShellString).join(", ");
+    run("powershell.exe", [
+      "-NoProfile",
+      "-Command",
+      `Compress-Archive -LiteralPath @(${literalPaths}) -DestinationPath ${quotePowerShellString(releaseZipPath)} -Force`
+    ], releaseStagingRoot);
+  }
+}
+
 function createReleaseZip() {
   rmSync(releaseStagingRoot, { recursive: true, force: true });
-  rmSync(resolve(root, releaseZip), { force: true });
+  rmSync(releaseZipPath, { force: true });
   mkdirSync(releaseStagingRoot, { recursive: true });
 
-  for (const asset of ["main.js", "manifest.json", "styles.css"]) {
+  for (const asset of releaseAssets) {
     copyFileSync(resolve(root, asset), resolve(releaseStagingRoot, asset));
   }
 
-  run("zip", ["-r", resolve(root, releaseZip), "main.js", "manifest.json", "styles.css"], releaseStagingRoot);
+  zipReleaseAssets();
 }
 
 run("npm", ["run", "build"]);

@@ -1,3 +1,11 @@
+.owen-editor-liquid-glass-filter-svg {
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+}
+
 .owen-editor-glass-toolbar {
   align-items: stretch;
   --owen-editor-liquid-bg: rgba(255, 255, 255, 0.26);

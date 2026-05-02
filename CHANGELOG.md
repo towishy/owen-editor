@@ -1,10 +1,27 @@
 # Changelog
 
+<!-- markdownlint-disable MD024 -->
+
 All notable changes to Owen Editor are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses semantic versioning.
 
 ## [Unreleased]
+
+## [0.6.18] - 2026-05-02
+
+### Changed
+
+- Rewrote README in Korean with current installation, usage, settings, validation, and release guidance.
+- Updated UI copy to follow Obsidian community plugin sentence-case expectations.
+- Added local Obsidian ReviewBot-style linting with `eslint-plugin-obsidianmd` and `npm run lint:obsidian`.
+- Added a Windows `Compress-Archive` fallback to release automation when the `zip` executable is unavailable.
+
+### Fixed
+
+- Moved static SVG filter styling from direct `element.style` assignments into CSS.
+- Switched editor UI document access to `activeDocument` for better Obsidian popout compatibility.
+- Hardened saved settings loading against non-object data.
 
 ## [0.6.17] - 2026-05-01
 
@@ -234,7 +251,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.17...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.18...HEAD
+[0.6.18]: https://github.com/towishy/owen-editor/compare/0.6.17...0.6.18
 [0.6.17]: https://github.com/towishy/owen-editor/compare/0.6.16...0.6.17
 [0.6.16]: https://github.com/towishy/owen-editor/compare/0.6.15...0.6.16
 [0.6.15]: https://github.com/towishy/owen-editor/compare/0.6.14...0.6.15
