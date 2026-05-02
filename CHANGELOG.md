@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.20] - 2026-05-02
+
+### Changed
+
+- Refreshed the README knowledge-work stack image with brighter modern UI mockups for Owen WIKI, Owen Graphite, and Owen Editor.
+
 ## [0.6.19] - 2026-05-02
 
 ### Fixed
@@ -257,7 +263,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.19...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.20...HEAD
+[0.6.20]: https://github.com/towishy/owen-editor/compare/0.6.19...0.6.20
 [0.6.19]: https://github.com/towishy/owen-editor/compare/0.6.18...0.6.19
 [0.6.18]: https://github.com/towishy/owen-editor/compare/0.6.17...0.6.18
 [0.6.17]: https://github.com/towishy/owen-editor/compare/0.6.16...0.6.17
