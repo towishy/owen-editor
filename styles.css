@@ -93,6 +93,11 @@
   transition: border-color 120ms ease, max-height 120ms ease, opacity 120ms ease, padding-top 120ms ease;
 }
 
+.owen-editor-toolbar-row:has(.owen-editor-toolbar-button:hover),
+.owen-editor-toolbar-row:has(.owen-editor-toolbar-button:focus-visible) {
+  z-index: 4;
+}
+
 .owen-editor-glass-toolbar.is-favorites-hover .owen-editor-toolbar-favorites-row {
   border-top-color: transparent;
   max-height: 0;
@@ -189,6 +194,7 @@
   box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.76), inset 0 0 8px rgba(255, 255, 255, 0.38), 0 5px 13px rgba(15, 23, 42, 0.13);
   color: var(--text-accent);
   transform: translateY(-1px);
+  z-index: 1;
 }
 
 .owen-editor-toolbar-button:active {
