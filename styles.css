@@ -53,7 +53,7 @@
 
 .owen-editor-glass-toolbar::after {
   background: linear-gradient(180deg, var(--owen-editor-liquid-bg), rgba(255, 255, 255, 0.12));
-  box-shadow: inset 1px 1px 0 var(--owen-editor-liquid-highlight), inset -1px -1px 0 rgba(148, 163, 184, 0.1), inset 0 0 9px var(--owen-editor-liquid-edge);
+  box-shadow: inset 1px 1px 0 var(--owen-editor-liquid-highlight), inset 0 0 9px var(--owen-editor-liquid-edge);
   z-index: 1;
 }
 
@@ -86,11 +86,11 @@
 }
 
 .owen-editor-toolbar-favorites-row {
-  border-top: 1px solid rgba(100, 116, 139, 0.14);
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: calc(2px * var(--owen-editor-toolbar-scale, 1));
   padding-top: calc(5px * var(--owen-editor-toolbar-scale, 1));
-  transition: border-color 120ms ease, max-height 120ms ease, opacity 120ms ease, padding-top 120ms ease;
+  transition: max-height 120ms ease, margin-top 120ms ease, opacity 120ms ease, padding-top 120ms ease;
 }
 
 .owen-editor-toolbar-row:has(.owen-editor-toolbar-button:hover),
@@ -99,7 +99,7 @@
 }
 
 .owen-editor-glass-toolbar.is-favorites-hover .owen-editor-toolbar-favorites-row {
-  border-top-color: transparent;
+  margin-top: 0;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -108,7 +108,7 @@
 
 .owen-editor-glass-toolbar.is-favorites-hover:hover .owen-editor-toolbar-favorites-row,
 .owen-editor-glass-toolbar.is-favorites-hover:focus-within .owen-editor-toolbar-favorites-row {
-  border-top-color: rgba(100, 116, 139, 0.14);
+  margin-top: calc(2px * var(--owen-editor-toolbar-scale, 1));
   max-height: calc(48px * var(--owen-editor-toolbar-scale, 1));
   opacity: 1;
   padding-top: calc(5px * var(--owen-editor-toolbar-scale, 1));
@@ -118,10 +118,10 @@
   align-items: center;
   -webkit-backdrop-filter: blur(6px) saturate(135%);
   backdrop-filter: blur(6px) saturate(135%);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16));
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 10px;
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.62), inset 0 0 5px rgba(255, 255, 255, 0.28), 0 1px 2px rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.34), inset 0 0 4px rgba(255, 255, 255, 0.14);
   color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
@@ -187,6 +187,26 @@
   transform: translateX(-50%) translateY(0);
 }
 
+.owen-editor-glass-toolbar.mod-bottom .owen-editor-toolbar-button::after {
+  bottom: calc(100% + 8px);
+  top: auto;
+  transform: translateX(-50%) translateY(2px);
+}
+
+.owen-editor-glass-toolbar.mod-bottom .owen-editor-toolbar-button::before {
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-left: 0;
+  border-right: 1px solid var(--background-modifier-border);
+  border-top: 0;
+  bottom: calc(100% + 4px);
+  top: auto;
+}
+
+.owen-editor-glass-toolbar.mod-bottom .owen-editor-toolbar-button:hover::after,
+.owen-editor-glass-toolbar.mod-bottom .owen-editor-toolbar-button:focus-visible::after {
+  transform: translateX(-50%) translateY(0);
+}
+
 .owen-editor-toolbar-button:hover,
 .owen-editor-toolbar-button:focus-visible {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(var(--interactive-accent-rgb), 0.14));
@@ -209,57 +229,57 @@
 }
 
 .owen-editor-toolbar-button.mod-tables {
-  border-color: rgba(45, 212, 191, 0.24);
+  border-color: rgba(255, 255, 255, 0.18);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-button.mod-owen-graphite {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(245, 243, 255, 0.2));
-  border-color: rgba(167, 139, 250, 0.24);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-button.is-favorite {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 251, 235, 0.22));
-  border-color: rgba(245, 158, 11, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.12);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.34), inset 0 0 4px rgba(255, 255, 255, 0.14);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-collapse {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(226, 232, 240, 0.22));
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-palette {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(238, 242, 255, 0.24));
-  border-color: rgba(129, 140, 248, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-group-button {
-  background: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
 }
 
 .owen-editor-toolbar-group-button.mod-selection {
-  border-color: rgba(244, 114, 182, 0.22);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .owen-editor-toolbar-group-button.mod-links {
-  border-color: rgba(96, 165, 250, 0.24);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .owen-editor-toolbar-group-button.mod-blocks {
-  border-color: rgba(234, 179, 8, 0.22);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .owen-editor-toolbar-group-button.mod-tables {
-  border-color: rgba(45, 212, 191, 0.24);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .owen-editor-toolbar-group-button.mod-owen-graphite {
-  border-color: rgba(167, 139, 250, 0.24);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .owen-editor-toolbar-group-button.mod-selection:hover,
@@ -309,8 +329,9 @@
 }
 
 .owen-editor-toolbar-button svg {
-  height: calc(16px * var(--owen-editor-toolbar-scale, 1));
-  width: calc(16px * var(--owen-editor-toolbar-scale, 1));
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.28));
+  height: calc(17px * var(--owen-editor-toolbar-scale, 1));
+  width: calc(17px * var(--owen-editor-toolbar-scale, 1));
 }
 
 .owen-editor-selection-toolbar {
@@ -424,9 +445,9 @@
 
 .owen-editor-toolbar-separator {
   align-self: stretch;
-  background: rgba(100, 116, 139, 0.22);
-  flex: 0 0 1px;
-  margin: calc(6px * var(--owen-editor-toolbar-scale, 1)) calc(4px * var(--owen-editor-toolbar-scale, 1));
+  background: transparent;
+  flex: 0 0 calc(6px * var(--owen-editor-toolbar-scale, 1));
+  margin: 0 calc(2px * var(--owen-editor-toolbar-scale, 1));
 }
 
 .theme-dark .owen-editor-glass-toolbar {
@@ -440,13 +461,13 @@
 
 .theme-dark .owen-editor-glass-toolbar::after {
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.42), rgba(30, 41, 59, 0.22));
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.13), inset -1px -1px 0 rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(255, 255, 255, 0.08);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.13), inset 0 0 8px rgba(255, 255, 255, 0.08);
 }
 
 .theme-dark .owen-editor-toolbar-button {
-  background: linear-gradient(180deg, rgba(51, 65, 85, 0.34), rgba(15, 23, 42, 0.18));
+  background: rgba(51, 65, 85, 0.14);
   border-color: rgba(203, 213, 225, 0.16);
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 5px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
 .theme-dark .owen-editor-selection-toolbar {
@@ -540,22 +561,27 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-command-section {
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
+  border: 0;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px;
+  padding: 0;
+}
+
+.owen-editor-command-section + .owen-editor-command-section {
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
 }
 
 .owen-editor-recent-section {
-  background: var(--background-secondary);
-  border-style: dashed;
+  background: transparent;
 }
 
 .owen-editor-recommended-section {
-  background: rgba(224, 242, 254, 0.34);
-  border-color: rgba(14, 165, 233, 0.28);
+  background: linear-gradient(180deg, rgba(224, 242, 254, 0.24), transparent);
+  border-top: 1px solid rgba(14, 165, 233, 0.2);
+  padding-top: 10px;
 }
 
 .owen-editor-group-title {
@@ -563,7 +589,6 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   font-weight: var(--font-semibold);
-  text-transform: uppercase;
 }
 
 .owen-editor-command-section > .owen-editor-group-title {
@@ -593,6 +618,7 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-command-button {
   align-items: center;
+  background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
   box-sizing: border-box;
@@ -667,6 +693,7 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 .owen-editor-command-button:hover,
 .owen-editor-command-button:focus-visible,
 .owen-editor-command-button.is-selected {
+  background: var(--background-modifier-hover);
   border-color: var(--interactive-accent);
 }
 
@@ -721,10 +748,52 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   padding: 6px;
 }
 
+.owen-editor-favorite-settings-row.is-invalid {
+  border-color: rgba(220, 38, 38, 0.36);
+}
+
 .owen-editor-favorite-settings-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.owen-editor-favorite-settings-warning {
+  background: rgba(254, 226, 226, 0.38);
+  border: 1px solid rgba(220, 38, 38, 0.24);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin: 6px 0;
+  padding: 6px 8px;
+}
+
+.owen-editor-favorite-action-button {
+  align-items: center;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+}
+
+.owen-editor-favorite-action-button:hover,
+.owen-editor-favorite-action-button:focus-visible {
+  border-color: var(--interactive-accent);
+  color: var(--text-accent);
+}
+
+.owen-editor-favorite-action-button:disabled {
+  cursor: default;
+  opacity: 0.42;
+}
+
+.owen-editor-favorite-action-button svg {
+  height: 14px;
+  width: 14px;
 }
 
 .owen-editor-status-button {

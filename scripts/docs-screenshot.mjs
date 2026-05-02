@@ -3,22 +3,36 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const fixture = resolve(root, "docs/fixtures/v0.6.6-palette-overflow-sample.html");
-const output = resolve(root, "screenshots/owen-editor-v0.6.6-palette-overflow.png");
+const screenshots = [
+  {
+    fixture: resolve(root, "docs/ui-preview.html"),
+    output: resolve(root, "screenshots/owen-editor-ui-preview.png"),
+    viewport: "1240,820"
+  },
+  {
+    fixture: resolve(root, "docs/fixtures/v0.6.6-palette-overflow-sample.html"),
+    output: resolve(root, "screenshots/owen-editor-v0.6.6-palette-overflow.png"),
+    viewport: "1100,760"
+  }
+];
 
-if (!existsSync(fixture)) {
-  throw new Error(`Missing screenshot fixture: ${fixture}`);
+for (const screenshot of screenshots) {
+  if (!existsSync(screenshot.fixture)) {
+    throw new Error(`Missing screenshot fixture: ${screenshot.fixture}`);
+  }
 }
 
 const useShell = process.platform === "win32";
 execFileSync("npx", ["--yes", "playwright", "install", "chromium"], { cwd: root, shell: useShell, stdio: "inherit" });
-execFileSync("npx", [
-  "--yes",
-  "playwright",
-  "screenshot",
-  "--viewport-size=1100,760",
-  `file:///${fixture.replace(/\\/g, "/")}`,
-  output
-], { cwd: root, shell: useShell, stdio: "inherit" });
+for (const screenshot of screenshots) {
+  execFileSync("npx", [
+    "--yes",
+    "playwright",
+    "screenshot",
+    `--viewport-size=${screenshot.viewport}`,
+    `file:///${screenshot.fixture.replace(/\\/g, "/")}`,
+    screenshot.output
+  ], { cwd: root, shell: useShell, stdio: "inherit" });
 
-console.log(`Updated ${output}`);
+  console.log(`Updated ${screenshot.output}`);
+}

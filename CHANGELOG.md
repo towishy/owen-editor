@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.21] - 2026-05-02
+
+### Changed
+
+- Refined the floating toolbar liquid glass styling to reduce individual button card weight and align with the shared glass-panel reference.
+- Improved toolbar tooltip placement, palette density, favorite command management, mobile selection context updates, and table builder source controls.
+- Updated README UI preview screenshots and docs screenshot automation to keep visual samples aligned with the current UI.
+
 ## [0.6.20] - 2026-05-02
 
 ### Changed
@@ -263,7 +271,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.20...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.21...HEAD
+[0.6.21]: https://github.com/towishy/owen-editor/compare/0.6.20...0.6.21
 [0.6.20]: https://github.com/towishy/owen-editor/compare/0.6.19...0.6.20
 [0.6.19]: https://github.com/towishy/owen-editor/compare/0.6.18...0.6.19
 [0.6.18]: https://github.com/towishy/owen-editor/compare/0.6.17...0.6.18

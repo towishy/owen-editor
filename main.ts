@@ -516,7 +516,10 @@ export default class OwenEditorPlugin extends Plugin {
         this.scheduleSelectionToolbarUpdate();
       });
       this.registerDomEvent(window, "scroll", () => this.scheduleSelectionToolbarUpdate(), true);
-      this.registerDomEvent(activeDocument, "selectionchange", () => this.scheduleSelectionToolbarUpdate());
+      this.registerDomEvent(activeDocument, "selectionchange", () => {
+        this.scheduleSelectionToolbarUpdate();
+        this.refreshToolbarForContext();
+      });
       this.registerDomEvent(activeDocument, "mouseup", () => {
         this.scheduleSelectionToolbarUpdate();
         this.refreshToolbarForContext();
@@ -672,6 +675,16 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.settings.favoriteCommandIds = [...favoriteIds];
+    this.settings.toolbarPreset = "custom";
+    await this.saveSettings();
+  }
+
+  async addFavoriteCommand(commandId: string) {
+    if (this.settings.favoriteCommandIds.includes(commandId)) {
+      return;
+    }
+
+    this.settings.favoriteCommandIds = [...this.settings.favoriteCommandIds, commandId];
     this.settings.toolbarPreset = "custom";
     await this.saveSettings();
   }
@@ -1625,7 +1638,7 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     this.graphiteNoticeShown = true;
-    new Notice("Owen editor: Owen graphite 테마가 활성화되어야 graphite 전용 스타일이 적용됩니다.");
+    new Notice("Owen editor: owen graphite 테마가 활성화되어야 graphite 전용 스타일이 적용됩니다.");
   }
 
   private isOwenGraphiteThemeActive() {
@@ -2163,21 +2176,33 @@ class OwenEditorTableBuilderModal extends Modal {
 
     new Setting(this.contentEl)
       .setName("Rows")
-      .addText((text) => text
-        .setValue(String(this.options.rows))
-        .onChange((value) => {
-          this.options.rows = clampInteger(value, 1, 20, 3);
-          refreshPreview();
-        }));
+      .addText((text) => {
+        text.inputEl.type = "number";
+        text.inputEl.min = "1";
+        text.inputEl.max = "20";
+        text.inputEl.step = "1";
+        return text
+          .setValue(String(this.options.rows))
+          .onChange((value) => {
+            this.options.rows = clampInteger(value, 1, 20, 3);
+            refreshPreview();
+          });
+      });
 
     new Setting(this.contentEl)
       .setName("Columns")
-      .addText((text) => text
-        .setValue(String(this.options.columns))
-        .onChange((value) => {
-          this.options.columns = clampInteger(value, 1, 12, 3);
-          refreshPreview();
-        }));
+      .addText((text) => {
+        text.inputEl.type = "number";
+        text.inputEl.min = "1";
+        text.inputEl.max = "12";
+        text.inputEl.step = "1";
+        return text
+          .setValue(String(this.options.columns))
+          .onChange((value) => {
+            this.options.columns = clampInteger(value, 1, 12, 3);
+            refreshPreview();
+          });
+      });
 
     new Setting(this.contentEl)
       .setName("Header row")
@@ -2227,6 +2252,12 @@ class OwenEditorTableBuilderModal extends Modal {
             this.options.columns = Math.max(...sourceRows.map((row) => row.length));
           }
           refreshPreview();
+        }))
+      .addButton((button) => button
+        .setButtonText("Clear source")
+        .onClick(() => {
+          this.options.sourceText = "";
+          this.render();
         }));
 
     sourceInsight = this.contentEl.createDiv({ cls: "owen-editor-table-builder-insight" });
@@ -2499,49 +2530,79 @@ class OwenEditorSettingTab extends PluginSettingTab {
           this.display();
         }));
 
-    new Setting(containerEl)
-      .setName("Toolbar favorites")
-      .setDesc("툴바에 고정할 명령 ID를 쉼표로 구분해 입력합니다. 팔레트의 별 버튼으로도 관리할 수 있습니다.")
-      .addTextArea((text) => text
-        .setPlaceholder("명령 ID를 쉼표로 입력")
-        .setValue(this.plugin.settings.favoriteCommandIds.join(", "))
-        .onChange(async (value) => {
-          this.plugin.settings.favoriteCommandIds = value
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean);
-          this.plugin.settings.toolbarPreset = "custom";
-          await this.plugin.saveSettings();
-        }));
+    const availableFavoriteCommands = this.plugin.getCommands().filter((command) => !this.plugin.isFavoriteCommand(command.id));
+    if (availableFavoriteCommands.length > 0) {
+      let selectedFavoriteCommandId = availableFavoriteCommands[0].id;
+      new Setting(containerEl)
+        .setName("Add favorite command")
+        .setDesc("팔레트 별 버튼 없이도 툴바 즐겨찾기에 명령을 추가합니다.")
+        .addDropdown((dropdown) => {
+          for (const command of availableFavoriteCommands) {
+            dropdown.addOption(command.id, command.name);
+          }
+          dropdown.setValue(selectedFavoriteCommandId);
+          dropdown.onChange((value) => {
+            selectedFavoriteCommandId = value;
+          });
+        })
+        .addButton((button) => button
+          .setButtonText("Add")
+          .onClick(async () => {
+            await this.plugin.addFavoriteCommand(selectedFavoriteCommandId);
+            this.display();
+          }));
+    } else {
+      new Setting(containerEl)
+        .setName("Add favorite command")
+        .setDesc("모든 명령이 이미 즐겨찾기에 추가되어 있습니다.");
+    }
 
-    const favoriteCommands = this.plugin.settings.favoriteCommandIds
-      .map((id) => this.plugin.getCommands().find((command) => command.id === id) ?? id)
-      .filter(Boolean);
+    const favoriteCommands = this.plugin.settings.favoriteCommandIds.map((id) => ({
+      id,
+      command: this.plugin.getCommands().find((candidate) => candidate.id === id)
+    }));
+    const invalidFavoriteIds = favoriteCommands.filter((favorite) => !favorite.command).map((favorite) => favorite.id);
+    if (invalidFavoriteIds.length > 0) {
+      containerEl.createDiv({
+        cls: "owen-editor-favorite-settings-warning",
+        text: `알 수 없는 명령 ID: ${invalidFavoriteIds.join(", ")}`
+      });
+    }
 
     if (favoriteCommands.length > 0) {
       new Setting(containerEl)
         .setName("Favorite order")
         .setHeading();
       const favoriteList = containerEl.createDiv({ cls: "owen-editor-favorite-settings-list" });
-      for (const favorite of favoriteCommands) {
-        const commandId = typeof favorite === "string" ? favorite : favorite.id;
-        const label = typeof favorite === "string" ? favorite : favorite.name;
-        const row = favoriteList.createDiv({ cls: "owen-editor-favorite-settings-row" });
+      for (const [index, favorite] of favoriteCommands.entries()) {
+        const label = favorite.command?.name ?? favorite.id;
+        const row = favoriteList.createDiv({ cls: `owen-editor-favorite-settings-row${favorite.command ? "" : " is-invalid"}` });
         row.createSpan({ text: label, cls: "owen-editor-favorite-settings-label" });
 
-        const moveUp = row.createEl("button", { text: "Up", attr: { type: "button" } });
-        moveUp.addEventListener("click", () => {
-          void this.plugin.moveFavoriteCommand(commandId, "up").then(() => this.display());
-        });
+        const createActionButton = (labelText: string, icon: string, disabled: boolean, action: () => void) => {
+          const actionButton = row.createEl("button", {
+            cls: "owen-editor-favorite-action-button",
+            attr: {
+              type: "button",
+              title: labelText,
+              "aria-label": labelText
+            }
+          });
+          actionButton.disabled = disabled;
+          setSafeIcon(actionButton.createSpan(), icon);
+          if (!disabled) {
+            actionButton.addEventListener("click", action);
+          }
+        };
 
-        const moveDown = row.createEl("button", { text: "Down", attr: { type: "button" } });
-        moveDown.addEventListener("click", () => {
-          void this.plugin.moveFavoriteCommand(commandId, "down").then(() => this.display());
+        createActionButton("Move favorite up", "arrow-up", index === 0, () => {
+          void this.plugin.moveFavoriteCommand(favorite.id, "up").then(() => this.display());
         });
-
-        const remove = row.createEl("button", { text: "Remove", attr: { type: "button" } });
-        remove.addEventListener("click", () => {
-          void this.plugin.removeFavoriteCommand(commandId).then(() => this.display());
+        createActionButton("Move favorite down", "arrow-down", index === favoriteCommands.length - 1, () => {
+          void this.plugin.moveFavoriteCommand(favorite.id, "down").then(() => this.display());
+        });
+        createActionButton("Remove favorite", "x", false, () => {
+          void this.plugin.removeFavoriteCommand(favorite.id).then(() => this.display());
         });
       }
     }
@@ -2828,7 +2889,7 @@ function getDelimitedTableInsight(sourceText: string, includeHeader: boolean) {
   const ragged = rows.some((row) => row.length !== width);
   const bodyRows = includeHeader ? rows.slice(1) : rows;
   const numericColumns = Array.from({ length: width }, (_, index) => index + 1).filter((column) => isNumericColumn(bodyRows, column - 1));
-  const messages = [`${rows.length} rows x ${width} columns detected`, includeHeader ? "header inferred" : "no header inferred"];
+  const messages = [`Source mode: ${rows.length} rows x ${width} columns detected`, includeHeader ? "header inferred" : "no header inferred"];
   if (numericColumns.length > 0) {
     messages.push(`numeric columns: ${numericColumns.join(", ")}`);
   }
