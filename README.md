@@ -185,6 +185,14 @@ npm run dev
 
 `npm run release:check`는 버전 정렬, release asset, license, README preview image, 현재 manifest 버전의 changelog 항목을 확인합니다.
 
+## 후원
+
+<p align="center">
+  <a href="https://github.com/sponsors/towishy">
+    <img src="screenshots/sponsor-coffee.svg" alt="커피 한 잔으로 Owen Editor 응원하기" width="560">
+  </a>
+</p>
+
 ## 저장소
 
 [https://github.com/towishy/owen-editor](https://github.com/towishy/owen-editor)
