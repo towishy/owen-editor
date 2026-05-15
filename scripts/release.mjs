@@ -1,14 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const version = manifest.version;
-const releaseZip = "owen-editor.zip";
-const releaseStagingRoot = resolve(root, ".release");
-const releaseZipPath = resolve(root, releaseZip);
 const releaseAssets = ["main.js", "manifest.json", "styles.css"];
 
 function getReleaseNotes(releaseVersion) {
@@ -29,46 +26,12 @@ function run(command, commandArgs, cwd = root) {
   execFileSync(command, commandArgs, { cwd, shell: useShell, stdio: "inherit" });
 }
 
-function quotePowerShellString(value) {
-  return `'${value.replaceAll("'", "''")}'`;
-}
-
-function zipReleaseAssets() {
-  try {
-    run("zip", ["-r", releaseZipPath, ...releaseAssets], releaseStagingRoot);
-  } catch (error) {
-    if (process.platform !== "win32" || error?.code !== "ENOENT") {
-      throw error;
-    }
-
-    const literalPaths = releaseAssets.map(quotePowerShellString).join(", ");
-    run("powershell.exe", [
-      "-NoProfile",
-      "-Command",
-      `Compress-Archive -LiteralPath @(${literalPaths}) -DestinationPath ${quotePowerShellString(releaseZipPath)} -Force`
-    ], releaseStagingRoot);
-  }
-}
-
-function createReleaseZip() {
-  rmSync(releaseStagingRoot, { recursive: true, force: true });
-  rmSync(releaseZipPath, { force: true });
-  mkdirSync(releaseStagingRoot, { recursive: true });
-
-  for (const asset of releaseAssets) {
-    copyFileSync(resolve(root, asset), resolve(releaseStagingRoot, asset));
-  }
-
-  zipReleaseAssets();
-}
-
 run("npm", ["run", "build"]);
 run("npm", ["run", "release:check"]);
 run("git", ["diff", "--check"]);
-createReleaseZip();
 
 if (!args.has("--create")) {
-  console.log(`Release preflight passed for Owen Editor ${version}. Use npm run release:create to create the GitHub release.`);
+  console.log(`Release preflight passed for Owen Editor ${version}. Push the tag ${version} to trigger the release workflow, or use npm run release:create to publish from this machine.`);
   process.exit(0);
 }
 
@@ -79,10 +42,7 @@ run("gh", [
   "release",
   "create",
   version,
-  releaseZip,
-  "main.js",
-  "manifest.json",
-  "styles.css",
+  ...releaseAssets,
   "--repo",
   "towishy/owen-editor",
   "--title",

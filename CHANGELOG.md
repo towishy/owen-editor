@@ -8,6 +8,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.22] - 2026-05-15
+
+### Changed
+
+- Replaced the `builtin-modules` npm dependency with the native `node:module` `builtinModules` import in `esbuild.config.mjs` to follow the Obsidian community plugin reviewer recommendation.
+- Pinned the `obsidian` devDependency to `~1.5.0` (the manifest `minAppVersion`) and added an `engines.node >= 18` field so automated reviewers reproduce builds in the expected runtime.
+- Switched the floating toolbar `z-index` rule from CSS `:has(...)` selectors to plain `:hover`/`:focus-within` on the toolbar row to avoid the broad selector invalidation cost flagged by the reviewer scorecard.
+- Stopped attaching the bundled `owen-editor.zip` to GitHub releases; only `main.js`, `manifest.json`, and `styles.css` are uploaded so the Obsidian plugin scorecard no longer reports unsupported release assets.
+- Refreshed the README manual install section to download the three plugin files directly from the release Assets list instead of `owen-editor.zip`.
+
+### Added
+
+- Added a `release.yml` GitHub Actions workflow that builds on tag push, signs the published `main.js`, `manifest.json`, and `styles.css` with `actions/attest-build-provenance@v2`, and creates the GitHub release so all assets ship with build provenance attestation.
+
 ## [0.6.21] - 2026-05-02
 
 ### Changed
@@ -271,7 +285,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.21...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.22...HEAD
+[0.6.22]: https://github.com/towishy/owen-editor/compare/0.6.21...0.6.22
 [0.6.21]: https://github.com/towishy/owen-editor/compare/0.6.20...0.6.21
 [0.6.20]: https://github.com/towishy/owen-editor/compare/0.6.19...0.6.20
 [0.6.19]: https://github.com/towishy/owen-editor/compare/0.6.18...0.6.19

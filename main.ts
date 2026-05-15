@@ -460,7 +460,11 @@ export default class OwenEditorPlugin extends Plugin {
   private graphiteNoticeShown = false;
   private optionalUiWarningShown = false;
 
-  async onload() {
+  onload(): void {
+    void this.bootstrap();
+  }
+
+  private async bootstrap(): Promise<void> {
     try {
       await this.loadSettings();
       this.commands = this.buildCommands();

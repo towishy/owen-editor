@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Release checks
+        run: npm run release:check
+
+      - name: Verify tag matches manifest version
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="$(node -p "require('./manifest.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "Tag $tag does not match manifest version $version" >&2
+            exit 1
+          fi
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
+
+      - name: Extract release notes
+        id: notes
+        run: |
+          version="$(node -p "require('./manifest.json').version")"
+          notes_file="$(mktemp)"
+          node --input-type=module -e "
+          import { readFileSync } from 'node:fs';
+          const version = process.argv[1];
+          const changelog = readFileSync('CHANGELOG.md', 'utf8');
+          const heading = '## [' + version + ']';
+          const start = changelog.indexOf(heading);
+          if (start === -1) {
+            console.error('CHANGELOG.md is missing ' + heading);
+            process.exit(1);
+          }
+          const next = changelog.indexOf('\\n## [', start + heading.length);
+          const slice = changelog.slice(start, next === -1 ? undefined : next).trim();
+          process.stdout.write(slice + '\\n\\nValidation:\\n- npm ci\\n- npm run build\\n- npm run release:check\\n');
+          " "$version" > "$notes_file"
+          echo "notes_file=$notes_file" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            main.js manifest.json styles.css \
+            --title "Owen Editor ${GITHUB_REF_NAME}" \
+            --notes-file "${{ steps.notes.outputs.notes_file }}"

@@ -1,6 +1,6 @@
 {
   "name": "owen-editor",
-  "version": "0.6.21",
+  "version": "0.6.22",
   "description": "Markdown editing toolbar and Owen Graphite helpers for Obsidian.",
   "main": "main.js",
   "scripts": {
@@ -31,14 +31,16 @@
     "url": "https://github.com/towishy/owen-editor/issues"
   },
   "homepage": "https://github.com/towishy/owen-editor#readme",
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@typescript-eslint/parser": "^8.59.1",
-    "builtin-modules": "^3.3.0",
     "esbuild": "^0.20.2",
     "eslint": "^9.39.4",
     "eslint-plugin-obsidianmd": "^0.2.9",
-    "obsidian": "latest",
+    "obsidian": "~1.5.0",
     "tslib": "^2.6.2",
     "typescript": "^5.4.3"
   }

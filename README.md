@@ -4,7 +4,7 @@
 
 ![Owen AI 문서 생산 통합 모델](screenshots/owen-ai-document-merged-model.svg)
 
-![release v0.6.21](https://img.shields.io/badge/release-v0.6.21-0b8bdc?style=flat-square)
+![release v0.6.22](https://img.shields.io/badge/release-v0.6.22-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -54,17 +54,17 @@ Owen Editor는 Obsidian에서 Markdown 편집을 빠르게 처리하기 위한 �
 
 커뮤니티 플러그인 등록이 완료되면 Obsidian의 `Community plugins` 브라우저에서 `Owen Editor`를 검색해 설치할 수 있습니다.
 
-### 수동 zip 설치
+### 수동 설치
 
-> **주의: GitHub의 `Source code (zip)`을 받지 마세요.** 이 파일은 소스코드 아카이브라서 Obsidian 플러그인 실행에 필요한 `main.js`가 들어 있지 않습니다. GitHub 릴리스 페이지의 **Assets** 섹션에서 `owen-editor.zip`을 다운로드해야 합니다.
+> **주의: GitHub의 `Source code (zip)`을 받지 마세요.** 이 파일은 소스코드 아카이브라서 Obsidian 플러그인 실행에 필요한 `main.js`가 들어 있지 않습니다. GitHub 릴리스 페이지의 **Assets** 섹션에서 `main.js`, `manifest.json`, `styles.css` 세 파일을 직접 받아야 합니다.
 
 ![GitHub 릴리스 다운로드 안내](screenshots/github-release-download-guide.svg)
 
-1. [owen-editor.zip 다운로드](https://github.com/towishy/owen-editor/releases/latest/download/owen-editor.zip)를 엽니다.
-2. 압축을 풀어 `owen-editor` 폴더를 만듭니다.
-3. Obsidian 볼트의 `.obsidian/plugins/` 폴더를 엽니다.
-4. `owen-editor` 폴더를 `.obsidian/plugins/` 안으로 복사합니다.
-5. 아래 파일 3개가 `owen-editor` 폴더 바로 아래에 있는지 확인합니다.
+1. [Owen Editor 최신 릴리스 페이지](https://github.com/towishy/owen-editor/releases/latest)를 엽니다.
+2. **Assets** 섹션에서 `main.js`, `manifest.json`, `styles.css` 세 파일을 모두 다운로드합니다.
+3. Obsidian 볼트의 `.obsidian/plugins/` 폴더 아래에 `owen-editor` 폴더를 만듭니다.
+4. 다운로드한 세 파일을 그 폴더에 그대로 넣습니다.
+5. 아래와 같은 구조가 되는지 확인합니다.
 
 ```text
 .obsidian/plugins/owen-editor/main.js
@@ -72,7 +72,7 @@ Owen Editor는 Obsidian에서 Markdown 편집을 빠르게 처리하기 위한 �
 .obsidian/plugins/owen-editor/styles.css
 ```
 
-zip 파일을 `.obsidian/plugins/` 안에 그대로 두면 플러그인이 로드되지 않습니다. `.obsidian/plugins/owen-editor/owen-editor/main.js`처럼 폴더가 한 단계 더 중첩된 구조도 피해야 합니다.
+`.obsidian/plugins/owen-editor/owen-editor/main.js`처럼 폴더가 한 단계 더 중첩된 구조는 피해야 합니다.
 
 Obsidian을 다시 시작하거나 플러그인을 다시 로드한 뒤 `Owen Editor`를 활성화하세요.
 

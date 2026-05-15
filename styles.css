@@ -93,8 +93,8 @@
   transition: max-height 120ms ease, margin-top 120ms ease, opacity 120ms ease, padding-top 120ms ease;
 }
 
-.owen-editor-toolbar-row:has(.owen-editor-toolbar-button:hover),
-.owen-editor-toolbar-row:has(.owen-editor-toolbar-button:focus-visible) {
+.owen-editor-toolbar-row:hover,
+.owen-editor-toolbar-row:focus-within {
   z-index: 4;
 }
 
