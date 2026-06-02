@@ -1918,7 +1918,11 @@ class OwenEditorPaletteModal extends Modal {
   private renderCommandGrid(container: HTMLElement, commands: EditorCommand[]) {
     const grid = container.createDiv({ cls: "owen-editor-command-grid" });
     for (const command of commands) {
-      const item = grid.createDiv({ cls: "owen-editor-command-item" });
+      const itemClasses = ["owen-editor-command-item"];
+      if (command.group === "Owen graphite table presets") {
+        itemClasses.push("is-graphite-table-preset");
+      }
+      const item = grid.createDiv({ cls: itemClasses.join(" ") });
       const button = item.createEl("button", {
         cls: "owen-editor-command-button",
         attr: {

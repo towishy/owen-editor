@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.24] - 2026-06-02
+
+### Changed
+
+- Refined the editor palette with blue-gray liquid glass command cards, softer outlines, clearer command labels, and roomier section spacing.
+- Added distinct hover, favorite, and Owen Graphite table preset color states so command cards are easier to scan.
+- Kept palette favorite actions visually inside each command card instead of as separate adjacent buttons.
+
 ## [0.6.23] - 2026-06-02
 
 ### Added
@@ -302,7 +310,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.23...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.24...HEAD
+[0.6.24]: https://github.com/towishy/owen-editor/compare/0.6.23...0.6.24
 [0.6.23]: https://github.com/towishy/owen-editor/compare/0.6.22...0.6.23
 [0.6.22]: https://github.com/towishy/owen-editor/compare/0.6.21...0.6.22
 [0.6.21]: https://github.com/towishy/owen-editor/compare/0.6.20...0.6.21

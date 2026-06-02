@@ -684,74 +684,101 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 .owen-editor-command-section {
   --owen-editor-section-bg: var(--background-secondary);
   --owen-editor-section-border: var(--background-modifier-border);
-  background: var(--owen-editor-section-bg);
+  --owen-editor-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(248, 250, 252, 0.48) 52%, rgba(226, 238, 255, 0.32)), rgba(255, 255, 255, 0.18);
+  --owen-editor-card-border: rgba(205, 218, 232, 0.62);
+  --owen-editor-card-hover-bg: linear-gradient(145deg, rgba(239, 248, 255, 0.96), rgba(219, 234, 254, 0.5) 54%, rgba(255, 255, 255, 0.36)), rgba(96, 165, 250, 0.12);
+  --owen-editor-card-hover-border: rgba(96, 165, 250, 0.48);
+  --owen-editor-card-selected-ring: rgba(59, 130, 246, 0.55);
+  --owen-editor-favorite-card-bg: linear-gradient(145deg, rgba(219, 234, 254, 0.88), rgba(191, 219, 254, 0.44) 54%, rgba(255, 255, 255, 0.34)), rgba(59, 130, 246, 0.16);
+  --owen-editor-favorite-card-border: rgba(59, 130, 246, 0.42);
+  --owen-editor-favorite-button-bg: linear-gradient(180deg, rgba(219, 234, 254, 0.9), rgba(147, 197, 253, 0.34));
+  --owen-editor-favorite-button-border: rgba(59, 130, 246, 0.5);
+  --owen-editor-table-card-bg: linear-gradient(145deg, rgba(255, 251, 235, 0.92), rgba(254, 243, 199, 0.5) 54%, rgba(255, 255, 255, 0.34)), rgba(245, 158, 11, 0.12);
+  --owen-editor-table-card-border: rgba(245, 158, 11, 0.32);
+  --owen-editor-table-pill-bg: rgba(255, 251, 235, 0.84);
+  --owen-editor-table-pill-border: rgba(245, 158, 11, 0.28);
+  --owen-editor-table-text: #92400e;
+  --owen-editor-table-icon: #a16207;
+  --owen-editor-pill-bg: rgba(241, 246, 251, 0.74);
+  --owen-editor-pill-border: rgba(207, 220, 234, 0.6);
+  --owen-editor-pill-text: #506176;
+  --owen-editor-label-color: var(--text-normal);
+  -webkit-backdrop-filter: blur(10px) saturate(118%);
+  backdrop-filter: blur(10px) saturate(118%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.08)), var(--owen-editor-section-bg);
   border: 1px solid var(--owen-editor-section-border);
   border-radius: 8px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.54), inset 0 0 14px rgba(255, 255, 255, 0.18), 0 10px 24px rgba(15, 23, 42, 0.05);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px;
+  padding: 0 10px 10px;
 }
 
 .owen-editor-command-section + .owen-editor-command-section {
-  margin-top: 2px;
+  margin-top: 14px;
 }
 
 .owen-editor-recent-section {
-  --owen-editor-section-bg: #fff7ed;
-  --owen-editor-section-border: #fed7aa;
+  --owen-editor-section-bg: #f8fafc;
+  --owen-editor-section-border: #dbe7f3;
 }
 
 .owen-editor-recommended-section {
-  --owen-editor-section-bg: #eff6ff;
-  --owen-editor-section-border: #bfdbfe;
+  --owen-editor-section-bg: #f7fbff;
+  --owen-editor-section-border: #cfe2f5;
 }
 
 .owen-editor-command-section.mod-basic-markdown {
   --owen-editor-section-bg: #f8fafc;
-  --owen-editor-section-border: #cbd5e1;
+  --owen-editor-section-border: #d7e2ee;
 }
 
 .owen-editor-command-section.mod-selection {
-  --owen-editor-section-bg: #ecfdf5;
-  --owen-editor-section-border: #bbf7d0;
+  --owen-editor-section-bg: #f5fbf8;
+  --owen-editor-section-border: #d1e7dc;
 }
 
 .owen-editor-command-section.mod-links {
-  --owen-editor-section-bg: #f0f9ff;
-  --owen-editor-section-border: #bae6fd;
+  --owen-editor-section-bg: #f6fbff;
+  --owen-editor-section-border: #cfe3f3;
 }
 
 .owen-editor-command-section.mod-blocks {
-  --owen-editor-section-bg: #fffbeb;
-  --owen-editor-section-border: #fde68a;
+  --owen-editor-section-bg: #faf9f5;
+  --owen-editor-section-border: #e6dfcf;
 }
 
 .owen-editor-command-section.mod-tables {
-  --owen-editor-section-bg: #f0fdfa;
-  --owen-editor-section-border: #99f6e4;
+  --owen-editor-section-bg: #f5fbfb;
+  --owen-editor-section-border: #cce4e3;
 }
 
 .owen-editor-command-section.mod-owen-graphite {
-  --owen-editor-section-bg: #f5f3ff;
-  --owen-editor-section-border: #ddd6fe;
+  --owen-editor-section-bg: #f8f9fc;
+  --owen-editor-section-border: #d8e0ef;
 }
 
 .owen-editor-group-title {
   align-items: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06)), var(--owen-editor-section-border);
+  border-bottom: 1px solid var(--owen-editor-section-border);
+  border-radius: 7px 7px 0 0;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.42);
   color: var(--text-normal);
   display: flex;
-  font-size: var(--font-ui-small);
+  font-size: var(--font-ui-smaller);
   font-weight: var(--font-semibold);
-  gap: 8px;
-  margin: 0;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  margin: 0 -10px 2px;
+  min-height: 38px;
+  padding: 0 14px;
+  text-transform: uppercase;
 }
 
 .owen-editor-group-title::after {
-  background: var(--background-modifier-border);
-  content: "";
-  flex: 1;
-  height: 1px;
+  content: none;
 }
 
 .owen-editor-command-section > .owen-editor-group-title {
@@ -762,38 +789,124 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-semibold);
-  margin: 2px 0 -2px;
+  margin: 10px 0 2px;
+  padding: 0 2px;
+}
+
+.owen-editor-group-title + .owen-editor-subgroup-title {
+  margin-top: 12px;
+}
+
+.owen-editor-command-grid + .owen-editor-subgroup-title {
+  margin-top: 16px;
 }
 
 .owen-editor-command-grid {
+  align-items: stretch;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 10px;
 }
 
 .owen-editor-command-item {
-  align-items: stretch;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: minmax(0, 1fr) 36px;
+  -webkit-backdrop-filter: blur(14px) saturate(145%) brightness(1.03);
+  backdrop-filter: blur(14px) saturate(145%) brightness(1.03);
+  background: var(--owen-editor-card-bg);
+  border: 1px solid var(--owen-editor-card-border);
+  border-radius: 8px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.82), inset -1px -1px 0 rgba(148, 163, 184, 0.08), inset 0 0 22px rgba(255, 255, 255, 0.2), 0 10px 24px rgba(15, 23, 42, 0.05);
+  display: block;
+  height: 100%;
   min-width: 0;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 90ms ease, box-shadow 90ms ease;
+}
+
+.owen-editor-command-item::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+}
+
+.owen-editor-command-item::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.16) 34%, rgba(59, 130, 246, 0.08) 58%, transparent 76%);
+  filter: url(#owen-editor-liquid-glass-filter) saturate(125%) brightness(1.06);
+  inset: 0;
+  opacity: 0.82;
+}
+
+.owen-editor-command-item:has(.owen-editor-favorite-button.is-active) {
+  background: var(--owen-editor-favorite-card-bg);
+  border-color: var(--owen-editor-favorite-card-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.84), inset -1px -1px 0 rgba(37, 99, 235, 0.12), inset 0 0 22px rgba(59, 130, 246, 0.2), 0 10px 28px rgba(37, 99, 235, 0.14);
+}
+
+.owen-editor-command-item:has(.owen-editor-favorite-button.is-active)::before {
+  background: linear-gradient(135deg, rgba(147, 197, 253, 0.48), rgba(255, 255, 255, 0.2) 42%, rgba(37, 99, 235, 0.1) 66%, transparent 78%);
+  opacity: 0.95;
+}
+
+.owen-editor-command-item.is-graphite-table-preset {
+  background: var(--owen-editor-table-card-bg);
+  border-color: var(--owen-editor-table-card-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.84), inset -1px -1px 0 rgba(217, 119, 6, 0.08), inset 0 0 22px rgba(245, 158, 11, 0.14), 0 10px 24px rgba(146, 64, 14, 0.07);
+}
+
+.owen-editor-command-item.is-graphite-table-preset::before {
+  background: linear-gradient(135deg, rgba(253, 230, 138, 0.48), rgba(255, 255, 255, 0.22) 42%, rgba(245, 158, 11, 0.12) 66%, transparent 78%);
+  opacity: 0.95;
+}
+
+.owen-editor-command-item.is-graphite-table-preset .owen-editor-command-preview,
+.owen-editor-command-item.is-graphite-table-preset .owen-editor-command-detail-preview {
+  background: var(--owen-editor-table-pill-bg);
+  border-color: var(--owen-editor-table-pill-border);
+  color: var(--owen-editor-table-text);
+}
+
+.owen-editor-command-item.is-graphite-table-preset .owen-editor-command-icon {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.82), rgba(253, 230, 138, 0.32));
+  border-color: var(--owen-editor-table-pill-border);
+  color: var(--owen-editor-table-icon);
+}
+
+.owen-editor-command-item:hover,
+.owen-editor-command-item:focus-within,
+.owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
+  background: var(--owen-editor-card-hover-bg);
+  border-color: var(--owen-editor-card-hover-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.84), inset -1px -1px 0 rgba(37, 99, 235, 0.08), inset 0 0 22px rgba(96, 165, 250, 0.14), 0 10px 26px rgba(37, 99, 235, 0.1);
+}
+
+.owen-editor-command-item:hover::before,
+.owen-editor-command-item:focus-within::before,
+.owen-editor-command-item:has(.owen-editor-command-button.is-selected)::before {
+  background: linear-gradient(135deg, rgba(191, 219, 254, 0.48), rgba(255, 255, 255, 0.18) 42%, rgba(59, 130, 246, 0.12) 66%, transparent 78%);
+  opacity: 0.95;
+}
+
+.owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
+  box-shadow: inset 0 0 0 1px var(--owen-editor-card-selected-ring), inset 1px 1px 0 rgba(255, 255, 255, 0.78), 0 8px 18px rgba(37, 99, 235, 0.06);
 }
 
 .owen-editor-command-button {
   align-items: center;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border-hover);
-  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   box-sizing: border-box;
   display: flex;
   gap: 8px;
-  height: auto;
+  height: 100%;
   justify-content: flex-start;
   min-height: 44px;
   min-width: 0;
-  padding: 9px 10px;
+  padding: 9px 52px 9px 10px;
+  position: relative;
   text-align: left;
   width: 100%;
+  z-index: 1;
 }
 
 .owen-editor-command-copy {
@@ -804,7 +917,9 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-command-label {
+  color: var(--owen-editor-label-color);
   display: block;
+  font-weight: var(--font-medium);
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -813,11 +928,11 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-command-preview {
   align-self: flex-start;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  background: var(--owen-editor-pill-bg);
+  border: 1px solid var(--owen-editor-pill-border);
   border-radius: 5px;
   box-sizing: border-box;
-  color: var(--text-muted);
+  color: var(--owen-editor-pill-text);
   font-size: var(--font-ui-smaller);
   line-height: 1.2;
   max-width: 100%;
@@ -829,11 +944,11 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-command-detail-preview {
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
+  background: var(--owen-editor-pill-bg);
+  border: 1px solid var(--owen-editor-pill-border);
   border-radius: 5px;
   box-sizing: border-box;
-  color: var(--text-muted);
+  color: var(--owen-editor-pill-text);
   display: block;
   font-size: var(--font-ui-smaller);
   line-height: 1.25;
@@ -848,41 +963,53 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .mod-owen-graphite .owen-editor-command-preview,
 .mod-tables .owen-editor-command-preview {
-  background: var(--background-secondary);
-  border-color: var(--background-modifier-border);
-  color: var(--text-accent);
+  background: var(--owen-editor-pill-bg);
+  border-color: var(--owen-editor-pill-border);
+  color: var(--owen-editor-pill-text);
 }
 
 .owen-editor-command-button:hover,
 .owen-editor-command-button:focus-visible,
 .owen-editor-command-button.is-selected {
-  background: var(--background-primary);
-  border-color: var(--interactive-accent);
+  background: transparent;
 }
 
 .owen-editor-command-button.is-selected {
-  background: var(--background-primary);
-  box-shadow: inset 0 0 0 1px var(--interactive-accent), 0 8px 18px rgba(var(--interactive-accent-rgb), 0.12);
+  box-shadow: none;
 }
 
 .owen-editor-favorite-button {
   align-items: center;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
+  -webkit-backdrop-filter: blur(6px) saturate(122%);
+  backdrop-filter: blur(6px) saturate(122%);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(205, 218, 232, 0.56);
+  border-radius: 7px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.44);
+  box-sizing: border-box;
   color: var(--text-faint);
   display: inline-flex;
+  height: 32px;
+  inset-inline-end: 7px;
   justify-content: center;
-  min-height: 44px;
+  line-height: 1;
+  margin: 0;
+  min-height: 0;
+  min-width: 0;
   padding: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  z-index: 2;
 }
 
 .owen-editor-favorite-button:hover,
 .owen-editor-favorite-button:focus-visible,
 .owen-editor-favorite-button.is-active {
-  background: var(--background-primary);
-  border-color: rgba(245, 158, 11, 0.55);
-  color: #b45309;
+  background: var(--owen-editor-favorite-button-bg);
+  border-color: var(--owen-editor-favorite-button-border);
+  color: #1d4ed8;
 }
 
 .owen-editor-favorite-button svg {
@@ -892,9 +1019,10 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-command-icon {
   align-items: center;
-  background: var(--background-secondary);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.14)), var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 7px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.42);
   color: var(--text-accent);
   display: inline-flex;
   flex: 0 0 auto;
@@ -946,6 +1074,114 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 .theme-dark .owen-editor-command-section.mod-owen-graphite {
   --owen-editor-section-bg: #241d35;
   --owen-editor-section-border: #55427a;
+}
+
+.theme-dark .owen-editor-command-section {
+  --owen-editor-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(15, 23, 42, 0.34) 52%, rgba(30, 58, 138, 0.12)), rgba(15, 23, 42, 0.22);
+  --owen-editor-card-border: rgba(148, 163, 184, 0.28);
+  --owen-editor-card-hover-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.28), rgba(15, 23, 42, 0.3) 54%, rgba(96, 165, 250, 0.16)), rgba(30, 64, 175, 0.18);
+  --owen-editor-card-hover-border: rgba(96, 165, 250, 0.52);
+  --owen-editor-card-selected-ring: rgba(96, 165, 250, 0.5);
+  --owen-editor-favorite-card-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.34), rgba(15, 23, 42, 0.32) 54%, rgba(96, 165, 250, 0.14)), rgba(30, 64, 175, 0.2);
+  --owen-editor-favorite-card-border: rgba(96, 165, 250, 0.56);
+  --owen-editor-favorite-button-bg: linear-gradient(180deg, rgba(96, 165, 250, 0.26), rgba(37, 99, 235, 0.16));
+  --owen-editor-favorite-button-border: rgba(96, 165, 250, 0.54);
+  --owen-editor-table-card-bg: linear-gradient(145deg, rgba(180, 83, 9, 0.3), rgba(15, 23, 42, 0.32) 54%, rgba(245, 158, 11, 0.13)), rgba(120, 53, 15, 0.2);
+  --owen-editor-table-card-border: rgba(251, 191, 36, 0.48);
+  --owen-editor-table-pill-bg: rgba(120, 53, 15, 0.24);
+  --owen-editor-table-pill-border: rgba(251, 191, 36, 0.32);
+  --owen-editor-table-text: #fde68a;
+  --owen-editor-table-icon: #fbbf24;
+  --owen-editor-pill-bg: rgba(30, 41, 59, 0.52);
+  --owen-editor-pill-border: rgba(148, 163, 184, 0.28);
+  --owen-editor-pill-text: #cbd5e1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)), var(--owen-editor-section-bg);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 14px rgba(255, 255, 255, 0.03), 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.theme-dark .owen-editor-group-title {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--owen-editor-section-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .owen-editor-command-item {
+  background: var(--owen-editor-card-bg);
+  border-color: var(--owen-editor-card-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12), inset -1px -1px 0 rgba(15, 23, 42, 0.32), inset 0 0 18px rgba(255, 255, 255, 0.04), 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+.theme-dark .owen-editor-command-item::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) 42%, transparent 68%);
+  opacity: 0.72;
+}
+
+.theme-dark .owen-editor-command-item:has(.owen-editor-favorite-button.is-active) {
+  background: var(--owen-editor-favorite-card-bg);
+  border-color: var(--owen-editor-favorite-card-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.14), inset -1px -1px 0 rgba(30, 64, 175, 0.2), inset 0 0 20px rgba(96, 165, 250, 0.18), 0 10px 28px rgba(37, 99, 235, 0.18);
+}
+
+.theme-dark .owen-editor-command-item:has(.owen-editor-favorite-button.is-active)::before {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(255, 255, 255, 0.04) 44%, rgba(37, 99, 235, 0.16) 70%, transparent 82%);
+  opacity: 0.9;
+}
+
+.theme-dark .owen-editor-command-item.is-graphite-table-preset {
+  background: var(--owen-editor-table-card-bg);
+  border-color: var(--owen-editor-table-card-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12), inset -1px -1px 0 rgba(146, 64, 14, 0.22), inset 0 0 20px rgba(245, 158, 11, 0.16), 0 10px 28px rgba(146, 64, 14, 0.16);
+}
+
+.theme-dark .owen-editor-command-item.is-graphite-table-preset::before {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.26), rgba(255, 255, 255, 0.04) 44%, rgba(180, 83, 9, 0.16) 70%, transparent 82%);
+  opacity: 0.9;
+}
+
+.theme-dark .owen-editor-command-item.is-graphite-table-preset .owen-editor-command-preview,
+.theme-dark .owen-editor-command-item.is-graphite-table-preset .owen-editor-command-detail-preview {
+  background: var(--owen-editor-table-pill-bg);
+  border-color: var(--owen-editor-table-pill-border);
+  color: var(--owen-editor-table-text);
+}
+
+.theme-dark .owen-editor-command-item.is-graphite-table-preset .owen-editor-command-icon {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.18), rgba(180, 83, 9, 0.14));
+  border-color: var(--owen-editor-table-pill-border);
+  color: var(--owen-editor-table-icon);
+}
+
+.theme-dark .owen-editor-command-item:hover,
+.theme-dark .owen-editor-command-item:focus-within,
+.theme-dark .owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
+  background: var(--owen-editor-card-hover-bg);
+  border-color: var(--owen-editor-card-hover-border);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.14), inset -1px -1px 0 rgba(30, 64, 175, 0.2), inset 0 0 20px rgba(96, 165, 250, 0.16), 0 10px 28px rgba(37, 99, 235, 0.16);
+}
+
+.theme-dark .owen-editor-command-item:hover::before,
+.theme-dark .owen-editor-command-item:focus-within::before,
+.theme-dark .owen-editor-command-item:has(.owen-editor-command-button.is-selected)::before {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.28), rgba(255, 255, 255, 0.04) 44%, rgba(37, 99, 235, 0.18) 70%, transparent 82%);
+  opacity: 0.9;
+}
+
+.theme-dark .owen-editor-favorite-button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .owen-editor-favorite-button:hover,
+.theme-dark .owen-editor-favorite-button:focus-visible,
+.theme-dark .owen-editor-favorite-button.is-active {
+  background: var(--owen-editor-favorite-button-bg);
+  border-color: var(--owen-editor-favorite-button-border);
+  color: #93c5fd;
+}
+
+.theme-dark .owen-editor-command-icon {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)), var(--background-secondary);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 700px) {
