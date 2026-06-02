@@ -50,6 +50,8 @@ type ToolbarDensity = "compact" | "balanced" | "comfortable" | "custom";
 type ToolbarContext = "default" | "selection" | "table" | "code" | "report";
 type FavoritePreset = "writer" | "research" | "report" | "table-heavy";
 type ReportStarterKind = "executive" | "comparison" | "risk" | "meeting";
+type CommandCategoryFilter = CommandCategory | CommandCategory[];
+type PointerAnchor = { x: number; y: number; timestamp: number };
 
 const clampToolbarScale = (value: number) => Math.min(110, Math.max(80, Number.isFinite(value) ? value : 100));
 const getAdaptiveToolbarScale = (scale: number, viewWidth?: number) => {
@@ -76,7 +78,7 @@ const FAVORITE_PRESETS: Record<FavoritePreset, { name: string; commandIds: strin
   writer: { name: "Writer", commandIds: ["insert-link", "mark-selection", "insert-note-callout", "insert-footnote-reference"] },
   research: { name: "Research", commandIds: ["insert-wikilink", "insert-footnote-reference", "insert-graphite-reference-list", "insert-graphite-source-note"] },
   report: { name: "Report", commandIds: ["open-graphite-report-starter", "open-table-builder", "insert-graphite-wide-table", "insert-graphite-summary-callout"] },
-  "table-heavy": { name: "Table-heavy", commandIds: ["open-table-builder", "convert-selection-to-graphite-table", "insert-graphite-wide-table", "insert-graphite-numeric-table"] }
+  "table-heavy": { name: "Table-heavy", commandIds: ["open-table-builder", "convert-selection-to-graphite-table", "unwrap-selected-table", "insert-graphite-wide-table"] }
 };
 
 const REPORT_STARTER_OPTIONS: Record<ReportStarterKind, { name: string; template: "executiveSummary" | "comparisonReport" | "riskReview" | "meetingReview"; preset: TableBuilderPreset }> = {
@@ -387,7 +389,7 @@ function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext 
   if (context === "selection") {
     return [
       ["undo-edit", "redo-edit"],
-      ["bold-selection", "italic-selection", "mark-selection", "insert-link"],
+      ["bold-selection", "italic-selection", "mark-selection", "insert-link", "unwrap-selected-table", "unwrap-markdown-selection"],
       ["wrap-graphite-kbd", "wrap-graphite-blur", "comment-selection", "blockquote-selection"]
     ];
   }
@@ -395,7 +397,7 @@ function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext 
   if (context === "table") {
     return [
       ["undo-edit", "redo-edit"],
-      ["open-table-builder", "insert-markdown-table", "insert-graphite-wide-table", "insert-graphite-risk-table", "insert-graphite-numeric-table"],
+      ["open-table-builder", "insert-markdown-table", "unwrap-selected-table", "insert-graphite-wide-table", "insert-graphite-risk-table", "insert-graphite-numeric-table"],
       ["insert-graphite-reference-list", "insert-graphite-status-badge"]
     ];
   }
@@ -403,7 +405,7 @@ function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext 
   if (context === "report") {
     return [
       ["undo-edit", "redo-edit", "clear-formatting-selection"],
-      ["heading-2", "heading-3", "mark-selection", "insert-link"],
+      ["heading-1", "heading-2", "heading-3", "mark-selection", "insert-link"],
       ["open-table-builder", "insert-graphite-summary-callout", "insert-graphite-action-callout", "insert-graphite-reference-list"]
     ];
   }
@@ -427,7 +429,7 @@ function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext 
   if (preset === "writer") {
     return [
       ["undo-edit", "redo-edit", "clear-formatting-selection"],
-      ["heading-2", "heading-3", "bold-selection", "italic-selection", "mark-selection"],
+      ["heading-1", "heading-2", "heading-3", "bold-selection", "italic-selection", "mark-selection"],
       ["insert-link", "insert-wikilink", "toggle-task", "insert-bulleted-list", "insert-numbered-list"]
     ];
   }
@@ -435,14 +437,14 @@ function getToolbarCommandGroups(preset: ToolbarPreset, context: ToolbarContext 
   if (preset === "report") {
     return [
       ["undo-edit", "redo-edit", "clear-formatting-selection"],
-      ["heading-2", "heading-3", "bold-selection", "mark-selection"],
+      ["heading-1", "heading-2", "heading-3", "bold-selection", "mark-selection"],
       ["open-table-builder", "insert-markdown-table", "insert-note-callout", "insert-important-callout", "insert-graphite-summary-callout"]
     ];
   }
 
   return [
     ["undo-edit", "redo-edit", "clear-formatting-selection"],
-    ["heading-2", "heading-3", "heading-4", "bold-selection", "italic-selection", "strikethrough-selection", "underline-selection"],
+    ["heading-1", "heading-2", "heading-3", "heading-4", "bold-selection", "italic-selection", "strikethrough-selection", "underline-selection"],
     ["mark-selection", "outdent-lines", "indent-lines", "toggle-task", "insert-bulleted-list", "insert-numbered-list"]
   ];
 }
@@ -456,6 +458,7 @@ export default class OwenEditorPlugin extends Plugin {
   private statusBarItem?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
   private selectionToolbarFrame?: number;
+  private lastPointerAnchor?: PointerAnchor;
   private currentToolbarContext: ToolbarContext = "default";
   private graphiteNoticeShown = false;
   private optionalUiWarningShown = false;
@@ -509,6 +512,10 @@ export default class OwenEditorPlugin extends Plugin {
     this.runOptionalUiSetup("selection toolbar", () => this.refreshSelectionToolbar());
     this.runOptionalUiSetup("status bar button", () => this.refreshStatusBarButton());
     this.runOptionalUiSetup("toolbar events", () => {
+      const recordPointerAnchor = (event: PointerEvent) => {
+        this.lastPointerAnchor = { x: event.clientX, y: event.clientY, timestamp: Date.now() };
+      };
+
       this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.updateToolbarContentOffset()));
       this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.scheduleSelectionToolbarUpdate()));
       this.registerEvent(this.app.workspace.on("layout-change", () => {
@@ -524,7 +531,9 @@ export default class OwenEditorPlugin extends Plugin {
         this.scheduleSelectionToolbarUpdate();
         this.refreshToolbarForContext();
       });
-      this.registerDomEvent(activeDocument, "mouseup", () => {
+      this.registerDomEvent(activeDocument, "pointermove", recordPointerAnchor);
+      this.registerDomEvent(activeDocument, "pointerup", (event) => {
+        recordPointerAnchor(event);
         this.scheduleSelectionToolbarUpdate();
         this.refreshToolbarForContext();
       });
@@ -751,7 +760,7 @@ export default class OwenEditorPlugin extends Plugin {
     await this.saveSettings();
   }
 
-  openPalette(category?: CommandCategory) {
+  openPalette(category?: CommandCategoryFilter) {
     new OwenEditorPaletteModal(this.app, this, category).open();
   }
 
@@ -767,7 +776,7 @@ export default class OwenEditorPlugin extends Plugin {
     new OwenEditorReportStarterModal(this.app, this, editor).open();
   }
 
-  getRecommendedCommands(parsedQuery: ParsedCommandQuery, initialCategory?: CommandCategory) {
+  getRecommendedCommands(parsedQuery: ParsedCommandQuery, initialCategory?: CommandCategoryFilter) {
     if (parsedQuery.text) {
       return [];
     }
@@ -776,7 +785,7 @@ export default class OwenEditorPlugin extends Plugin {
     const idsByContext: Record<ToolbarContext, string[]> = {
       default: ["open-graphite-report-starter", "open-table-builder", "insert-link"],
       selection: ["mark-selection", "insert-link", "wrap-graphite-kbd", "comment-selection"],
-      table: ["open-table-builder", "convert-selection-to-graphite-table", "insert-graphite-source-note", "insert-graphite-numeric-table"],
+      table: ["unwrap-selected-table", "open-table-builder", "convert-selection-to-graphite-table", "insert-graphite-source-note"],
       code: ["code-block-selection", "insert-mermaid-block", "comment-selection"],
       report: ["open-graphite-report-starter", "insert-graphite-summary-callout", "insert-graphite-action-callout", "insert-graphite-source-note"]
     };
@@ -784,7 +793,7 @@ export default class OwenEditorPlugin extends Plugin {
     return idsByContext[context]
       .map((id) => this.commands.find((command) => command.id === id))
       .filter((command): command is EditorCommand => Boolean(command))
-      .filter((command) => !initialCategory || command.category === initialCategory);
+      .filter((command) => categoryMatchesFilter(command.category, initialCategory));
   }
 
   runCommand(command: EditorCommand) {
@@ -852,7 +861,7 @@ export default class OwenEditorPlugin extends Plugin {
     toolbar.setAttr("aria-label", "Selection toolbar");
     toolbar.addEventListener("mousedown", (event) => event.preventDefault());
 
-    for (const id of ["bold-selection", "italic-selection", "mark-selection", "insert-link", "wrap-graphite-kbd", "wrap-graphite-blur"]) {
+    for (const id of ["bold-selection", "italic-selection", "mark-selection", "insert-link", "unwrap-selected-table", "unwrap-markdown-selection", "wrap-graphite-kbd", "wrap-graphite-blur"]) {
       const command = this.commands.find((candidate) => candidate.id === id);
       if (command) {
         this.createSelectionToolbarButton(toolbar, command);
@@ -892,7 +901,11 @@ export default class OwenEditorPlugin extends Plugin {
     if (!editor) {
       return "default";
     }
-    if (editor.getSelection()) {
+    const selection = editor.getSelection();
+    if (selection && containsTableStructure(selection)) {
+      return "table";
+    }
+    if (selection) {
       return "selection";
     }
 
@@ -901,7 +914,7 @@ export default class OwenEditorPlugin extends Plugin {
     if (isInsideFence(editor, cursor.line)) {
       return "code";
     }
-    if (/^\s*\|.*\|\s*$/.test(line)) {
+    if (/^\s*\|.*\|\s*$/.test(line) || isInsideHtmlTable(editor, cursor.line)) {
       return "table";
     }
     if (this.isReportDocument(editor)) {
@@ -935,15 +948,16 @@ export default class OwenEditorPlugin extends Plugin {
 
     const toolbarRect = this.selectionToolbarEl.getBoundingClientRect();
     const viewRect = activeMarkdownView.contentEl.getBoundingClientRect();
+    const anchor = this.getRecentPointerAnchor(viewRect) ?? rect;
     const viewportLeft = Math.max(12, viewRect.left + 12);
     const viewportRight = Math.min(window.innerWidth - 12, viewRect.right - 12);
     const minTop = Math.max(12, viewRect.top + 8);
     const maxTop = Math.min(window.innerHeight - toolbarRect.height - 12, viewRect.bottom - toolbarRect.height - 8);
-    const availableAbove = rect.top - minTop;
-    const availableBelow = maxTop - rect.bottom;
+    const availableAbove = anchor.top - minTop;
+    const availableBelow = maxTop - anchor.bottom;
     const showBelow = availableAbove < toolbarRect.height + 12 && availableBelow > availableAbove;
-    const preferredTop = showBelow ? rect.bottom + 10 : rect.top - toolbarRect.height - 10;
-    const preferredLeft = rect.left + rect.width / 2 - toolbarRect.width / 2;
+    const preferredTop = showBelow ? anchor.bottom + 10 : anchor.top - toolbarRect.height - 10;
+    const preferredLeft = anchor.left + anchor.width / 2 - toolbarRect.width / 2;
     const left = Math.min(viewportRight - toolbarRect.width, Math.max(viewportLeft, preferredLeft));
     const top = Math.min(maxTop, Math.max(minTop, preferredTop));
 
@@ -952,6 +966,27 @@ export default class OwenEditorPlugin extends Plugin {
     this.selectionToolbarEl.toggleClass("is-below", showBelow);
     this.selectionToolbarEl.toggleClass("is-above", !showBelow);
     this.selectionToolbarEl.addClass("is-visible");
+  }
+
+  private getRecentPointerAnchor(viewRect: DOMRect) {
+    const anchor = this.lastPointerAnchor;
+    if (!anchor || Date.now() - anchor.timestamp > 8000) {
+      return null;
+    }
+
+    const margin = 8;
+    if (anchor.x < viewRect.left - margin || anchor.x > viewRect.right + margin || anchor.y < viewRect.top - margin || anchor.y > viewRect.bottom + margin) {
+      return null;
+    }
+
+    return {
+      left: anchor.x,
+      right: anchor.x,
+      top: anchor.y,
+      bottom: anchor.y,
+      width: 0,
+      height: 0
+    };
   }
 
   private getSelectionRect(container: HTMLElement) {
@@ -1041,11 +1076,9 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     primaryRow.createDiv({ cls: "owen-editor-toolbar-separator" });
-    this.createToolbarGroupButton(primaryRow, "text-select", "Open selection tools", "Selection");
     this.createToolbarGroupButton(primaryRow, "link", "Open link tools", "Links");
     this.createToolbarGroupButton(primaryRow, "list-plus", "Open block tools", "Blocks");
     this.createToolbarGroupButton(primaryRow, "table-2", "Open table tools", "Tables");
-    this.createToolbarGroupButton(primaryRow, "sparkles", "Open graphite tools", "Owen graphite");
 
     const paletteButton = primaryRow.createEl("button", {
       cls: "owen-editor-toolbar-button owen-editor-toolbar-palette mod-all-commands",
@@ -1150,9 +1183,9 @@ export default class OwenEditorPlugin extends Plugin {
     this.registerDomEvent(button, "click", () => this.runCommand(command));
   }
 
-  private createToolbarGroupButton(toolbar: HTMLElement, icon: string, title: string, category: CommandCategory) {
+  private createToolbarGroupButton(toolbar: HTMLElement, icon: string, title: string, category: CommandCategoryFilter) {
     const button = toolbar.createEl("button", {
-      cls: `owen-editor-toolbar-button owen-editor-toolbar-group-button mod-${category.toLowerCase().replace(/\s+/g, "-")}`,
+      cls: `owen-editor-toolbar-button owen-editor-toolbar-group-button mod-${getCategoryFilterClass(category)}`,
       attr: {
         type: "button",
         title,
@@ -1288,6 +1321,13 @@ export default class OwenEditorPlugin extends Plugin {
         category: "Links",
         group: "References",
         run: (editor) => insertFootnote(editor)
+      },
+      {
+        id: "heading-1",
+        name: "Convert line to heading 1",
+        icon: "heading-1",
+        category: "Basic markdown",
+        run: (editor) => setCurrentLinePrefix(editor, "# ")
       },
       {
         id: "heading-2",
@@ -1429,6 +1469,24 @@ export default class OwenEditorPlugin extends Plugin {
           this.ensureGraphiteThemeNotice();
           convertSelectionToTable(editor, "wide");
         }
+      },
+      {
+        id: "unwrap-selected-table",
+        name: "Unwrap table",
+        icon: "ungroup",
+        category: "Tables",
+        group: "Table conversion",
+        aliases: ["remove table", "strip table", "unwrap", "표 해제", "테이블 제거", "외부테이블"],
+        run: (editor) => unwrapSelectedTable(editor)
+      },
+      {
+        id: "unwrap-markdown-selection",
+        name: "Unwrap markdown",
+        icon: "remove-formatting",
+        category: "Selection",
+        group: "Selection cleanup",
+        aliases: ["remove markdown", "strip markdown", "plain text", "서식 제거", "마크다운 해제", "마크다운 제거"],
+        run: (editor) => unwrapMarkdownSelection(editor)
       },
       ...CALLOUT_OPTIONS.map(createCalloutCommand),
       {
@@ -1655,15 +1713,15 @@ export default class OwenEditorPlugin extends Plugin {
 
 class OwenEditorPaletteModal extends Modal {
   private plugin: OwenEditorPlugin;
-  private initialCategory?: CommandCategory;
+  private activeCategory?: CommandCategoryFilter;
   private query = "";
   private selectedCommandId?: string;
   private renderAbortController?: AbortController;
 
-  constructor(app: App, plugin: OwenEditorPlugin, initialCategory?: CommandCategory) {
+  constructor(app: App, plugin: OwenEditorPlugin, initialCategory?: CommandCategoryFilter) {
     super(app);
     this.plugin = plugin;
-    this.initialCategory = initialCategory;
+    this.activeCategory = initialCategory;
   }
 
   onOpen() {
@@ -1683,7 +1741,31 @@ class OwenEditorPaletteModal extends Modal {
     this.contentEl.empty();
     this.contentEl.addClass("owen-editor-palette");
 
-    const searchInput = this.contentEl.createEl("input", {
+    const layout = this.contentEl.createDiv({ cls: "owen-editor-palette-layout" });
+    const rail = layout.createDiv({ cls: "owen-editor-palette-rail" });
+    const content = layout.createDiv({ cls: "owen-editor-palette-content" });
+
+    for (const item of getPaletteCategoryRailItems()) {
+      const isActive = categoryFiltersEqual(this.activeCategory, item.filter);
+      const railButton = rail.createEl("button", {
+        cls: `owen-editor-palette-rail-button${isActive ? " is-active" : ""}`,
+        attr: {
+          type: "button",
+          title: item.label,
+          "aria-label": item.label,
+          "aria-pressed": String(isActive)
+        }
+      });
+      setSafeIcon(railButton.createSpan({ cls: "owen-editor-palette-rail-icon" }), item.icon);
+      railButton.createSpan({ text: item.shortLabel, cls: "owen-editor-palette-rail-label" });
+      this.registerRenderEvent(railButton, "click", () => {
+        this.activeCategory = item.filter;
+        this.selectedCommandId = undefined;
+        this.render();
+      });
+    }
+
+    const searchInput = content.createEl("input", {
       cls: "owen-editor-search",
       attr: {
         type: "search",
@@ -1692,13 +1774,13 @@ class OwenEditorPaletteModal extends Modal {
     });
     searchInput.value = this.query;
 
-    this.contentEl.createDiv({
+    content.createDiv({
       cls: "owen-editor-palette-context",
-      text: this.initialCategory ? `${this.initialCategory} tools` : "Search results are prioritized above grouped browsing."
+      text: this.activeCategory ? `${getCategoryFilterLabel(this.activeCategory)} tools` : "Search results are prioritized above grouped browsing."
     });
 
     const parsedQuery = parseCommandQuery(this.query);
-    const commands = this.plugin.getCommands().filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
+    const commands = this.plugin.getCommands().filter((command) => commandMatchesQuery(command, parsedQuery, this.activeCategory));
     const navigableCommands: EditorCommand[] = [];
     const addNavigableCommands = (items: EditorCommand[]) => {
       for (const command of items) {
@@ -1707,15 +1789,15 @@ class OwenEditorPaletteModal extends Modal {
         }
       }
     };
-    const recommendedCommands = this.plugin.getRecommendedCommands(parsedQuery, this.initialCategory)
+    const recommendedCommands = this.plugin.getRecommendedCommands(parsedQuery, this.activeCategory)
       .filter((command) => commands.includes(command));
 
     const recentCommands = this.plugin.getRecentCommands()
-      .filter((command) => !this.initialCategory || command.category === this.initialCategory)
-      .filter((command) => commandMatchesQuery(command, parsedQuery, this.initialCategory));
+      .filter((command) => categoryMatchesFilter(command.category, this.activeCategory))
+      .filter((command) => commandMatchesQuery(command, parsedQuery, this.activeCategory));
 
     if (recommendedCommands.length > 0) {
-      const recommendedSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recommended-section" });
+      const recommendedSection = content.createDiv({ cls: "owen-editor-command-section owen-editor-recommended-section" });
       recommendedSection.createEl("h3", { text: "Recommended", cls: "owen-editor-group-title" });
       const shownRecommendedCommands = recommendedCommands.slice(0, 4);
       addNavigableCommands(shownRecommendedCommands);
@@ -1723,7 +1805,7 @@ class OwenEditorPaletteModal extends Modal {
     }
 
     if (recentCommands.length > 0) {
-      const recentSection = this.contentEl.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
+      const recentSection = content.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
       recentSection.createEl("h3", { text: "Recent", cls: "owen-editor-group-title" });
       const shownRecentCommands = recentCommands.slice(0, 6);
       addNavigableCommands(shownRecentCommands);
@@ -1731,7 +1813,7 @@ class OwenEditorPaletteModal extends Modal {
     }
 
     for (const category of ["Basic markdown", "Selection", "Links", "Blocks", "Tables", "Owen graphite"] as CommandCategory[]) {
-      if (this.initialCategory && category !== this.initialCategory) {
+      if (!categoryMatchesFilter(category, this.activeCategory)) {
         continue;
       }
 
@@ -1740,7 +1822,7 @@ class OwenEditorPaletteModal extends Modal {
         continue;
       }
 
-      const section = this.contentEl.createDiv({ cls: `owen-editor-command-section mod-${category.toLowerCase().replace(/\s+/g, "-")}` });
+      const section = content.createDiv({ cls: `owen-editor-command-section mod-${category.toLowerCase().replace(/\s+/g, "-")}` });
       section.createEl("h3", { text: category, cls: "owen-editor-group-title" });
       const commandGroups = [...new Set(groupCommands.map((command) => command.group ?? category))];
       for (const commandGroup of commandGroups) {
@@ -1930,8 +2012,42 @@ function parseCommandQuery(query: string): ParsedCommandQuery {
   return { category: categoryMap[match[1]], text: match[2] };
 }
 
-function commandMatchesQuery(command: EditorCommand, query: ParsedCommandQuery, initialCategory?: CommandCategory) {
-  if (initialCategory && command.category !== initialCategory) {
+function getPaletteCategoryRailItems(): Array<{ label: string; shortLabel: string; icon: string; filter?: CommandCategoryFilter }> {
+  return [
+    { label: "All commands", shortLabel: "All", icon: "panel-top-open" },
+    { label: "Selection and graphite tools", shortLabel: "SG", icon: "wand-sparkles", filter: ["Selection", "Owen graphite"] },
+    { label: "Table tools", shortLabel: "Tbl", icon: "table-2", filter: "Tables" },
+    { label: "Link tools", shortLabel: "Link", icon: "link", filter: "Links" },
+    { label: "Block tools", shortLabel: "Blk", icon: "list-plus", filter: "Blocks" },
+    { label: "Basic markdown tools", shortLabel: "Md", icon: "heading", filter: "Basic markdown" }
+  ];
+}
+
+function getCategoryFilterCategories(category?: CommandCategoryFilter) {
+  return Array.isArray(category) ? category : category ? [category] : [];
+}
+
+function categoryFiltersEqual(left?: CommandCategoryFilter, right?: CommandCategoryFilter) {
+  const leftCategories = getCategoryFilterCategories(left);
+  const rightCategories = getCategoryFilterCategories(right);
+  return leftCategories.length === rightCategories.length && leftCategories.every((category, index) => category === rightCategories[index]);
+}
+
+function categoryMatchesFilter(category: CommandCategory, filter?: CommandCategoryFilter) {
+  const categories = getCategoryFilterCategories(filter);
+  return categories.length === 0 || categories.includes(category);
+}
+
+function getCategoryFilterLabel(category: CommandCategoryFilter) {
+  return getCategoryFilterCategories(category).join(" + ");
+}
+
+function getCategoryFilterClass(category: CommandCategoryFilter) {
+  return getCategoryFilterCategories(category).join("-").toLowerCase().replace(/\s+/g, "-");
+}
+
+function commandMatchesQuery(command: EditorCommand, query: ParsedCommandQuery, initialCategory?: CommandCategoryFilter) {
+  if (!categoryMatchesFilter(command.category, initialCategory)) {
     return false;
   }
   if (query.category && command.category !== query.category) {
@@ -1999,6 +2115,9 @@ function getCommandSearchAliases(command: EditorCommand) {
 }
 
 function getCommandPreview(command: EditorCommand) {
+  if (command.id === "unwrap-markdown-selection") {
+    return "keep line breaks and links";
+  }
   if (command.id === "wrap-graphite-kbd") {
     return "kbd · Cmd+K";
   }
@@ -2023,6 +2142,12 @@ function getCommandPreview(command: EditorCommand) {
 function getCommandPreviewDetail(command: EditorCommand) {
   if (command.id === "open-graphite-report-starter") {
     return "frontmatter + summary + table + source note";
+  }
+  if (command.id === "unwrap-selected-table") {
+    return "remove table wrapper, keep cell content";
+  }
+  if (command.id === "unwrap-markdown-selection") {
+    return "**bold** + ![](image.png) + https://... -> bold + links kept";
   }
   if (command.id === "convert-selection-to-graphite-table") {
     return "CSV/TSV/markdown table -> graphite HTML";
@@ -2698,6 +2823,92 @@ function clearCommonFormatting(editor: Editor) {
   editor.replaceSelection(cleaned);
 }
 
+function unwrapMarkdownSelection(editor: Editor) {
+  const selection = editor.getSelection();
+  if (!selection.trim()) {
+    new Notice("Owen editor: 마크다운 서식을 제거할 텍스트를 먼저 선택하세요.");
+    return;
+  }
+
+  editor.replaceSelection(stripMarkdownFormattingPreservingLinks(selection));
+}
+
+function stripMarkdownFormattingPreservingLinks(sourceText: string) {
+  const preserved: string[] = [];
+  const protectedText = sourceText.replace(/!\[[^\]\n]*\]\([^\n)]+\)|\[[^\]\n]+\]\([^\n)]+\)|!?\[\[[^\]\n]+\]\]|<https?:\/\/[^>\s]+>|https?:\/\/[^\s<>)]+/gi, (match) => {
+    const placeholder = `OWENLINKTOKEN${preserved.length}TOKEN`;
+    preserved.push(cleanPreservedLinkText(match));
+    return placeholder;
+  });
+
+  const cleaned = protectedText
+    .replace(/^\s*(```+|~~~+).*$/gm, "")
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/\s+#{1,6}\s*$/gm, "")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/^\s*[-+*]\s+\[[ xX]\]\s+/gm, "")
+    .replace(/^\s*[-+*]\s+/gm, "")
+    .replace(/^\s*\d+[.)]\s+/gm, "")
+    .replace(/^\s*\[![^\]]+\]\s*/gm, "")
+    .replace(/^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/gm, "")
+    .replace(/^\s*\|(.+)\|\s*$/gm, (_match: string, cells: string) => splitMarkdownTableLine(cells).join("\n"))
+    .replace(/\*\*([^*\n]+)\*\*/g, "$1")
+    .replace(/__([^_\n]+)__/g, "$1")
+    .replace(/~~([^~\n]+)~~/g, "$1")
+    .replace(/`([^`\n]+)`/g, "$1")
+    .replace(/(^|[^A-Za-z0-9_])==(?=\S)([\s\S]*?\S)==(?=$|[^A-Za-z0-9_])/g, "$1$2")
+    .replace(/<mark\b[^>]*>([\s\S]*?)<\/mark>/gi, "$1")
+    .replace(/<([A-Za-z][\w:-]*)\b[^>]*(?:style=["'][^"']*background(?:-color)?\s*:[^"']*["']|class=["'][^"']*(?:highlight|hltr|mark)[^"']*["'])[^>]*>([\s\S]*?)<\/\1>/gi, "$2")
+    .replace(/<span\b[^>]*class="ogd-blur"[^>]*>([\s\S]*?)<\/span>/gi, "$1")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?(?:u|strong|em|b|i)>/gi, "")
+    .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/_([^_\n]+)_/g, "$1")
+    .replace(/\[\^\w[\w-]*\]/g, "")
+    .replace(/^\s*\[\^\w[\w-]*\]:\s*/gm, "");
+
+  return preserved.reduce((text, value, index) => text.split(`OWENLINKTOKEN${index}TOKEN`).join(value), cleaned);
+}
+
+function cleanPreservedLinkText(linkText: string) {
+  if (linkText.startsWith("![")) {
+    return linkText;
+  }
+
+  const markdownLink = linkText.match(/^\[([^\]\n]+)\]\(([\s\S]+)\)$/);
+  if (markdownLink) {
+    return `[${stripMarkdownInlineFormatting(markdownLink[1])}](${markdownLink[2]})`;
+  }
+
+  const wikiLink = linkText.match(/^(!?)\[\[([^\]\n]+)\]\]$/);
+  if (wikiLink && !wikiLink[1]) {
+    const separator = wikiLink[2].includes("|") ? "|" : "";
+    if (separator) {
+      const [target, alias] = wikiLink[2].split("|");
+      return `[[${target}|${stripMarkdownInlineFormatting(alias)}]]`;
+    }
+  }
+
+  return linkText;
+}
+
+function stripMarkdownInlineFormatting(sourceText: string) {
+  return sourceText
+    .replace(/\*\*([^*\n]+)\*\*/g, "$1")
+    .replace(/__([^_\n]+)__/g, "$1")
+    .replace(/~~([^~\n]+)~~/g, "$1")
+    .replace(/`([^`\n]+)`/g, "$1")
+    .replace(/(^|[^A-Za-z0-9_])==(?=\S)([\s\S]*?\S)==(?=$|[^A-Za-z0-9_])/g, "$1$2")
+    .replace(/<mark\b[^>]*>([\s\S]*?)<\/mark>/gi, "$1")
+    .replace(/<([A-Za-z][\w:-]*)\b[^>]*(?:style=["'][^"']*background(?:-color)?\s*:[^"']*["']|class=["'][^"']*(?:highlight|hltr|mark)[^"']*["'])[^>]*>([\s\S]*?)<\/\1>/gi, "$2")
+    .replace(/<span\b[^>]*class="ogd-blur"[^>]*>([\s\S]*?)<\/span>/gi, "$1")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/?(?:u|strong|em|b|i)>/gi, "")
+    .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/_([^_\n]+)_/g, "$1");
+}
+
 function adjustLineIndent(editor: Editor, direction: "indent" | "outdent") {
   const selection = editor.getSelection();
   const transform = (line: string) => direction === "indent" ? `  ${line}` : line.replace(/^( {1,2}|\t)/, "");
@@ -2764,6 +2975,148 @@ function convertSelectionToTable(editor: Editor, preset: TableBuilderPreset) {
   };
 
   editor.replaceSelection(preset === "markdown" ? buildMarkdownTableFromRows(rows, includeHeader) : buildHtmlTableFromRows(options, rows));
+}
+
+function unwrapSelectedTable(editor: Editor) {
+  const selection = editor.getSelection();
+  if (selection.trim() && containsTableStructure(selection)) {
+    editor.replaceSelection(unwrapTableMarkup(selection));
+    return;
+  }
+
+  const tableRange = findEnclosingTableRange(editor);
+  if (!tableRange) {
+    new Notice("Owen editor: 커서 또는 선택 영역 주변에서 테이블 구조를 찾지 못했습니다.");
+    return;
+  }
+
+  editor.replaceRange(
+    unwrapTableMarkup(getEditorRangeText(editor, tableRange.startLine, tableRange.endLine)),
+    { line: tableRange.startLine, ch: 0 },
+    getEditorRangeEndPosition(editor, tableRange.endLine)
+  );
+}
+
+function containsTableStructure(sourceText: string) {
+  return /<\/?(?:table|thead|tbody|tfoot|tr|td|th|caption|colgroup|col)\b/i.test(sourceText) || isMarkdownTable(sourceText);
+}
+
+function unwrapTableMarkup(sourceText: string) {
+  if (/<\/?(?:table|thead|tbody|tfoot|tr|td|th|caption|colgroup|col)\b/i.test(sourceText)) {
+    return normalizeUnwrappedTableText(sourceText
+      .replace(/<colgroup\b[^>]*>[\s\S]*?<\/colgroup>/gi, "\n")
+      .replace(/<col\b[^>]*\/?\s*>/gi, "\n")
+      .replace(/<\/?(?:table|thead|tbody|tfoot)\b[^>]*>/gi, "\n")
+      .replace(/<\/?tr\b[^>]*>/gi, "\n")
+      .replace(/<\/?(?:td|th|caption)\b[^>]*>/gi, "\n"));
+  }
+
+  return unwrapMarkdownTable(sourceText);
+}
+
+function findEnclosingTableRange(editor: Editor) {
+  const cursor = editor.getCursor("from");
+  return findHtmlTableRange(editor, cursor.line) ?? findMarkdownTableRange(editor, cursor.line);
+}
+
+function findHtmlTableRange(editor: Editor, lineNumber: number) {
+  let startLine = -1;
+  for (let line = lineNumber; line >= 0; line -= 1) {
+    const text = editor.getLine(line);
+    if (/<\/table\s*>/i.test(text) && line < lineNumber) {
+      break;
+    }
+    if (/<table\b/i.test(text)) {
+      startLine = line;
+      break;
+    }
+  }
+
+  if (startLine === -1) {
+    return null;
+  }
+
+  for (let line = Math.max(startLine, lineNumber); line < editor.lineCount(); line += 1) {
+    if (/<\/table\s*>/i.test(editor.getLine(line))) {
+      return { startLine, endLine: line + 1 };
+    }
+  }
+
+  return null;
+}
+
+function findMarkdownTableRange(editor: Editor, lineNumber: number) {
+  if (!/^\s*\|.*\|\s*$/.test(editor.getLine(lineNumber))) {
+    return null;
+  }
+
+  let startLine = lineNumber;
+  while (startLine > 0 && /^\s*\|.*\|\s*$/.test(editor.getLine(startLine - 1))) {
+    startLine -= 1;
+  }
+
+  let endLine = lineNumber + 1;
+  while (endLine < editor.lineCount() && /^\s*\|.*\|\s*$/.test(editor.getLine(endLine))) {
+    endLine += 1;
+  }
+
+  return { startLine, endLine };
+}
+
+function isInsideHtmlTable(editor: Editor, lineNumber: number) {
+  return Boolean(findHtmlTableRange(editor, lineNumber));
+}
+
+function getEditorRangeText(editor: Editor, startLine: number, endLine: number) {
+  return Array.from({ length: endLine - startLine }, (_, index) => editor.getLine(startLine + index)).join("\n");
+}
+
+function getEditorRangeEndPosition(editor: Editor, endLine: number) {
+  if (endLine < editor.lineCount()) {
+    return { line: endLine, ch: 0 };
+  }
+
+  const lastLine = Math.max(0, editor.lineCount() - 1);
+  return { line: lastLine, ch: editor.getLine(lastLine).length };
+}
+
+function unwrapMarkdownTable(sourceText: string) {
+  return sourceText
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => /^\|.*\|$/.test(line))
+    .filter((line) => !/^\|\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|$/.test(line))
+    .map((line) => splitMarkdownTableLine(line).join("\n"))
+    .join("\n\n")
+    .trim();
+}
+
+function splitMarkdownTableLine(line: string) {
+  const cells: string[] = [];
+  let cell = "";
+  const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+
+  for (let index = 0; index < trimmed.length; index += 1) {
+    const char = trimmed[index];
+    if (char === "|" && trimmed[index - 1] !== "\\") {
+      cells.push(cell.trim().replace(/\\\|/g, "|"));
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  cells.push(cell.trim().replace(/\\\|/g, "|"));
+  return cells.filter((value) => value.length > 0);
+}
+
+function normalizeUnwrappedTableText(sourceText: string) {
+  return sourceText
+    .split(/\r?\n/)
+    .map((line) => line.replace(/[ \t]+$/g, ""))
+    .join("\n")
+    .replace(/\n[ \t]*\n[ \t]*\n+/g, "\n\n")
+    .trim();
 }
 
 function parseTableSelection(sourceText: string) {

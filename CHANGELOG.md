@@ -8,6 +8,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.23] - 2026-06-02
+
+### Added
+
+- Added an H1 toolbar action and unwrap table commands for selected or enclosing Markdown and HTML tables.
+- Added an unwrap markdown command that preserves Markdown links, image links, raw HTTP links, and line breaks while removing common Markdown and HTML formatting.
+
+### Changed
+
+- Reworked the editor palette with a category rail, opaque panels, scrollable content, and lightly tinted command sections for better visibility.
+- Kept the selection toolbar near the recent mouse pointer when selecting large document ranges.
+
+### Fixed
+
+- Preserved link syntax while stripping Markdown formatting from selected text.
+- Converted stray `<br>` tags to line breaks during markdown unwrap cleanup.
+
 ## [0.6.22] - 2026-05-15
 
 ### Changed
@@ -285,7 +302,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.22...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.23...HEAD
+[0.6.23]: https://github.com/towishy/owen-editor/compare/0.6.22...0.6.23
 [0.6.22]: https://github.com/towishy/owen-editor/compare/0.6.21...0.6.22
 [0.6.21]: https://github.com/towishy/owen-editor/compare/0.6.20...0.6.21
 [0.6.20]: https://github.com/towishy/owen-editor/compare/0.6.19...0.6.20

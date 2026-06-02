@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owen Editor Right Panel Visibility Samples</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #e8edf3;
+      --panel: #ffffff;
+      --panel-2: #f4f7fb;
+      --ink: #182235;
+      --muted: #647084;
+      --faint: #8994a5;
+      --line: #cbd5e1;
+      --line-strong: #9eabbc;
+      --blue: #245fe8;
+      --blue-soft: #e7efff;
+      --teal: #0d766f;
+      --teal-soft: #dcf5f1;
+      --amber: #aa6815;
+      --amber-soft: #fff0d3;
+      --rose: #b5445f;
+      --rose-soft: #fde5eb;
+      --shadow: 0 22px 58px rgba(24, 34, 53, 0.16);
+      font-family: Aptos, "Segoe UI Variable", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background:
+        linear-gradient(135deg, rgba(36, 95, 232, 0.08), transparent 32%),
+        linear-gradient(315deg, rgba(13, 118, 111, 0.1), transparent 42%),
+        var(--bg);
+      color: var(--ink);
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .page {
+      margin: 0 auto;
+      max-width: 1440px;
+    }
+
+    .header {
+      align-items: end;
+      display: flex;
+      gap: 18px;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 26px;
+      letter-spacing: 0;
+      line-height: 1.1;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+      max-width: 780px;
+    }
+
+    .badge {
+      background: var(--teal-soft);
+      border: 1px solid rgba(13, 118, 111, 0.28);
+      border-radius: 999px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 850;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    .samples {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sample {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sample-head {
+      align-items: center;
+      background: #f5f7fa;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      min-height: 64px;
+      padding: 14px 16px;
+    }
+
+    .sample-head h2 {
+      font-size: 15px;
+      margin: 0 0 3px;
+    }
+
+    .sample-head p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .score {
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 850;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+
+    .score.best { background: var(--teal-soft); color: var(--teal); }
+    .score.fast { background: var(--blue-soft); color: var(--blue); }
+    .score.dense { background: var(--amber-soft); color: var(--amber); }
+    .score.clean { background: var(--rose-soft); color: var(--rose); }
+
+    .stage {
+      background: #eef3f8;
+      padding: 18px;
+    }
+
+    .palette-shell {
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      box-shadow: 0 18px 42px rgba(24, 34, 53, 0.14);
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      height: 620px;
+      overflow: hidden;
+    }
+
+    .rail {
+      background: #eef2f7;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 8px;
+    }
+
+    .rail span {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      display: flex;
+      font-size: 11px;
+      font-weight: 900;
+      height: 48px;
+      justify-content: center;
+    }
+
+    .rail span.active {
+      background: var(--teal-soft);
+      border-color: rgba(13, 118, 111, 0.34);
+      color: var(--teal);
+      box-shadow: inset 0 0 0 1px rgba(13, 118, 111, 0.18);
+    }
+
+    .content {
+      background: var(--panel);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .search {
+      align-items: center;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 10px;
+      min-height: 62px;
+      padding: 12px 14px;
+    }
+
+    .search-box {
+      align-items: center;
+      background: #fff;
+      border: 2px solid #adc0d8;
+      border-radius: 8px;
+      color: var(--faint);
+      display: flex;
+      flex: 1;
+      font-size: 13px;
+      font-weight: 750;
+      min-height: 38px;
+      padding: 0 12px;
+    }
+
+    .scroll {
+      overflow: auto;
+      padding: 14px;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      align-items: center;
+      color: var(--muted);
+      display: flex;
+      font-size: 12px;
+      font-weight: 900;
+      gap: 8px;
+      line-height: 1;
+      margin: 0 0 9px;
+    }
+
+    .section-title::after {
+      background: var(--line);
+      content: "";
+      flex: 1;
+      height: 1px;
+    }
+
+    .section-title strong {
+      color: var(--ink);
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .command {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 34px minmax(0, 1fr) 28px;
+      min-height: 62px;
+      padding: 10px;
+    }
+
+    .command.selected {
+      background: var(--blue-soft);
+      border-color: rgba(36, 95, 232, 0.62);
+      box-shadow: inset 0 0 0 1px rgba(36, 95, 232, 0.45);
+    }
+
+    .icon {
+      align-items: center;
+      background: #eef4fb;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--blue);
+      display: flex;
+      font-size: 12px;
+      font-weight: 900;
+      height: 34px;
+      justify-content: center;
+      width: 34px;
+    }
+
+    .copy {
+      min-width: 0;
+    }
+
+    .label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .preview {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--muted);
+      display: inline-block;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 10px;
+      line-height: 1.25;
+      margin-top: 5px;
+      max-width: 100%;
+      overflow: hidden;
+      padding: 3px 6px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .star {
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--faint);
+      display: flex;
+      font-size: 14px;
+      height: 28px;
+      justify-content: center;
+      width: 28px;
+    }
+
+    .star.active {
+      background: var(--amber-soft);
+      border-color: rgba(170, 104, 21, 0.35);
+      color: var(--amber);
+    }
+
+    .option-a .section.band {
+      background: #f3f7fb;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .option-a .command {
+      border-color: #b9c5d4;
+      box-shadow: 0 4px 10px rgba(24, 34, 53, 0.04);
+    }
+
+    .option-b .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .option-b .command {
+      align-items: center;
+      grid-template-columns: 34px minmax(0, 1fr) 96px 28px;
+      min-height: 54px;
+    }
+
+    .group-pill {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      padding: 5px 8px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .option-c .section-title {
+      background: var(--ink);
+      border-radius: 7px;
+      color: #fff;
+      padding: 9px 10px;
+    }
+
+    .option-c .section-title strong {
+      color: #fff;
+    }
+
+    .option-c .section-title::after {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .option-c .command {
+      border-left: 4px solid #9fb1c7;
+      grid-template-columns: 34px minmax(0, 1fr) 28px;
+    }
+
+    .option-c .command.selected {
+      border-left-color: var(--blue);
+    }
+
+    .option-d .scroll {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+
+    .option-d .summary {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .option-d .summary h3 {
+      font-size: 13px;
+      margin: 0 0 10px;
+    }
+
+    .option-d .summary-row {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 8px;
+      padding: 8px;
+    }
+
+    .option-d .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .notes {
+      background: #f8fafc;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 12px 16px;
+    }
+
+    .notes strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 1120px) {
+      body { padding: 18px; }
+      .header { align-items: start; flex-direction: column; }
+      .samples { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .palette-shell { grid-template-columns: 1fr; height: auto; }
+      .rail { border-bottom: 1px solid var(--line); border-right: 0; flex-direction: row; overflow-x: auto; }
+      .rail span { flex: 0 0 48px; }
+      .grid, .option-d .scroll { grid-template-columns: 1fr; }
+      .option-b .command { grid-template-columns: 34px minmax(0, 1fr) 28px; }
+      .group-pill { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1>오른쪽 명령 패널 가시성 개선 샘플</h1>
+        <p class="subtitle">현재 D안 레일은 유지하고, 오른쪽 명령 패널의 섹션 대비, 카드 밀도, 추천 영역, 즐겨찾기 버튼 비중을 비교합니다.</p>
+      </div>
+      <div class="badge">추천: A안 Section Bands</div>
+    </header>
+
+    <section class="samples">
+      <article class="sample option-a">
+        <div class="sample-head">
+          <div><h2>A. Section Bands</h2><p>섹션을 배경 밴드로 묶어 영역 경계를 가장 선명하게 표시</p></div>
+          <span class="score best">Best fit</span>
+        </div>
+        <div class="stage">
+          <div class="palette-shell">
+            <aside class="rail"><span>All</span><span class="active">SG</span><span>Tbl</span><span>Link</span><span>Blk</span><span>Md</span></aside>
+            <section class="content">
+              <div class="search"><div class="search-box">명령 검색</div></div>
+              <div class="scroll">
+                <div class="section band">
+                  <h3 class="section-title"><strong>Recommended</strong></h3>
+                  <div class="grid">
+                    <div class="command selected"><span class="icon">RP</span><div class="copy"><div class="label">Open owen graphite report starter</div><span class="preview">frontmatter + summary + table</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">UG</span><div class="copy"><div class="label">Unwrap table</div><span class="preview">remove table wrapper</span></div><span class="star active">☆</span></div>
+                  </div>
+                </div>
+                <div class="section">
+                  <h3 class="section-title"><strong>Selection</strong> Text styling</h3>
+                  <div class="grid">
+                    <div class="command"><span class="icon">B</span><div class="copy"><div class="label">Bold selection</div><span class="preview">**bold**</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">HL</span><div class="copy"><div class="label">Highlight selection</div><span class="preview">==highlight==</span></div><span class="star active">☆</span></div>
+                    <div class="command"><span class="icon">CM</span><div class="copy"><div class="label">Comment selection</div><span class="preview">&lt;!-- note --&gt;</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">QT</span><div class="copy"><div class="label">Blockquote selection</div><span class="preview">&gt; quote</span></div><span class="star">☆</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="notes"><strong>추천 이유:</strong> 현재 코드 구조에 가장 가깝고, 섹션 단위가 분명해져 스크롤 중에도 어디를 보고 있는지 잘 보입니다.</div>
+      </article>
+
+      <article class="sample option-b">
+        <div class="sample-head">
+          <div><h2>B. Dense Rows</h2><p>카드를 한 줄 목록으로 압축해 반복 작업 속도를 높임</p></div>
+          <span class="score fast">Fast scan</span>
+        </div>
+        <div class="stage">
+          <div class="palette-shell">
+            <aside class="rail"><span>All</span><span class="active">SG</span><span>Tbl</span><span>Link</span><span>Blk</span><span>Md</span></aside>
+            <section class="content">
+              <div class="search"><div class="search-box">명령 검색</div></div>
+              <div class="scroll">
+                <div class="section">
+                  <h3 class="section-title"><strong>Recommended</strong></h3>
+                  <div class="grid">
+                    <div class="command selected"><span class="icon">RP</span><div class="copy"><div class="label">Open owen graphite report starter</div><span class="preview">frontmatter + summary + table</span></div><span class="group-pill">Graphite</span><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">UG</span><div class="copy"><div class="label">Unwrap table</div><span class="preview">remove table wrapper</span></div><span class="group-pill">Tables</span><span class="star active">☆</span></div>
+                    <div class="command"><span class="icon">HL</span><div class="copy"><div class="label">Highlight selection</div><span class="preview">==highlight==</span></div><span class="group-pill">Selection</span><span class="star active">☆</span></div>
+                    <div class="command"><span class="icon">KB</span><div class="copy"><div class="label">Keyboard tag</div><span class="preview">&lt;kbd&gt;Cmd+K&lt;/kbd&gt;</span></div><span class="group-pill">Graphite</span><span class="star">☆</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="notes"><strong>장점:</strong> 한 화면에 가장 많이 들어갑니다. 다만 카드형보다 버튼의 클릭 면적과 시각적 리듬은 약해집니다.</div>
+      </article>
+
+      <article class="sample option-c">
+        <div class="sample-head">
+          <div><h2>C. Strong Headers</h2><p>섹션 헤더를 진하게 만들어 긴 목록에서 위치 감각 강화</p></div>
+          <span class="score dense">High contrast</span>
+        </div>
+        <div class="stage">
+          <div class="palette-shell">
+            <aside class="rail"><span>All</span><span class="active">SG</span><span>Tbl</span><span>Link</span><span>Blk</span><span>Md</span></aside>
+            <section class="content">
+              <div class="search"><div class="search-box">명령 검색</div></div>
+              <div class="scroll">
+                <div class="section">
+                  <h3 class="section-title"><strong>Recommended</strong></h3>
+                  <div class="grid">
+                    <div class="command selected"><span class="icon">RP</span><div class="copy"><div class="label">Open owen graphite report starter</div><span class="preview">frontmatter + summary + table</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">UG</span><div class="copy"><div class="label">Unwrap table</div><span class="preview">remove table wrapper</span></div><span class="star active">☆</span></div>
+                  </div>
+                </div>
+                <div class="section">
+                  <h3 class="section-title"><strong>Comments and notices</strong></h3>
+                  <div class="grid">
+                    <div class="command"><span class="icon">NT</span><div class="copy"><div class="label">Insert note callout</div><span class="preview">Obsidian callout</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">WR</span><div class="copy"><div class="label">Insert warning callout</div><span class="preview">Obsidian callout</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">SC</span><div class="copy"><div class="label">Insert secret callout</div><span class="preview">Graphite callout</span></div><span class="star">☆</span></div>
+                    <div class="command"><span class="icon">AC</span><div class="copy"><div class="label">Insert action summary</div><span class="preview">&gt; [!action]</span></div><span class="star">☆</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="notes"><strong>장점:</strong> 대비는 가장 확실합니다. 단, 헤더가 강해서 Owen Graphite의 조용한 문서 도구 느낌과는 조금 멀어질 수 있습니다.</div>
+      </article>
+
+      <article class="sample option-d">
+        <div class="sample-head">
+          <div><h2>D. Summary Sidebar</h2><p>오른쪽 패널 안에 추천/최근 요약을 별도 보조 컬럼으로 분리</p></div>
+          <span class="score clean">Organized</span>
+        </div>
+        <div class="stage">
+          <div class="palette-shell">
+            <aside class="rail"><span>All</span><span class="active">SG</span><span>Tbl</span><span>Link</span><span>Blk</span><span>Md</span></aside>
+            <section class="content">
+              <div class="search"><div class="search-box">명령 검색</div></div>
+              <div class="scroll">
+                <aside class="summary">
+                  <h3>Quick focus</h3>
+                  <div class="summary-row">Recommended · 4</div>
+                  <div class="summary-row">Recent · 6</div>
+                  <div class="summary-row">Favorites · 8</div>
+                  <div class="summary-row">Selection + Graphite · 18</div>
+                </aside>
+                <div>
+                  <div class="section">
+                    <h3 class="section-title"><strong>Recommended</strong></h3>
+                    <div class="grid">
+                      <div class="command selected"><span class="icon">RP</span><div class="copy"><div class="label">Open owen graphite report starter</div><span class="preview">frontmatter + summary + table</span></div><span class="star">☆</span></div>
+                      <div class="command"><span class="icon">UG</span><div class="copy"><div class="label">Unwrap table</div><span class="preview">remove table wrapper</span></div><span class="star active">☆</span></div>
+                      <div class="command"><span class="icon">HL</span><div class="copy"><div class="label">Highlight selection</div><span class="preview">==highlight==</span></div><span class="star active">☆</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="notes"><strong>장점:</strong> 정보 구조는 좋지만 실제 모달 폭에서는 좁아질 수 있습니다. 데스크톱 전용 고급안에 가깝습니다.</div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
