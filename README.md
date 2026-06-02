@@ -1,5 +1,7 @@
 # Owen Editor
 
+![Owen Editor tools overview](screenshots/owen-editor-tools-new.png)
+
 ![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
 
 ![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
