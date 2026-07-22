@@ -77,5 +77,5 @@ jobs:
         run: |
           gh release create "${GITHUB_REF_NAME}" \
             main.js manifest.json styles.css \
-            --title "Owen Editor ${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
             --notes-file "${{ steps.notes.outputs.notes_file }}"

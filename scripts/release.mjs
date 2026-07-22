@@ -46,7 +46,7 @@ run("gh", [
   "--repo",
   "towishy/owen-editor",
   "--title",
-  `Owen Editor ${version}`,
+  version,
   "--notes",
   `${getReleaseNotes(version)}\n\nValidation:\n- npm run build\n- npm run release:check\n- git diff --check`
 ]);

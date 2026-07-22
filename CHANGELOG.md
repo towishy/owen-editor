@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.25] - 2026-07-22
+
+### Changed
+
+- Reorganized the floating toolbar into labeled history, context, collection, and utility groups with fewer always-visible actions.
+- Added native heading and More menus, dialog/menu accessibility metadata, and duplicate removal between primary and favorite commands.
+- Increased effective desktop and mobile control targets while simplifying inner button surfaces to keep liquid glass on the toolbar boundary.
+- Rebuilt the editor palette as a quiet workbench with an opaque command canvas, sticky search toolbar, semantic category rail, section counts, 44px actions, and boundary-only liquid glass.
+
 ## [0.6.24] - 2026-06-02
 
 ### Changed
@@ -310,7 +319,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.24...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.25...HEAD
+[0.6.25]: https://github.com/towishy/owen-editor/compare/0.6.24...0.6.25
 [0.6.24]: https://github.com/towishy/owen-editor/compare/0.6.23...0.6.24
 [0.6.23]: https://github.com/towishy/owen-editor/compare/0.6.22...0.6.23
 [0.6.22]: https://github.com/towishy/owen-editor/compare/0.6.21...0.6.22
