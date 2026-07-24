@@ -8,16 +8,23 @@
 
 ![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
 
-![release v0.6.26](https://img.shields.io/badge/release-v0.6.26-0b8bdc?style=flat-square)
+![release v0.6.27](https://img.shields.io/badge/release-v0.6.27-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
 
 Owen Editor is an Obsidian community plugin for fast Markdown editing. It brings writing, research, report drafting, table conversion, and Owen Graphite theme snippets into one lightweight editing toolbar.
 
+> **Language:** Owen Editor follows Obsidian by default: Korean uses Korean, while every other locale uses English. Override it from **Settings → Owen Editor → Interface → Language**.
+
 ![Owen Editor glass toolbar preview](screenshots/owen-editor-ui-preview.png)
 
 ## Latest updates
+
+### v0.6.27
+
+- Added complete English and Korean interface catalogs for settings, commands, notices, menus, and dialogs.
+- Added an Interface language setting that follows Obsidian automatically while allowing explicit English or Korean overrides.
 
 ### v0.6.26
 
