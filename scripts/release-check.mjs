@@ -26,6 +26,7 @@ const readme = readText("README.md");
 const license = readText("LICENSE");
 const changelog = readText("CHANGELOG.md");
 const source = readText("main.ts");
+const i18nSource = readText("i18n.ts");
 
 assert(packageJson.version === manifest.version, `Version mismatch: package.json ${packageJson.version}, manifest.json ${manifest.version}`);
 assert(packageLock.version === packageJson.version, `package-lock.json root version must be ${packageJson.version}`);
@@ -47,6 +48,9 @@ assert(!source.match(/name:\s*["'][^"']*Owen Editor[^"']*["']/), "Command names 
 assert(!source.match(/createEl\(["']h[12]["']/), "Settings headings should use Setting#setHeading instead of direct h1/h2 elements");
 assert(!source.includes('String(vaultWithConfig.getConfig?.("cssTheme") ?? "")'), "cssTheme config must be type-checked before string methods are used");
 assert(!source.match(/addEventListener\([^\n]+async\s*\(/), "DOM event listeners must not return promises; wrap async work with void");
+assert(i18nSource.includes('export const LANGUAGES = ["en", "ko"] as const;'), "i18n must expose exactly English and Korean");
+assert(i18nSource.includes("TRANSLATIONS[language]?.[key] ?? EN_TRANSLATIONS[key]"), "i18n must use deterministic English fallback");
+assert(existsSync(resolve(root, "scripts/check-i18n.mjs")), "i18n validation script must exist");
 
 for (const asset of requiredAssets) {
   const stats = statSync(resolve(root, asset));

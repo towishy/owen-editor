@@ -44,3 +44,12 @@ npm run update:obsidian
 - Obsidian API, manifest, command registration 변경 시 실제 Obsidian 동작을 고려한다.
 - Owen Graphite 스타일과 겹치는 UI는 theme CSS를 침범하지 않도록 scope를 좁힌다.
 - 릴리스 전 `npm run release:check`를 우선 실행한다.
+
+## Localization Contract
+
+- 사용자 노출 UI의 기본 언어는 영어(`en`)다.
+- 기능을 추가하거나 변경할 때 영어와 한국어(`ko`) 문자열을 같은 변경에서 함께 구현한다. 설정, 명령, 메뉴, 버튼, tooltip, aria-label, modal, notice, 상태·오류 문구를 빠뜨리지 않는다.
+- 사용자 노출 문자열을 기능 코드에 직접 하드코딩하지 않고 typed i18n catalog와 번역 함수를 사용한다.
+- 내부 ID, command ID, CSS class, Markdown syntax, 파일 경로, 사용자 데이터, 원시 오류 detail은 번역하지 않는다.
+- 기본 preference는 `auto`다. Obsidian locale이 `ko` 계열이면 한국어, 그 외에는 영어를 사용하며, 사용자가 고른 `en`/`ko` override가 자동값보다 우선한다.
+- 영어/한국어 key parity, 영어 fallback, 보간, 자동 locale 해석, override 우선순위를 자동 검사에 포함하고 릴리스 전에 통과시킨다.
