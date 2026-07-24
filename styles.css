@@ -1508,6 +1508,73 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   padding-top: 8px;
 }
 
+.markdown-rendered pre.owen-editor-codeblock-title-ready::after {
+  content: "";
+}
+
+.owen-editor-codeblock-title,
+.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger,
+.owen-editor-codeblock-title-input {
+  position: absolute;
+  top: 0.25rem;
+  right: var(--ogd-codeblock-action-space, 3.3em);
+  bottom: auto;
+  left: 1rem;
+  z-index: 3;
+  box-sizing: border-box;
+  width: auto;
+  height: var(--ogd-codeblock-header-height, 2.2em);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ogd-text-subtle, var(--text-muted));
+  font-family: var(--ogd-interface-font-stack, var(--font-interface-theme));
+  font-size: 0.72em;
+  font-weight: 760;
+  line-height: var(--ogd-codeblock-header-height, 2.2em);
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.owen-editor-codeblock-title,
+.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger {
+  display: block;
+  overflow: hidden;
+  cursor: text;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.owen-editor-codeblock-title:hover,
+.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger:hover {
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+}
+
+.owen-editor-codeblock-title:focus-visible,
+.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger:focus-visible,
+.owen-editor-codeblock-title-input:focus {
+  outline: 2px solid var(--background-modifier-border-focus);
+  outline-offset: 1px;
+}
+
+.owen-editor-codeblock-title-input {
+  display: block;
+  overflow: hidden;
+  cursor: text;
+  pointer-events: auto;
+}
+
+.owen-editor-codeblock-title-editing .code-block-flair.owen-editor-codeblock-title-trigger {
+  visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .owen-editor-toolbar-button,
   .owen-editor-toolbar-button::before,

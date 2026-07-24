@@ -8,6 +8,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.28] - 2026-07-25
+
+### Added
+
+- Added persistent code block title editing in Live Preview and Reading View, stored directly in fenced Markdown `title="..."` attributes.
+- Added keyboard editing with `Enter` and `F2`, safe cancellation with `Escape`, bilingual labels, and stale-block protection.
+
+### Changed
+
+- Moved the JavaScript-owned code title workflow into Owen Editor so Owen Graphite remains a theme configured through Style Settings without a separate companion plugin.
+
 ## [0.6.27] - 2026-07-24
 
 ### Added
@@ -334,6 +345,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
 [Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.27...HEAD
+[0.6.28]: https://github.com/towishy/owen-editor/compare/0.6.27...0.6.28
 [0.6.27]: https://github.com/towishy/owen-editor/compare/0.6.26...0.6.27
 [0.6.26]: https://github.com/towishy/owen-editor/compare/0.6.25...0.6.26
 [0.6.25]: https://github.com/towishy/owen-editor/compare/0.6.24...0.6.25

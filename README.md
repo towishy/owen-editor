@@ -8,7 +8,7 @@
 
 ![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
 
-![release v0.6.27](https://img.shields.io/badge/release-v0.6.27-0b8bdc?style=flat-square)
+![release v0.6.28](https://img.shields.io/badge/release-v0.6.28-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -20,6 +20,11 @@ Owen Editor is an Obsidian community plugin for fast Markdown editing. It brings
 ![Owen Editor glass toolbar preview](screenshots/owen-editor-ui-preview.png)
 
 ## Latest updates
+
+### v0.6.28
+
+- Added persistent code block title editing in Live Preview and Reading View without requiring a separate companion plugin.
+- Stores titles in fenced Markdown as `title="..."` and preserves blank titles, CRLF files, and stale-block safety checks.
 
 ### v0.6.27
 
@@ -120,6 +125,7 @@ Restart Obsidian or reload plugins, then enable `Owen Editor`.
 - Bold, italic, strikethrough, underline, highlight, headings, indentation, lists, checkboxes, undo, and redo.
 - Insert helpers for Markdown links, wiki links, embeds, attachments, images, and footnotes.
 - Callouts, frontmatter, Mermaid blocks, code blocks, block quotes, and alignment helpers.
+- Persistent code block title editing in Live Preview and Reading View; `Enter` saves, `Escape` cancels, and `F2` starts editing.
 - Table builder for Markdown tables and Owen Graphite HTML tables.
 - Selection conversion from CSV, TSV, or Markdown tables into Markdown tables or Graphite HTML tables.
 - Document templates for executive summaries, comparison reports, risk reviews, and meeting reviews.
