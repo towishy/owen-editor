@@ -2691,7 +2691,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
     const t = (key: TranslationKey, variables?: Record<string, string | number>) => this.plugin.t(key, variables);
     containerEl.empty();
     containerEl.addClass("owen-editor-settings-tab");
-    this.createSettingsSection(t("settings.section.interface"), t("settings.section.interfaceDesc"));
+    this.createSettingsSection(t("settings.section.interface"), t("settings.section.interfaceDesc"), "interface", "languages");
 
     new Setting(containerEl)
       .setName(t("settings.language.name"))
@@ -2703,7 +2703,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.language)
         .onChange(async (value) => this.plugin.setLanguage(value as LanguagePreference)));
 
-    this.createSettingsSection(t("settings.section.toolbar"), t("settings.section.toolbarDesc"));
+    this.createSettingsSection(t("settings.section.toolbar"), t("settings.section.toolbarDesc"), "toolbar", "panel-top");
 
     new Setting(containerEl)
       .setName(t("settings.showToolbar"))
@@ -2827,7 +2827,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection(t("settings.section.selection"), t("settings.section.selectionDesc"));
+    this.createSettingsSection(t("settings.section.selection"), t("settings.section.selectionDesc"), "selection", "mouse-pointer-2");
 
     new Setting(containerEl)
       .setName(t("settings.showSelection"))
@@ -2839,7 +2839,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection(t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"));
+    this.createSettingsSection(t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"), "shortcuts", "keyboard");
 
     new Setting(containerEl)
       .setName(t("settings.showStatus"))
@@ -2851,7 +2851,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection(t("settings.section.graphite"), t("settings.section.graphiteDesc"));
+    this.createSettingsSection(t("settings.section.graphite"), t("settings.section.graphiteDesc"), "graphite", "sparkles");
 
     new Setting(containerEl)
       .setName(t("settings.htmlTables"))
@@ -2873,7 +2873,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    this.createSettingsSection(t("settings.section.favorites"), t("settings.section.favoritesDesc"));
+    this.createSettingsSection(t("settings.section.favorites"), t("settings.section.favoritesDesc"), "favorites", "star");
 
     new Setting(containerEl)
       .setName(t("settings.favoritePresets"))
@@ -2980,7 +2980,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
       }
     }
 
-    this.createSettingsSection(t("settings.section.portability"), t("settings.section.portabilityDesc"));
+    this.createSettingsSection(t("settings.section.portability"), t("settings.section.portabilityDesc"), "portability", "folder-sync");
 
     let settingsJson = JSON.stringify(getPortableSettings(this.plugin.settings), null, 2);
     new Setting(containerEl)
@@ -3010,11 +3010,16 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .onClick(() => this.display()));
   }
 
-  private createSettingsSection(title: string, description: string) {
-    new Setting(this.containerEl)
+  private createSettingsSection(title: string, description: string, section: string, icon: string) {
+    const heading = new Setting(this.containerEl)
       .setName(title)
       .setDesc(description)
       .setHeading();
+    heading.settingEl.dataset.owenSection = section;
+    const glyph = heading.settingEl.createDiv({ cls: "owen-editor-settings-section-glyph" });
+    glyph.setAttr("aria-hidden", "true");
+    setSafeIcon(glyph, icon);
+    heading.settingEl.insertBefore(glyph, heading.infoEl);
   }
 }
 

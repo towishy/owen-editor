@@ -8,6 +8,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.29] - 2026-07-25
+
+### Changed
+
+- Added distinct Lucide icons and stable semantic section identifiers to all seven settings groups.
+- Enabled Owen Graphite to style Editor settings by section purpose without position-dependent selectors.
+
 ## [0.6.28] - 2026-07-25
 
 ### Added
@@ -344,7 +351,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.27...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.29...HEAD
+[0.6.29]: https://github.com/towishy/owen-editor/compare/0.6.28...0.6.29
 [0.6.28]: https://github.com/towishy/owen-editor/compare/0.6.27...0.6.28
 [0.6.27]: https://github.com/towishy/owen-editor/compare/0.6.26...0.6.27
 [0.6.26]: https://github.com/towishy/owen-editor/compare/0.6.25...0.6.26
