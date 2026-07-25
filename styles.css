@@ -581,13 +581,13 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .owen-editor-palette {
   background: transparent;
-  height: min(76vh, 800px);
+  height: min(82vh, 860px);
   min-height: min(440px, calc(100vh - 120px));
   min-width: 0;
 }
 
 .modal.owen-editor-palette-modal {
-  --owen-editor-palette-canvas: color-mix(in srgb, var(--background-secondary) 78%, var(--background-primary));
+  --owen-editor-palette-canvas: var(--background-primary);
   --owen-editor-palette-surface: var(--background-primary);
   --owen-editor-palette-surface-muted: color-mix(in srgb, var(--background-secondary) 82%, var(--background-primary));
   --owen-editor-palette-border: color-mix(in srgb, var(--background-modifier-border) 72%, transparent);
@@ -599,60 +599,117 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   --owen-editor-palette-muted: var(--text-muted);
   --owen-editor-palette-fast: 140ms;
   --owen-editor-palette-normal: 200ms;
-  background: color-mix(in srgb, var(--background-primary) 96%, transparent);
+  background: color-mix(in srgb, var(--background-primary) 97%, transparent);
   border: 1px solid color-mix(in srgb, var(--background-modifier-border) 74%, white);
-  border-radius: 28px;
-  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.16), 0 4px 14px rgba(15, 23, 42, 0.07);
+  border-radius: 14px;
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.14), 0 3px 12px rgba(15, 23, 42, 0.06);
   max-width: calc(100vw - 48px);
   overflow: hidden;
-  width: min(1180px, calc(100vw - 48px));
+  width: min(820px, calc(100vw - 48px));
 }
 
 .modal.owen-editor-palette-modal .modal-content {
   background: transparent;
   max-height: calc(100vh - 96px);
   overflow: hidden;
+  padding: 6px 14px 14px;
+}
+
+.modal.owen-editor-palette-modal .modal-title {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .owen-editor-palette-layout {
-  background: var(--owen-editor-palette-canvas);
-  border: 1px solid var(--owen-editor-palette-border);
-  border-radius: 20px;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 68%, transparent);
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .owen-editor-palette-rail {
   align-items: center;
-  background: var(--owen-editor-palette-surface-muted);
-  border-right: 1px solid var(--owen-editor-palette-border);
+  background: color-mix(in srgb, var(--owen-editor-palette-surface-muted) 72%, var(--owen-editor-palette-surface));
+  border: 1px solid var(--owen-editor-palette-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  padding: 14px 9px;
-  scrollbar-gutter: auto;
+  flex: 0 0 auto;
+  gap: 12px;
+  min-height: 58px;
+  padding: 8px 10px;
+}
+
+.owen-editor-palette-rail-brand {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 9px;
+  min-width: 142px;
+}
+
+.owen-editor-palette-rail-brand-icon,
+.owen-editor-group-title-icon {
+  align-items: center;
+  background: color-mix(in srgb, var(--owen-editor-section-tone, var(--interactive-accent)) 8%, var(--owen-editor-palette-surface));
+  border: 1px solid color-mix(in srgb, var(--owen-editor-section-tone, var(--interactive-accent)) 26%, var(--owen-editor-palette-border));
+  border-radius: 7px;
+  color: var(--owen-editor-section-tone, var(--text-accent));
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.owen-editor-palette-rail-brand-icon svg,
+.owen-editor-group-title-icon svg {
+  height: 16px;
+  width: 16px;
+}
+
+.owen-editor-palette-rail-brand-label {
+  color: var(--owen-editor-palette-text);
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+}
+
+.owen-editor-palette-rail-items {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 4px;
+  justify-content: flex-end;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .owen-editor-palette-rail-button {
   align-items: center;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 7px;
   color: var(--owen-editor-palette-muted);
   display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
+  flex: 0 0 auto;
+  gap: 6px;
   justify-content: center;
-  min-height: 52px;
-  min-width: 0;
-  padding: 6px 3px;
+  min-height: 36px;
+  min-width: 36px;
+  padding: 5px 8px;
   transition: background-color var(--owen-editor-palette-fast) ease, border-color var(--owen-editor-palette-fast) ease, color var(--owen-editor-palette-fast) ease, transform var(--owen-editor-palette-fast) ease;
-  width: 100%;
+  width: auto;
 }
 
 .owen-editor-palette-rail-button:hover,
@@ -664,10 +721,10 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 }
 
 .owen-editor-palette-rail-button.is-active {
-  background: var(--owen-editor-palette-surface);
+  background: color-mix(in srgb, var(--interactive-accent) 7%, var(--owen-editor-palette-surface));
   border-color: var(--owen-editor-palette-border-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 7px 18px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05);
-  color: var(--owen-editor-palette-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 12px rgba(15, 23, 42, 0.06);
+  color: var(--text-accent);
 }
 
 .owen-editor-palette-rail-button:active {
@@ -696,62 +753,59 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   font-weight: var(--font-semibold);
   letter-spacing: 0;
   line-height: 1.1;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .owen-editor-palette-content {
-  background: var(--owen-editor-palette-canvas);
+  background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 14px;
   min-height: 0;
   min-width: 0;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 16px 16px;
-  scrollbar-gutter: stable;
+  padding: 0 2px 2px 0;
+  scrollbar-color: color-mix(in srgb, var(--owen-editor-palette-muted) 38%, transparent) transparent;
+  scrollbar-width: thin;
 }
 
 .owen-editor-palette-content::-webkit-scrollbar,
-.owen-editor-palette-rail::-webkit-scrollbar {
-  width: 10px;
+.owen-editor-palette-rail-items::-webkit-scrollbar {
+  width: 8px;
+  height: 6px;
 }
 
 .owen-editor-palette-content::-webkit-scrollbar-track,
-.owen-editor-palette-rail::-webkit-scrollbar-track {
-  background: var(--owen-editor-palette-surface-muted);
-  border-left: 1px solid var(--owen-editor-palette-border);
+.owen-editor-palette-rail-items::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .owen-editor-palette-content::-webkit-scrollbar-thumb,
-.owen-editor-palette-rail::-webkit-scrollbar-thumb {
-  background: var(--owen-editor-palette-border-strong);
-  border: 2px solid var(--owen-editor-palette-surface-muted);
+.owen-editor-palette-rail-items::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--owen-editor-palette-muted) 38%, transparent);
+  background-clip: padding-box;
+  border: 2px solid transparent;
   border-radius: 999px;
 }
 
 .owen-editor-palette-content::-webkit-scrollbar-thumb:hover,
-.owen-editor-palette-rail::-webkit-scrollbar-thumb:hover {
-  background: var(--owen-editor-palette-muted);
+.owen-editor-palette-rail-items::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--owen-editor-palette-muted) 66%, transparent);
+  background-clip: padding-box;
 }
 
 .owen-editor-palette-search-panel {
-  background: color-mix(in srgb, var(--owen-editor-palette-surface) 94%, transparent);
-  border-bottom: 1px solid var(--owen-editor-palette-border);
+  background: transparent;
+  border: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 0 -16px;
-  padding: 14px 16px 12px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  -webkit-backdrop-filter: blur(14px) saturate(112%);
-  backdrop-filter: blur(14px) saturate(112%);
+  flex: 0 0 auto;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  position: relative;
 }
 
 .owen-editor-palette-search-field {
@@ -781,10 +835,10 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"] {
   backdrop-filter: none;
   background: var(--owen-editor-palette-surface);
   border: 1px solid var(--owen-editor-palette-border);
-  border-radius: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 7px 18px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  border-radius: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 4px 12px rgba(15, 23, 42, 0.04);
   color: var(--owen-editor-palette-text);
-  min-height: 44px;
+  min-height: 38px;
   padding-inline: 40px 116px;
   transition: border-color var(--owen-editor-palette-fast) ease, box-shadow var(--owen-editor-palette-fast) ease;
   width: 100%;
@@ -826,7 +880,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   color: var(--owen-editor-palette-muted);
   font-size: var(--font-ui-smaller);
   line-height: 1.35;
-  min-height: 16px;
+  min-height: 15px;
+  padding-inline: 2px;
 }
 
 .owen-editor-command-section {
@@ -835,65 +890,63 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   --owen-editor-card-border: var(--owen-editor-palette-border);
   --owen-editor-card-hover: color-mix(in srgb, var(--interactive-accent) 7%, var(--owen-editor-palette-surface));
   --owen-editor-card-hover-border: var(--owen-editor-palette-accent-border);
-  --owen-editor-pill-surface: var(--owen-editor-palette-surface-muted);
-  --owen-editor-pill-border: var(--owen-editor-palette-border);
+  --owen-editor-section-soft: var(--owen-editor-palette-surface-muted);
   --owen-editor-pill-text: var(--owen-editor-palette-muted);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--owen-editor-palette-border);
-  border-radius: 0;
-  box-shadow: none;
+  background: var(--owen-editor-palette-surface);
+  border: 1px solid var(--owen-editor-palette-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 0 20px;
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
 }
 
 .owen-editor-command-section + .owen-editor-command-section {
   margin-top: 0;
 }
 
-.owen-editor-recent-section {
-  --owen-editor-section-tone: #b45309;
-}
-
-.owen-editor-recommended-section {
-  --owen-editor-section-tone: var(--text-accent);
-}
-
 .owen-editor-command-section.mod-basic-markdown {
   --owen-editor-section-tone: var(--text-muted);
+  --owen-editor-section-soft: color-mix(in srgb, #64748b 7%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section.mod-selection {
   --owen-editor-section-tone: #047857;
+  --owen-editor-section-soft: color-mix(in srgb, #10b981 9%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section.mod-links {
   --owen-editor-section-tone: #2563eb;
+  --owen-editor-section-soft: color-mix(in srgb, #3b82f6 9%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section.mod-blocks {
   --owen-editor-section-tone: #7c3aed;
+  --owen-editor-section-soft: color-mix(in srgb, #8b5cf6 9%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section.mod-tables {
   --owen-editor-section-tone: #0f766e;
+  --owen-editor-section-soft: color-mix(in srgb, #14b8a6 9%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section.mod-owen-graphite {
   --owen-editor-section-tone: #4f46e5;
+  --owen-editor-section-soft: color-mix(in srgb, #6366f1 9%, var(--owen-editor-palette-surface));
 }
 
 .owen-editor-command-section:last-child {
-  border-bottom: 0;
-  padding-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .owen-editor-group-title {
   align-items: center;
-  background: transparent;
+  background: var(--owen-editor-section-soft);
   border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--owen-editor-section-tone) 20%, var(--owen-editor-palette-border));
   border-radius: 0;
   box-shadow: none;
   color: var(--owen-editor-palette-text);
@@ -904,8 +957,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   letter-spacing: 0;
   line-height: 1.25;
   margin: 0 0 2px;
-  min-height: 28px;
-  padding: 0 2px;
+  min-height: 58px;
+  padding: 10px 14px;
   text-transform: none;
 }
 
@@ -916,15 +969,77 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 .owen-editor-group-title-label {
   align-items: center;
   display: inline-flex;
+  gap: 10px;
+}
+
+.owen-editor-group-title-icon {
+  background: color-mix(in srgb, var(--owen-editor-section-tone) 12%, var(--owen-editor-palette-surface));
+  border-color: color-mix(in srgb, var(--owen-editor-section-tone) 34%, var(--owen-editor-palette-border));
+}
+
+.owen-editor-group-title-actions {
+  align-items: center;
+  display: inline-flex;
   gap: 8px;
 }
 
-.owen-editor-group-title-label::before {
-  background: var(--owen-editor-section-tone);
+.owen-editor-group-title-info-control {
+  display: inline-flex;
+  position: relative;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-group-title-info-button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 999px;
-  content: "";
-  height: 7px;
-  width: 7px;
+  box-shadow: none;
+  color: var(--owen-editor-section-tone);
+  display: inline-flex;
+  height: 26px;
+  justify-content: center;
+  margin: 0;
+  min-height: 26px;
+  min-width: 26px;
+  padding: 0;
+  width: 26px;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-group-title-info-button:hover,
+.modal.owen-editor-palette-modal .owen-editor-group-title-info-button:focus-visible {
+  background: color-mix(in srgb, var(--owen-editor-section-tone) 10%, var(--owen-editor-palette-surface));
+  border-color: color-mix(in srgb, var(--owen-editor-section-tone) 30%, var(--owen-editor-palette-border));
+  outline: none;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-group-title-info-button svg {
+  height: 16px;
+  width: 16px;
+}
+
+.owen-editor-group-title-info-tooltip {
+  bottom: auto;
+  inset-inline-end: -2px;
+  top: calc(100% + 8px);
+}
+
+.owen-editor-group-title-info-tooltip::after {
+  bottom: auto;
+  top: -5px;
+  transform: rotate(225deg);
+}
+
+.owen-editor-group-title-info-button:hover + .owen-editor-group-title-info-tooltip,
+.owen-editor-group-title-info-button:focus + .owen-editor-group-title-info-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.owen-editor-group-title:has(.owen-editor-group-title-info-button:hover),
+.owen-editor-group-title:has(.owen-editor-group-title-info-button:focus) {
+  position: relative;
+  z-index: 8;
 }
 
 .owen-editor-group-count {
@@ -948,40 +1063,45 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 }
 
 .owen-editor-subgroup-title {
+  background: color-mix(in srgb, var(--owen-editor-palette-surface-muted) 64%, var(--owen-editor-palette-surface));
+  border-bottom: 1px solid var(--owen-editor-palette-border);
   color: var(--owen-editor-palette-muted);
   font-size: var(--font-ui-smaller);
   font-weight: var(--font-semibold);
   letter-spacing: 0;
-  margin: 8px 0 0;
-  padding: 0 2px;
+  margin: 0;
+  padding: 8px 14px;
 }
 
 .owen-editor-group-title + .owen-editor-subgroup-title {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .owen-editor-command-grid + .owen-editor-subgroup-title {
-  margin-top: 12px;
+  border-top: 1px solid var(--owen-editor-palette-border);
+  margin-top: 0;
 }
 
 .owen-editor-command-grid {
   align-items: stretch;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .owen-editor-command-item {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   background: var(--owen-editor-card-surface);
-  border: 1px solid var(--owen-editor-card-border);
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.055), 0 1px 3px rgba(15, 23, 42, 0.04);
-  display: block;
+  border: 0;
+  border-bottom: 1px solid var(--owen-editor-card-border);
+  border-radius: 0;
+  box-shadow: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   height: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   transition: background-color var(--owen-editor-palette-fast) ease, border-color var(--owen-editor-palette-fast) ease, box-shadow var(--owen-editor-palette-fast) ease, transform var(--owen-editor-palette-fast) ease;
 }
@@ -990,14 +1110,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   content: none;
 }
 
-.owen-editor-command-item:has(.owen-editor-favorite-button.is-active) {
-  background: var(--owen-editor-palette-accent-soft);
-  border-color: var(--owen-editor-palette-accent-border);
-}
-
 .owen-editor-command-item.is-graphite-table-preset {
   background: color-mix(in srgb, #f59e0b 7%, var(--owen-editor-palette-surface));
-  border-color: color-mix(in srgb, #f59e0b 34%, var(--owen-editor-palette-border));
 }
 
 .owen-editor-command-item.is-graphite-table-preset .owen-editor-command-preview,
@@ -1016,19 +1130,17 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 .owen-editor-command-item:hover,
 .owen-editor-command-item:focus-within,
 .owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
-  background: var(--owen-editor-palette-surface);
-  border-color: var(--owen-editor-palette-border-strong);
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09), 0 2px 5px rgba(15, 23, 42, 0.05);
+  background: color-mix(in srgb, var(--owen-editor-section-tone) 5%, var(--owen-editor-palette-surface));
+  border-color: var(--owen-editor-card-border);
+  box-shadow: none;
 }
 
 .owen-editor-command-item:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
-.owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
-  border-color: var(--owen-editor-palette-border-strong);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--owen-editor-palette-border-strong) 62%, transparent), 0 14px 28px rgba(15, 23, 42, 0.09), 0 2px 5px rgba(15, 23, 42, 0.05);
-  transform: none;
+.owen-editor-command-grid:last-child .owen-editor-command-item:last-child {
+  border-bottom: 0;
 }
 
 .owen-editor-command-item:has(.owen-editor-command-button:focus-visible) {
@@ -1047,9 +1159,11 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   gap: 10px;
   height: 100%;
   justify-content: flex-start;
-  min-height: 68px;
+  min-height: 66px;
   min-width: 0;
-  padding: 10px 56px 10px 10px;
+  grid-column: 1;
+  grid-row: 1;
+  padding: 10px 8px 10px 14px;
   position: relative;
   text-align: left;
   width: 100%;
@@ -1075,48 +1189,6 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   white-space: normal;
 }
 
-.owen-editor-command-preview {
-  align-self: flex-start;
-  background: var(--owen-editor-pill-surface);
-  border: 1px solid var(--owen-editor-pill-border);
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: var(--owen-editor-pill-text);
-  font-size: var(--font-ui-smaller);
-  line-height: 1.2;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  padding: 2px 7px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.owen-editor-command-detail-preview {
-  background: var(--owen-editor-pill-surface);
-  border: 1px solid var(--owen-editor-pill-border);
-  border-radius: 9px;
-  box-sizing: border-box;
-  color: var(--owen-editor-pill-text);
-  display: block;
-  font-size: var(--font-ui-smaller);
-  line-height: 1.3;
-  max-height: 52px;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  padding: 4px 7px;
-  white-space: pre-wrap;
-}
-
-.mod-owen-graphite .owen-editor-command-preview,
-.mod-tables .owen-editor-command-preview {
-  background: var(--owen-editor-pill-surface);
-  border-color: var(--owen-editor-pill-border);
-  color: var(--owen-editor-pill-text);
-}
-
 .owen-editor-command-button:hover,
 .owen-editor-command-button:focus-visible,
 .owen-editor-command-button.is-selected {
@@ -1128,43 +1200,270 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   box-shadow: none;
 }
 
+.owen-editor-command-actions {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  grid-column: 2;
+  grid-row: 1;
+  justify-content: flex-end;
+  padding: 0 12px 0 4px;
+  z-index: 3;
+}
+
+.owen-editor-visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.owen-editor-command-info-control {
+  display: inline-flex;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-command-info-button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  box-shadow: none;
+  color: var(--owen-editor-palette-muted);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 28px;
+  justify-content: center;
+  margin: 0;
+  min-height: 28px;
+  min-width: 28px;
+  padding: 0;
+  transition: background-color var(--owen-editor-palette-fast) ease, border-color var(--owen-editor-palette-fast) ease, color var(--owen-editor-palette-fast) ease;
+  width: 28px;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-command-info-button:hover,
+.modal.owen-editor-palette-modal .owen-editor-command-info-button:focus-visible {
+  background: color-mix(in srgb, var(--owen-editor-section-tone) 9%, var(--owen-editor-palette-surface));
+  border-color: color-mix(in srgb, var(--owen-editor-section-tone) 28%, var(--owen-editor-palette-border));
+  color: var(--owen-editor-section-tone);
+  outline: none;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-command-info-button svg {
+  height: 18px;
+  width: 18px;
+}
+
+.owen-editor-command-info-tooltip {
+  -webkit-backdrop-filter: blur(14px) saturate(118%);
+  backdrop-filter: blur(14px) saturate(118%);
+  background: color-mix(in srgb, var(--owen-editor-palette-surface) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--owen-editor-section-tone) 24%, var(--owen-editor-palette-border));
+  border-radius: 7px;
+  bottom: calc(100% + 8px);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.06);
+  color: var(--owen-editor-palette-text);
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-ui-smaller);
+  gap: 3px;
+  inset-inline-end: -2px;
+  line-height: 1.35;
+  max-width: min(360px, calc(100vw - 48px));
+  opacity: 0;
+  padding: 8px 10px;
+  pointer-events: none;
+  position: absolute;
+  transform: translateY(4px);
+  transition: opacity var(--owen-editor-palette-fast) ease, transform var(--owen-editor-palette-fast) ease, visibility var(--owen-editor-palette-fast) ease;
+  visibility: hidden;
+  white-space: normal;
+  width: max-content;
+  z-index: 6;
+}
+
+.owen-editor-command-info-tooltip::after {
+  background: inherit;
+  border-bottom: 1px solid color-mix(in srgb, var(--owen-editor-section-tone) 24%, var(--owen-editor-palette-border));
+  border-right: 1px solid color-mix(in srgb, var(--owen-editor-section-tone) 24%, var(--owen-editor-palette-border));
+  bottom: -5px;
+  content: "";
+  height: 8px;
+  inset-inline-end: 12px;
+  position: absolute;
+  transform: rotate(45deg);
+  width: 8px;
+}
+
+.owen-editor-command-info-button:hover + .owen-editor-command-info-tooltip,
+.owen-editor-command-info-button:focus + .owen-editor-command-info-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.owen-editor-command-item:has(.owen-editor-command-info-button:hover),
+.owen-editor-command-item:has(.owen-editor-command-info-button:focus),
+.owen-editor-command-item:has(.owen-editor-command-status-indicator:hover),
+.owen-editor-command-item:has(.owen-editor-command-status-indicator:focus),
+.owen-editor-command-item:has(.owen-editor-favorite-button:hover),
+.owen-editor-command-item:has(.owen-editor-favorite-button:focus) {
+  z-index: 5;
+}
+
+.owen-editor-command-status-indicator {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 28px;
+  justify-content: center;
+  position: relative;
+  width: 28px;
+}
+
+.owen-editor-command-status-indicator.is-recommended {
+  background: color-mix(in srgb, #0ea5e9 9%, var(--owen-editor-palette-surface));
+  border-color: color-mix(in srgb, #0284c7 28%, var(--owen-editor-palette-border));
+  color: #0284c7;
+}
+
+.owen-editor-command-status-indicator.is-recent {
+  background: transparent;
+  border-color: transparent;
+  color: #b45309;
+}
+
+.owen-editor-command-status-indicator:focus-visible {
+  outline: 2px solid var(--owen-editor-palette-focus);
+  outline-offset: 1px;
+}
+
+.owen-editor-command-status-icon,
+.owen-editor-command-status-icon svg {
+  height: 18px;
+  width: 18px;
+}
+
+.owen-editor-command-status-tooltip {
+  -webkit-backdrop-filter: blur(14px) saturate(118%);
+  backdrop-filter: blur(14px) saturate(118%);
+  background: color-mix(in srgb, var(--owen-editor-palette-surface) 96%, transparent);
+  border: 1px solid var(--owen-editor-palette-border);
+  border-radius: 7px;
+  bottom: calc(100% + 8px);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.06);
+  color: var(--owen-editor-palette-text);
+  font-size: var(--font-ui-smaller);
+  inset-inline-end: -2px;
+  line-height: 1.3;
+  opacity: 0;
+  padding: 6px 9px;
+  pointer-events: none;
+  position: absolute;
+  transform: translateY(4px);
+  transition: opacity var(--owen-editor-palette-fast) ease, transform var(--owen-editor-palette-fast) ease, visibility var(--owen-editor-palette-fast) ease;
+  visibility: hidden;
+  white-space: nowrap;
+  width: max-content;
+  z-index: 7;
+}
+
+.owen-editor-command-status-tooltip::after {
+  background: inherit;
+  border-bottom: 1px solid var(--owen-editor-palette-border);
+  border-right: 1px solid var(--owen-editor-palette-border);
+  bottom: -5px;
+  content: "";
+  height: 8px;
+  inset-inline-end: 10px;
+  position: absolute;
+  transform: rotate(45deg);
+  width: 8px;
+}
+
+.owen-editor-command-status-indicator:hover .owen-editor-command-status-tooltip,
+.owen-editor-command-status-indicator:focus .owen-editor-command-status-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.owen-editor-command-info-summary {
+  font-weight: var(--font-medium);
+}
+
+.owen-editor-command-info-detail {
+  color: var(--owen-editor-palette-muted);
+  font-family: var(--font-monospace);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.owen-editor-favorite-control {
+  display: inline-flex;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.owen-editor-favorite-button:hover + .owen-editor-favorite-tooltip,
+.owen-editor-favorite-button:focus + .owen-editor-favorite-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
 .modal.owen-editor-palette-modal .owen-editor-favorite-button {
   align-items: center;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 999px;
   box-shadow: none;
   box-sizing: border-box;
-  color: var(--owen-editor-palette-muted);
+  color: color-mix(in srgb, var(--owen-editor-palette-muted) 82%, var(--owen-editor-palette-text));
   display: inline-flex;
-  height: 44px;
-  inset-inline-end: 4px;
+  flex: 0 0 auto;
+  height: 28px;
   justify-content: center;
   line-height: 1;
   margin: 0;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 28px;
+  min-width: 28px;
   padding: 0;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   transition: background-color var(--owen-editor-palette-fast) ease, border-color var(--owen-editor-palette-fast) ease, color var(--owen-editor-palette-fast) ease, transform var(--owen-editor-palette-fast) ease;
-  width: 44px;
+  width: 28px;
   z-index: 2;
 }
 
 .modal.owen-editor-palette-modal .owen-editor-favorite-button:hover,
-.modal.owen-editor-palette-modal .owen-editor-favorite-button:focus-visible,
+.modal.owen-editor-palette-modal .owen-editor-favorite-button:focus-visible {
+  background: var(--owen-editor-palette-surface-muted);
+  border-color: var(--owen-editor-palette-border-strong);
+  color: var(--owen-editor-palette-text);
+}
+
 .modal.owen-editor-palette-modal .owen-editor-favorite-button.is-active {
-  background: var(--owen-editor-palette-accent-soft);
-  border-color: var(--owen-editor-palette-accent-border);
-  color: var(--text-accent);
+  color: #b7791f;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-favorite-button.is-active:hover,
+.modal.owen-editor-palette-modal .owen-editor-favorite-button.is-active:focus-visible {
+  background: var(--owen-editor-palette-surface-muted);
+  border-color: var(--owen-editor-palette-border-strong);
+  color: #a16207;
 }
 
 .modal.owen-editor-palette-modal .owen-editor-favorite-button:active {
-  transform: translateY(-50%) scale(0.97);
+  transform: scale(0.97);
 }
 
 .modal.owen-editor-palette-modal .owen-editor-favorite-button:focus-visible {
@@ -1173,15 +1472,20 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 }
 
 .modal.owen-editor-palette-modal .owen-editor-favorite-button svg {
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
+}
+
+.modal.owen-editor-palette-modal .owen-editor-favorite-button.is-active svg {
+  fill: color-mix(in srgb, #f59e0b 68%, transparent);
+  stroke: currentColor;
 }
 
 .owen-editor-command-icon {
   align-items: center;
   background: var(--owen-editor-palette-surface-muted);
   border: 1px solid var(--owen-editor-palette-border);
-  border-radius: 9px;
+  border-radius: 7px;
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 64%, transparent);
   color: var(--owen-editor-section-tone);
   display: inline-flex;
@@ -1200,10 +1504,6 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   --owen-editor-palette-canvas: color-mix(in srgb, var(--background-secondary) 84%, #111318);
   --owen-editor-palette-accent-soft: color-mix(in srgb, var(--interactive-accent) 16%, var(--background-primary));
   --owen-editor-palette-accent-border: color-mix(in srgb, var(--interactive-accent) 48%, var(--background-modifier-border));
-}
-
-.theme-dark .owen-editor-recent-section {
-  --owen-editor-section-tone: #fbbf24;
 }
 
 .theme-dark .owen-editor-command-section.mod-selection {
@@ -1226,6 +1526,14 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   --owen-editor-section-tone: #a5b4fc;
 }
 
+.theme-dark .owen-editor-command-status-indicator.is-recommended {
+  color: #38bdf8;
+}
+
+.theme-dark .owen-editor-command-status-indicator.is-recent {
+  color: #fbbf24;
+}
+
 .theme-dark .owen-editor-command-item,
 .theme-dark .owen-editor-command-icon,
 .theme-dark .owen-editor-palette-key-hints kbd {
@@ -1244,34 +1552,38 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   }
 
   .owen-editor-palette-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
+    gap: 10px;
   }
 
   .owen-editor-palette-rail {
     align-items: stretch;
-    border-bottom: 1px solid var(--owen-editor-palette-border);
-    border-right: 0;
-    flex-direction: row;
-    gap: 4px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-direction: column;
+    gap: 8px;
     padding: 8px;
-    scrollbar-gutter: auto;
+  }
+
+  .owen-editor-palette-rail-brand {
+    min-width: 0;
+  }
+
+  .owen-editor-palette-rail-items {
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .owen-editor-palette-rail-button {
-    flex: 0 0 64px;
-    min-height: 48px;
+    flex: 0 0 auto;
+    min-height: 34px;
   }
 
   .owen-editor-palette-content {
-    padding: 0 12px 12px;
+    gap: 10px;
+    padding: 0 2px 2px 0;
   }
 
   .owen-editor-palette-search-panel {
-    margin-inline: -12px;
-    padding: 10px 12px 8px;
+    margin: 0;
+    padding: 0;
   }
 
   .owen-editor-palette-key-hints {
@@ -1282,12 +1594,9 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
     padding-inline: 40px 12px;
   }
 
-  .owen-editor-command-grid {
-    grid-template-columns: 1fr;
-  }
-
   .modal.owen-editor-palette-modal .owen-editor-command-button {
     min-height: 64px;
+    padding-inline-start: 10px;
   }
 }
 

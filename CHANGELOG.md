@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.30] - 2026-07-25
+
+### Changed
+
+- Rebuilt the editor palette as a compact settings-style browser with tinted category headers, transparent scrolling, and stable command rows.
+- Replaced inline command previews and duplicate recommendation sections with accessible detail, recommendation, and recent-use indicators using custom tooltips.
+- Unified command action controls on 28px slots with 18px icons, clarified favorite states, and added an Owen Graphite theme requirement indicator.
+
 ## [0.6.29] - 2026-07-25
 
 ### Changed
@@ -351,7 +359,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.29...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.30...HEAD
+[0.6.30]: https://github.com/towishy/owen-editor/compare/0.6.29...0.6.30
 [0.6.29]: https://github.com/towishy/owen-editor/compare/0.6.28...0.6.29
 [0.6.28]: https://github.com/towishy/owen-editor/compare/0.6.27...0.6.28
 [0.6.27]: https://github.com/towishy/owen-editor/compare/0.6.26...0.6.27

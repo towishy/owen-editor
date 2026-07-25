@@ -8,7 +8,7 @@
 
 ![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
 
-![release v0.6.29](https://img.shields.io/badge/release-v0.6.29-0b8bdc?style=flat-square)
+![release v0.6.30](https://img.shields.io/badge/release-v0.6.30-0b8bdc?style=flat-square)
 ![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
 ![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
 ![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
@@ -20,6 +20,11 @@ Owen Editor is an Obsidian community plugin for fast Markdown editing. It brings
 ![Owen Editor glass toolbar preview](screenshots/owen-editor-ui-preview.png)
 
 ## Latest updates
+
+### v0.6.30
+
+- Rebuilt the editor palette as a compact settings-style browser with tinted category headers, transparent scrolling, and stable command rows.
+- Added accessible detail, recommendation, recent-use, favorite, and Owen Graphite requirement indicators with consistent icon sizing and custom tooltips.
 
 ### v0.6.29
 

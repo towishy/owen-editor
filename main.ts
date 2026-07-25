@@ -1872,6 +1872,7 @@ class OwenEditorPaletteModal extends Modal {
   private query = "";
   private selectedCommandId?: string;
   private renderAbortController?: AbortController;
+  private tooltipSequence = 0;
 
   constructor(app: App, plugin: OwenEditorPlugin, initialCategory?: CommandCategoryFilter) {
     super(app);
@@ -1895,36 +1896,10 @@ class OwenEditorPaletteModal extends Modal {
     this.renderAbortController = new AbortController();
     this.contentEl.empty();
     this.contentEl.addClass("owen-editor-palette");
+    this.tooltipSequence = 0;
 
     const layout = this.contentEl.createDiv({ cls: "owen-editor-palette-layout" });
-    const rail = layout.createEl("nav", {
-      cls: "owen-editor-palette-rail",
-      attr: { "aria-label": this.plugin.t("palette.categories") }
-    });
-    const content = layout.createDiv({ cls: "owen-editor-palette-content" });
-    content.setAttr("aria-label", this.plugin.t("palette.commands"));
-
-    for (const item of getPaletteCategoryRailItems(this.plugin)) {
-      const isActive = categoryFiltersEqual(this.activeCategory, item.filter);
-      const railButton = rail.createEl("button", {
-        cls: `owen-editor-palette-rail-button${isActive ? " is-active" : ""}`,
-        attr: {
-          type: "button",
-          title: item.label,
-          "aria-label": item.label,
-          "aria-pressed": String(isActive)
-        }
-      });
-      setSafeIcon(railButton.createSpan({ cls: "owen-editor-palette-rail-icon" }), item.icon);
-      railButton.createSpan({ text: item.shortLabel, cls: "owen-editor-palette-rail-label" });
-      this.registerRenderEvent(railButton, "click", () => {
-        this.activeCategory = item.filter;
-        this.selectedCommandId = undefined;
-        this.render();
-      });
-    }
-
-    const searchPanel = content.createDiv({ cls: "owen-editor-palette-search-panel" });
+    const searchPanel = layout.createDiv({ cls: "owen-editor-palette-search-panel" });
     const searchField = searchPanel.createDiv({ cls: "owen-editor-palette-search-field" });
     setSafeIcon(searchField.createSpan({ cls: "owen-editor-palette-search-icon" }), "search");
     const searchInput = searchField.createEl("input", {
@@ -1943,6 +1918,38 @@ class OwenEditorPaletteModal extends Modal {
     keyHints.setAttr("aria-hidden", "true");
     keyHints.createEl("kbd", { text: "↑↓" });
     keyHints.createEl("kbd", { text: "Enter" });
+
+    const rail = layout.createEl("nav", {
+      cls: "owen-editor-palette-rail",
+      attr: { "aria-label": this.plugin.t("palette.categories") }
+    });
+    const railBrand = rail.createDiv({ cls: "owen-editor-palette-rail-brand" });
+    setSafeIcon(railBrand.createSpan({ cls: "owen-editor-palette-rail-brand-icon" }), "pencil-line");
+    railBrand.createSpan({ text: "Owen Editor", cls: "owen-editor-palette-rail-brand-label" });
+    const railItems = rail.createDiv({ cls: "owen-editor-palette-rail-items" });
+
+    for (const item of getPaletteCategoryRailItems(this.plugin)) {
+      const isActive = categoryFiltersEqual(this.activeCategory, item.filter);
+      const railButton = railItems.createEl("button", {
+        cls: `owen-editor-palette-rail-button${isActive ? " is-active" : ""}`,
+        attr: {
+          type: "button",
+          title: item.label,
+          "aria-label": item.label,
+          "aria-pressed": String(isActive)
+        }
+      });
+      setSafeIcon(railButton.createSpan({ cls: "owen-editor-palette-rail-icon" }), item.icon);
+      railButton.createSpan({ text: item.shortLabel, cls: "owen-editor-palette-rail-label" });
+      this.registerRenderEvent(railButton, "click", () => {
+        this.activeCategory = item.filter;
+        this.selectedCommandId = undefined;
+        this.render();
+      });
+    }
+
+    const content = layout.createDiv({ cls: "owen-editor-palette-content" });
+    content.setAttr("aria-label", this.plugin.t("palette.commands"));
     const contextEl = searchPanel.createDiv({
       cls: "owen-editor-palette-context"
     });
@@ -1959,31 +1966,16 @@ class OwenEditorPaletteModal extends Modal {
     };
     const recommendedCommands = this.plugin.getRecommendedCommands(parsedQuery, this.activeCategory)
       .filter((command) => commands.includes(command));
-
     const recentCommands = this.plugin.getRecentCommands()
       .filter((command) => categoryMatchesFilter(command.category, this.activeCategory))
       .filter((command) => commandMatchesQuery(command, parsedQuery, this.activeCategory));
+    const recommendedCommandIds = new Set(recommendedCommands.slice(0, 4).map((command) => command.id));
+    const recentCommandIds = new Set(recentCommands.slice(0, 6).map((command) => command.id));
 
     const contextLabel = this.activeCategory
       ? this.plugin.t("palette.contextTools", { category: getCategoryFilterLabel(this.plugin, this.activeCategory) })
       : this.plugin.t("palette.groupedBrowsing");
     contextEl.setText(this.plugin.t("palette.contextSummary", { count: commands.length, context: contextLabel }));
-
-    if (recommendedCommands.length > 0) {
-      const recommendedSection = content.createDiv({ cls: "owen-editor-command-section owen-editor-recommended-section" });
-      const shownRecommendedCommands = recommendedCommands.slice(0, 4);
-      this.createSectionTitle(recommendedSection, this.plugin.t("palette.recommended"), shownRecommendedCommands.length);
-      addNavigableCommands(shownRecommendedCommands);
-      this.renderCommandGrid(recommendedSection, shownRecommendedCommands);
-    }
-
-    if (recentCommands.length > 0) {
-      const recentSection = content.createDiv({ cls: "owen-editor-command-section owen-editor-recent-section" });
-      const shownRecentCommands = recentCommands.slice(0, 6);
-      this.createSectionTitle(recentSection, this.plugin.t("palette.recent"), shownRecentCommands.length);
-      addNavigableCommands(shownRecentCommands);
-      this.renderCommandGrid(recentSection, shownRecentCommands);
-    }
 
     for (const category of ["Basic markdown", "Selection", "Links", "Blocks", "Tables", "Owen graphite"] as CommandCategory[]) {
       if (!categoryMatchesFilter(category, this.activeCategory)) {
@@ -1996,7 +1988,13 @@ class OwenEditorPaletteModal extends Modal {
       }
 
       const section = content.createDiv({ cls: `owen-editor-command-section mod-${category.toLowerCase().replace(/\s+/g, "-")}` });
-        this.createSectionTitle(section, getCategoryLabel(this.plugin, category), groupCommands.length);
+      this.createSectionTitle(
+        section,
+        getCategoryLabel(this.plugin, category),
+        groupCommands.length,
+        getCategoryIcon(category),
+        category === "Owen graphite" ? this.plugin.t("palette.graphiteThemeRequired") : undefined
+      );
       const commandGroups = [...new Set(groupCommands.map((command) => command.group ?? category))];
       for (const commandGroup of commandGroups) {
         if (commandGroups.length > 1) {
@@ -2004,7 +2002,7 @@ class OwenEditorPaletteModal extends Modal {
         }
         const shownGroupCommands = groupCommands.filter((candidate) => (candidate.group ?? category) === commandGroup);
         addNavigableCommands(shownGroupCommands);
-        this.renderCommandGrid(section, shownGroupCommands);
+        this.renderCommandGrid(section, shownGroupCommands, recommendedCommandIds, recentCommandIds);
       }
     }
 
@@ -2040,10 +2038,38 @@ class OwenEditorPaletteModal extends Modal {
     });
   }
 
-  private createSectionTitle(container: HTMLElement, label: string, count: number) {
+  private createSectionTitle(container: HTMLElement, label: string, count: number, icon: string, infoText?: string) {
     const title = container.createEl("h3", { cls: "owen-editor-group-title" });
-    title.createSpan({ text: label, cls: "owen-editor-group-title-label" });
-    title.createSpan({
+    const titleLabel = title.createSpan({ cls: "owen-editor-group-title-label" });
+    setSafeIcon(titleLabel.createSpan({ cls: "owen-editor-group-title-icon" }), icon);
+    titleLabel.createSpan({ text: label });
+    const titleActions = title.createSpan({ cls: "owen-editor-group-title-actions" });
+    if (infoText) {
+      const infoId = ++this.tooltipSequence;
+      const labelId = `owen-editor-group-info-label-${infoId}`;
+      const tooltipId = `owen-editor-group-info-${infoId}`;
+      const infoControl = titleActions.createSpan({ cls: "owen-editor-group-title-info-control" });
+      const infoButton = infoControl.createEl("button", {
+        cls: "owen-editor-group-title-info-button",
+        attr: {
+          type: "button",
+          "aria-labelledby": labelId,
+          "aria-describedby": tooltipId
+        }
+      });
+      setSafeIcon(infoButton, "info");
+      infoButton.createSpan({
+        text: infoText,
+        cls: "owen-editor-visually-hidden",
+        attr: { id: labelId }
+      });
+      infoControl.createSpan({
+        text: infoText,
+        cls: "owen-editor-command-status-tooltip owen-editor-group-title-info-tooltip",
+        attr: { id: tooltipId, role: "tooltip" }
+      });
+    }
+    titleActions.createSpan({
       text: String(count),
       cls: "owen-editor-group-count",
       attr: { "aria-label": this.plugin.t("palette.commandCount", { count }) }
@@ -2092,10 +2118,10 @@ class OwenEditorPaletteModal extends Modal {
     const buttons = Array.from(this.contentEl.querySelectorAll<HTMLElement>(".owen-editor-command-button[data-command-id]"));
     let selectedButton: HTMLElement | undefined;
     for (const button of buttons) {
-      const isSelected = button.getAttribute("data-command-id") === this.selectedCommandId;
+      const isSelected = !selectedButton && button.getAttribute("data-command-id") === this.selectedCommandId;
       button.classList.toggle("is-selected", isSelected);
       button.setAttribute("aria-selected", String(isSelected));
-      if (isSelected && !selectedButton) {
+      if (isSelected) {
         selectedButton = button;
       }
     }
@@ -2105,10 +2131,12 @@ class OwenEditorPaletteModal extends Modal {
     }
   }
 
-  private renderCommandGrid(container: HTMLElement, commands: EditorCommand[]) {
+  private renderCommandGrid(container: HTMLElement, commands: EditorCommand[], recommendedCommandIds: Set<string>, recentCommandIds: Set<string>) {
     const grid = container.createDiv({ cls: "owen-editor-command-grid" });
     for (const command of commands) {
       const itemClasses = ["owen-editor-command-item"];
+      const isRecommended = recommendedCommandIds.has(command.id);
+      const isRecent = recentCommandIds.has(command.id);
       if (command.group === "Owen graphite table presets") {
         itemClasses.push("is-graphite-table-preset");
       }
@@ -2126,29 +2154,124 @@ class OwenEditorPaletteModal extends Modal {
       const copy = button.createDiv({ cls: "owen-editor-command-copy" });
       copy.createSpan({ text: command.name, cls: "owen-editor-command-label" });
       const preview = getCommandPreview(this.plugin, command);
-      if (preview) {
-        copy.createSpan({ text: preview, cls: "owen-editor-command-preview" });
-      }
       const detail = getCommandPreviewDetail(this.plugin, command);
-      if (detail) {
-        copy.createEl("code", { text: detail, cls: "owen-editor-command-detail-preview" });
-      }
       this.registerRenderEvent(button, "click", () => {
         this.plugin.runCommand(command);
         this.close();
       });
 
-      const favoriteButton = item.createEl("button", {
-        cls: `owen-editor-favorite-button${this.plugin.isFavoriteCommand(command.id) ? " is-active" : ""}`,
+      const actions = item.createDiv({ cls: "owen-editor-command-actions" });
+      if (preview || detail) {
+        const infoId = ++this.tooltipSequence;
+        const labelId = `owen-editor-command-info-label-${infoId}`;
+        const tooltipId = `owen-editor-command-info-${infoId}`;
+        const infoControl = actions.createDiv({ cls: "owen-editor-command-info-control" });
+        const infoButton = infoControl.createEl("button", {
+          cls: "owen-editor-command-info-button",
+          attr: {
+            type: "button",
+            "aria-labelledby": labelId,
+            "aria-describedby": tooltipId
+          }
+        });
+        setSafeIcon(infoButton, "info");
+        infoButton.createSpan({
+          text: this.plugin.t("palette.commandInfoAria", { command: command.name }),
+          cls: "owen-editor-visually-hidden",
+          attr: { id: labelId }
+        });
+        const tooltip = infoControl.createDiv({
+          cls: "owen-editor-command-info-tooltip",
+          attr: { id: tooltipId, role: "tooltip" }
+        });
+        if (preview) {
+          tooltip.createSpan({ text: preview, cls: "owen-editor-command-info-summary" });
+        }
+        if (detail) {
+          tooltip.createEl("code", { text: detail, cls: "owen-editor-command-info-detail" });
+        }
+      }
+
+      if (isRecommended) {
+        const statusId = ++this.tooltipSequence;
+        const labelId = `owen-editor-command-recommended-label-${statusId}`;
+        const tooltipId = `owen-editor-command-recommended-${statusId}`;
+        const recommendedIndicator = actions.createSpan({
+          cls: "owen-editor-command-status-indicator is-recommended",
+          attr: {
+            tabindex: "0",
+            role: "img",
+            "aria-labelledby": labelId,
+            "aria-describedby": tooltipId
+          }
+        });
+        setSafeIcon(recommendedIndicator.createSpan({ cls: "owen-editor-command-status-icon" }), "sparkles");
+        recommendedIndicator.createSpan({
+          text: this.plugin.t("palette.recommendedCommand"),
+          cls: "owen-editor-visually-hidden",
+          attr: { id: labelId }
+        });
+        recommendedIndicator.createSpan({
+          text: this.plugin.t("palette.recommendedCommand"),
+          cls: "owen-editor-command-status-tooltip",
+          attr: { id: tooltipId, role: "tooltip" }
+        });
+      }
+
+      if (isRecent) {
+        const statusId = ++this.tooltipSequence;
+        const labelId = `owen-editor-command-recent-label-${statusId}`;
+        const tooltipId = `owen-editor-command-recent-${statusId}`;
+        const recentIndicator = actions.createSpan({
+          cls: "owen-editor-command-status-indicator is-recent",
+          attr: {
+            tabindex: "0",
+            role: "img",
+            "aria-labelledby": labelId,
+            "aria-describedby": tooltipId
+          }
+        });
+        setSafeIcon(recentIndicator.createSpan({ cls: "owen-editor-command-status-icon" }), "circle-chevron-right");
+        recentIndicator.createSpan({
+          text: this.plugin.t("palette.recentCommand"),
+          cls: "owen-editor-visually-hidden",
+          attr: { id: labelId }
+        });
+        recentIndicator.createSpan({
+          text: this.plugin.t("palette.recentCommand"),
+          cls: "owen-editor-command-status-tooltip",
+          attr: { id: tooltipId, role: "tooltip" }
+        });
+      }
+
+      const isFavorite = this.plugin.isFavoriteCommand(command.id);
+      const favoriteId = ++this.tooltipSequence;
+      const favoriteLabelId = `owen-editor-command-favorite-label-${favoriteId}`;
+      const favoriteTooltipId = `owen-editor-command-favorite-${favoriteId}`;
+      const favoriteLabel = isFavorite
+        ? this.plugin.t("palette.removeFavoriteAria", { command: command.name })
+        : this.plugin.t("palette.addFavoriteAria", { command: command.name });
+      const favoriteTooltip = isFavorite ? this.plugin.t("palette.removeFavorite") : this.plugin.t("palette.addFavorite");
+      const favoriteControl = actions.createDiv({ cls: "owen-editor-favorite-control" });
+      const favoriteButton = favoriteControl.createEl("button", {
+        cls: `owen-editor-favorite-button${isFavorite ? " is-active" : ""}`,
         attr: {
           type: "button",
-          "aria-label": this.plugin.isFavoriteCommand(command.id)
-            ? this.plugin.t("palette.removeFavoriteAria", { command: command.name })
-            : this.plugin.t("palette.addFavoriteAria", { command: command.name }),
-          title: this.plugin.isFavoriteCommand(command.id) ? this.plugin.t("palette.removeFavorite") : this.plugin.t("palette.addFavorite")
+          "aria-labelledby": favoriteLabelId,
+          "aria-describedby": favoriteTooltipId
         }
       });
-      setSafeIcon(favoriteButton, this.plugin.isFavoriteCommand(command.id) ? "star" : "star-off");
+      setSafeIcon(favoriteButton, isFavorite ? "star" : "star-off");
+      favoriteButton.createSpan({
+        text: favoriteLabel,
+        cls: "owen-editor-visually-hidden",
+        attr: { id: favoriteLabelId }
+      });
+      favoriteControl.createSpan({
+        text: favoriteTooltip,
+        cls: "owen-editor-command-status-tooltip owen-editor-favorite-tooltip",
+        attr: { id: favoriteTooltipId, role: "tooltip" }
+      });
       this.registerRenderEvent(favoriteButton, "click", () => {
         favoriteButton.disabled = true;
         void this.plugin.toggleFavoriteCommand(command.id)
@@ -2217,6 +2340,18 @@ function getPaletteCategoryRailItems(plugin: OwenEditorPlugin): Array<{ label: s
     { label: plugin.t("palette.category.blocks"), shortLabel: plugin.t("palette.category.blocksShort"), icon: "list-plus", filter: "Blocks" },
     { label: plugin.t("palette.category.markdown"), shortLabel: plugin.t("palette.category.markdownShort"), icon: "heading", filter: "Basic markdown" }
   ];
+}
+
+function getCategoryIcon(category: CommandCategory) {
+  const icons: Record<CommandCategory, string> = {
+    "Basic markdown": "heading",
+    Selection: "text-select",
+    Links: "link",
+    Blocks: "list-plus",
+    Tables: "table-2",
+    "Owen graphite": "gem"
+  };
+  return icons[category];
 }
 
 function getCategoryFilterCategories(category?: CommandCategoryFilter) {
