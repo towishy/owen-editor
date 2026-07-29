@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.32] - 2026-07-29
+
+### Fixed
+
+- Removed the native vertical scrollbar buttons, track, and thumb from adapted viewports so only the custom Frosted ScrollArea is visible.
+- Restored the Foundation Frosted ScrollArea's canonical faint rail, subtle grip rim, glass shadow, and three-line handle material.
+- Returned file explorer scrollbars to their native channel and aligned editor palette scrollbars with the modal's right edge.
+
 ## [0.6.31] - 2026-07-29
 
 ### Added
@@ -375,7 +383,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.31...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.32...HEAD
+[0.6.32]: https://github.com/towishy/owen-editor/compare/0.6.31...0.6.32
 [0.6.31]: https://github.com/towishy/owen-editor/compare/0.6.30...0.6.31
 [0.6.30]: https://github.com/towishy/owen-editor/compare/0.6.29...0.6.30
 [0.6.29]: https://github.com/towishy/owen-editor/compare/0.6.28...0.6.29

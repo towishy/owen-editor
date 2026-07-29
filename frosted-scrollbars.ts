@@ -61,7 +61,11 @@ export function registerFrostedScrollbars(plugin: Plugin) {
 
     root.style.top = `${bounds.top}px`;
     root.style.left = `${bounds.left}px`;
-    root.style.width = `${bounds.width}px`;
+    const paletteModal = root.classList.contains("mod-palette")
+      ? viewport.closest<HTMLElement>(".owen-editor-palette-modal")
+      : null;
+    const overlayRight = paletteModal?.getBoundingClientRect().right ?? bounds.right;
+    root.style.width = `${Math.max(bounds.width, overlayRight - bounds.left)}px`;
     root.style.height = `${bounds.height}px`;
     root.style.zIndex = String(overlayZIndex(viewport));
     const maxGripTravel = Math.max(0, rail.clientHeight - GRIP_HEIGHT);
@@ -98,6 +102,12 @@ export function registerFrostedScrollbars(plugin: Plugin) {
   const createInstance = (viewport: HTMLElement) => {
     const root = document.createElement("div");
     root.className = "owen-frosted-scroll owen-editor-frosted-scroll-overlay";
+    if (viewport.matches(".owen-editor-palette-content, .owen-editor-palette-rail-items")) {
+      root.classList.add("mod-palette");
+    }
+    if (viewport.matches(".nav-files-container")) {
+      root.classList.add("mod-file-explorer");
+    }
     root.setAttribute("aria-hidden", "true");
     const rail = document.createElement("div");
     rail.className = "owen-frosted-scroll__rail";

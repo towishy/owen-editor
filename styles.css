@@ -767,33 +767,6 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 2px 2px 0;
-  scrollbar-color: color-mix(in srgb, var(--owen-editor-palette-muted) 38%, transparent) transparent;
-  scrollbar-width: thin;
-}
-
-.owen-editor-palette-content::-webkit-scrollbar,
-.owen-editor-palette-rail-items::-webkit-scrollbar {
-  width: 8px;
-  height: 6px;
-}
-
-.owen-editor-palette-content::-webkit-scrollbar-track,
-.owen-editor-palette-rail-items::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.owen-editor-palette-content::-webkit-scrollbar-thumb,
-.owen-editor-palette-rail-items::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--owen-editor-palette-muted) 38%, transparent);
-  background-clip: padding-box;
-  border: 2px solid transparent;
-  border-radius: 999px;
-}
-
-.owen-editor-palette-content::-webkit-scrollbar-thumb:hover,
-.owen-editor-palette-rail-items::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--owen-editor-palette-muted) 66%, transparent);
-  background-clip: padding-box;
 }
 
 .owen-editor-palette-search-panel {
@@ -1997,9 +1970,26 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   visibility: hidden;
 }
 
-.owen-editor-frosted-scroll-viewport::-webkit-scrollbar:vertical {
+body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport::-webkit-scrollbar-button {
   display: none;
   width: 0;
+  height: 0;
+}
+
+body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport::-webkit-scrollbar-track:vertical,
+body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport::-webkit-scrollbar-thumb:vertical {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .owen-frosted-scroll {
@@ -2007,19 +1997,21 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   --owen-frosted-grip-width: 6px;
   --owen-frosted-grip-hover-width: 10px;
   --owen-frosted-grip-height: 44px;
+  --owen-frosted-rail-color: rgb(65 82 94 / 0.12);
   --owen-frosted-grip-start: rgb(255 255 255 / 0.72);
   --owen-frosted-grip-end: rgb(205 218 225 / 0.34);
-  --owen-frosted-grip-border: rgb(65 82 94 / 0.38);
-  --owen-frosted-grip-shadow: 0 2px 8px rgb(36 55 65 / 0.14), inset 1px 1px 0 rgb(255 255 255 / 0.72);
+  --owen-frosted-grip-border: rgb(65 82 94 / 0.3);
+  --owen-frosted-grip-shadow: 0 2px 8px rgb(36 55 65 / 0.12), inset 1px 1px 0 rgb(255 255 255 / 0.72);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
 }
 
 .theme-dark .owen-frosted-scroll {
+  --owen-frosted-rail-color: rgb(224 231 239 / 0.14);
   --owen-frosted-grip-start: rgb(255 255 255 / 0.24);
   --owen-frosted-grip-end: rgb(181 196 211 / 0.12);
-  --owen-frosted-grip-border: rgb(224 231 239 / 0.42);
+  --owen-frosted-grip-border: rgb(224 231 239 / 0.34);
   --owen-frosted-grip-shadow: 0 2px 8px rgb(0 0 0 / 0.28), inset 1px 1px 0 rgb(255 255 255 / 0.22);
 }
 
@@ -2032,13 +2024,33 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   position: absolute;
   z-index: 4;
   top: 0.5rem;
-  right: -0.125rem;
+  right: 0.125rem;
   bottom: 0.5rem;
   width: 0.875rem;
   cursor: default;
   pointer-events: auto;
   touch-action: none;
   user-select: none;
+}
+
+.owen-editor-frosted-scroll-overlay.mod-palette .owen-frosted-scroll__rail {
+  right: -1px;
+}
+
+.owen-editor-frosted-scroll-overlay.mod-file-explorer .owen-frosted-scroll__rail {
+  right: -1px;
+}
+
+.owen-frosted-scroll__rail::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--owen-frosted-rail-width);
+  border-radius: var(--ogd-radius-pill, 999px);
+  background: var(--owen-frosted-rail-color);
+  content: "";
+  translate: -50% 0;
 }
 
 .owen-frosted-scroll__grip {
@@ -2066,7 +2078,7 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   background: var(--owen-frosted-grip-border);
   box-shadow: 0 -3px var(--owen-frosted-grip-border), 0 3px var(--owen-frosted-grip-border);
   content: "";
-  opacity: 0.78;
+  opacity: 0.64;
   translate: -50% -50%;
 }
 
@@ -2090,6 +2102,10 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 }
 
 @media (forced-colors: active) {
+  .owen-frosted-scroll__rail::before {
+    background: CanvasText;
+  }
+
   .owen-frosted-scroll__grip {
     border-color: CanvasText;
     background: Canvas;
