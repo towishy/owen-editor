@@ -1817,12 +1817,14 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   padding-top: 8px;
 }
 
-.markdown-rendered pre.owen-editor-codeblock-title-ready::after {
-  content: "";
+@media screen {
+  .markdown-rendered pre.owen-editor-codeblock-title-ready::after {
+    content: "";
+  }
 }
 
 .owen-editor-codeblock-title,
-.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger,
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger,
 .owen-editor-codeblock-title-input {
   position: absolute;
   top: 0.25rem;
@@ -1853,7 +1855,7 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 }
 
 .owen-editor-codeblock-title,
-.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger {
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger {
   display: block;
   overflow: hidden;
   cursor: text;
@@ -1861,13 +1863,124 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   pointer-events: auto;
 }
 
+.owen-editor-codeblock-title,
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger {
+  right: auto;
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100% - 4.3em);
+}
+
+.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-controls {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.75rem;
+  bottom: auto;
+  left: 1rem;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-sizing: border-box;
+  width: auto;
+  max-width: none;
+  max-inline-size: none;
+  height: var(--ogd-codeblock-header-height, 2.2em);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger {
+  position: static;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  max-width: none;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 24%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--background-primary) 46%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 62%, transparent);
+  color: var(--ogd-text-subtle, var(--text-muted));
+  cursor: pointer;
+  flex: 0 0 auto;
+  opacity: 0.72;
+  pointer-events: auto;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, opacity 140ms ease, transform 140ms ease;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button:hover,
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button:focus-visible {
+  border-color: color-mix(in srgb, var(--interactive-accent) 42%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+  color: var(--text-accent);
+  opacity: 1;
+  outline: none;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button:active {
+  transform: scale(0.97);
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button.is-copy-success {
+  border-color: color-mix(in srgb, var(--color-green) 48%, var(--background-modifier-border));
+  color: var(--color-green);
+  opacity: 1;
+}
+
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-status {
+  position: static;
+  flex: 0 0 4.6em;
+  width: 4.6em;
+  overflow: hidden;
+  color: var(--color-green);
+  font-family: var(--ogd-interface-font-stack, var(--font-interface-theme));
+  font-size: 0.7em;
+  font-weight: 700;
+  line-height: 2rem;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.owen-editor-codeblock-title.is-language-label,
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger.is-language-label {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .owen-editor-codeblock-title:hover,
-.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger:hover {
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger:hover {
   background: color-mix(in srgb, var(--text-muted) 10%, transparent);
 }
 
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger:hover {
+  background: transparent;
+}
+
 .owen-editor-codeblock-title:focus-visible,
-.markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-title-trigger:focus-visible,
+.markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger:focus-visible,
 .owen-editor-codeblock-title-input:focus {
   outline: 2px solid var(--background-modifier-border-focus);
   outline-offset: 1px;
@@ -1880,8 +1993,151 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   pointer-events: auto;
 }
 
-.owen-editor-codeblock-title-editing .code-block-flair.owen-editor-codeblock-title-trigger {
+.owen-editor-codeblock-title-editing .owen-editor-codeblock-title-trigger {
   visibility: hidden;
+}
+
+.owen-editor-frosted-scroll-viewport::-webkit-scrollbar:vertical {
+  display: none;
+  width: 0;
+}
+
+.owen-frosted-scroll {
+  --owen-frosted-rail-width: 2px;
+  --owen-frosted-grip-width: 6px;
+  --owen-frosted-grip-hover-width: 10px;
+  --owen-frosted-grip-height: 44px;
+  --owen-frosted-grip-start: rgb(255 255 255 / 0.72);
+  --owen-frosted-grip-end: rgb(205 218 225 / 0.34);
+  --owen-frosted-grip-border: rgb(65 82 94 / 0.38);
+  --owen-frosted-grip-shadow: 0 2px 8px rgb(36 55 65 / 0.14), inset 1px 1px 0 rgb(255 255 255 / 0.72);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.theme-dark .owen-frosted-scroll {
+  --owen-frosted-grip-start: rgb(255 255 255 / 0.24);
+  --owen-frosted-grip-end: rgb(181 196 211 / 0.12);
+  --owen-frosted-grip-border: rgb(224 231 239 / 0.42);
+  --owen-frosted-grip-shadow: 0 2px 8px rgb(0 0 0 / 0.28), inset 1px 1px 0 rgb(255 255 255 / 0.22);
+}
+
+.owen-editor-frosted-scroll-overlay {
+  position: fixed;
+  pointer-events: none;
+}
+
+.owen-frosted-scroll__rail {
+  position: absolute;
+  z-index: 4;
+  top: 0.5rem;
+  right: -0.125rem;
+  bottom: 0.5rem;
+  width: 0.875rem;
+  cursor: default;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.owen-frosted-scroll__grip {
+  position: absolute;
+  top: var(--owen-frosted-grip-y, 0);
+  left: 50%;
+  width: var(--owen-frosted-grip-width);
+  height: var(--owen-frosted-grip-height);
+  border: 1px solid var(--owen-frosted-grip-border);
+  border-radius: var(--ogd-radius-pill, 999px);
+  background: linear-gradient(180deg, var(--owen-frosted-grip-start), var(--owen-frosted-grip-end));
+  box-shadow: var(--owen-frosted-grip-shadow);
+  cursor: grab;
+  translate: -50% 0;
+  backdrop-filter: blur(4px) saturate(120%);
+}
+
+.owen-frosted-scroll__grip::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 1px;
+  border-radius: var(--ogd-radius-pill, 999px);
+  background: var(--owen-frosted-grip-border);
+  box-shadow: 0 -3px var(--owen-frosted-grip-border), 0 3px var(--owen-frosted-grip-border);
+  content: "";
+  opacity: 0.78;
+  translate: -50% -50%;
+}
+
+.owen-frosted-scroll__grip:hover,
+.owen-frosted-scroll__rail[data-active] .owen-frosted-scroll__grip {
+  width: var(--owen-frosted-grip-hover-width);
+}
+
+.owen-frosted-scroll__grip:hover::after,
+.owen-frosted-scroll__rail[data-active] .owen-frosted-scroll__grip::after {
+  width: 5px;
+  opacity: 0.82;
+}
+
+.owen-frosted-scroll__rail[data-active] .owen-frosted-scroll__grip {
+  cursor: grabbing;
+}
+
+.owen-editor-frosted-scroll-overlay[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .owen-frosted-scroll__grip {
+    border-color: CanvasText;
+    background: Canvas;
+    box-shadow: none;
+  }
+}
+
+@media print {
+  body .markdown-rendered pre.owen-editor-codeblock-title-ready::after,
+  body:not(.ogd-codeblock-print-legacy):not(.ogd-codeblock-print-vintage) :is(.markdown-rendered, .markdown-preview-view, .markdown-reading-view) pre.owen-editor-codeblock-title-ready::after {
+    content: "";
+  }
+
+  body .markdown-rendered pre.owen-editor-codeblock-title-ready > .owen-editor-codeblock-title {
+    position: absolute;
+    inset: 0 auto auto 8.5pt;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: auto;
+    max-width: calc(100% - 17pt);
+    height: 24pt;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--ogd-text-subtle, var(--text-muted));
+    font-family: var(--ogd-interface-font-stack, var(--font-interface-theme));
+    font-size: 7.2pt;
+    font-weight: 760;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 1;
+    pointer-events: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .owen-editor-codeblock-title-input,
+  .markdown-source-view.mod-cm6 .code-block-flair.owen-editor-codeblock-controls {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1890,7 +2146,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   .owen-editor-toolbar-button::after,
   .owen-editor-toolbar-favorites-row,
   .owen-editor-selection-toolbar,
-  .owen-editor-selection-toolbar-button {
+  .owen-editor-selection-toolbar-button,
+  .owen-editor-codeblock-copy-button {
     transition: none;
   }
 
@@ -1901,7 +2158,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   .owen-editor-selection-toolbar.is-visible,
   .owen-editor-selection-toolbar-button:hover,
   .owen-editor-selection-toolbar-button:focus-visible,
-  .owen-editor-selection-toolbar-button:active {
+  .owen-editor-selection-toolbar-button:active,
+  .owen-editor-codeblock-copy-button:active {
     transform: none;
   }
 }

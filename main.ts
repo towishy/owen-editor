@@ -1,5 +1,6 @@
 import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, moment, setIcon } from "obsidian";
 import { registerCodeBlockTitleEditing } from "./code-block-titles";
+import { registerFrostedScrollbars } from "./frosted-scrollbars";
 import { isLanguagePreference, resolveLanguage, translate, translateCommandName, type Language, type LanguagePreference, type TranslationKey } from "./i18n";
 
 interface OwenEditorSettings {
@@ -507,7 +508,11 @@ export default class OwenEditorPlugin extends Plugin {
       await this.loadSettings();
       this.commands = this.buildCommands();
       this.registerPluginCommands();
+      registerFrostedScrollbars(this);
       registerCodeBlockTitleEditing(this, () => ({
+        copied: this.t("codeTitle.copied"),
+        copy: this.t("codeTitle.copy"),
+        copyError: this.t("codeTitle.copyError"),
         edit: this.t("codeTitle.edit"),
         saveError: this.t("codeTitle.saveError")
       }));

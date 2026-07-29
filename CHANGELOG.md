@@ -8,6 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.31] - 2026-07-29
+
+### Added
+
+- Added a Frosted ScrollArea adapter that preserves native wheel, touch, and keyboard scrolling while providing a fixed 44px glass grip, rail click, and pointer drag across vertical viewports.
+- Added a one-click copy control for Live Preview code blocks with localized feedback and clipboard-safe source extraction.
+
+### Changed
+
+- Refined editable code-block title alignment, icon sizing, control spacing, and print-safe static title rendering.
+- Kept the scrollbar interaction rail visually transparent so the grip remains distinct without adding a dark vertical line beside the workspace separator.
+
 ## [0.6.30] - 2026-07-25
 
 ### Changed
@@ -15,6 +27,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Rebuilt the editor palette as a compact settings-style browser with tinted category headers, transparent scrolling, and stable command rows.
 - Replaced inline command previews and duplicate recommendation sections with accessible detail, recommendation, and recent-use indicators using custom tooltips.
 - Unified command action controls on 28px slots with 18px icons, clarified favorite states, and added an Owen Graphite theme requirement indicator.
+
+### Fixed
+
+- Preserved a single static code block title in PDF exports instead of printing the editable Reading View control over Owen Graphite's language label.
 
 ## [0.6.29] - 2026-07-25
 
@@ -359,7 +375,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.30...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.31...HEAD
+[0.6.31]: https://github.com/towishy/owen-editor/compare/0.6.30...0.6.31
 [0.6.30]: https://github.com/towishy/owen-editor/compare/0.6.29...0.6.30
 [0.6.29]: https://github.com/towishy/owen-editor/compare/0.6.28...0.6.29
 [0.6.28]: https://github.com/towishy/owen-editor/compare/0.6.27...0.6.28
