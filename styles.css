@@ -1997,6 +1997,7 @@ body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport:
   --owen-frosted-grip-width: 6px;
   --owen-frosted-grip-hover-width: 10px;
   --owen-frosted-grip-height: 44px;
+  --owen-frosted-grip-y: 0px;
   --owen-frosted-rail-color: rgb(65 82 94 / 0.12);
   --owen-frosted-grip-start: rgb(255 255 255 / 0.72);
   --owen-frosted-grip-end: rgb(205 218 225 / 0.34);

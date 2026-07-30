@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.33] - 2026-07-30
+
+### Fixed
+
+- Moved static code-block control sizing and Frosted ScrollArea initialization into CSS to satisfy Obsidian plugin validation without changing rendered behavior.
+
 ## [0.6.32] - 2026-07-29
 
 ### Fixed
@@ -383,7 +389,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.32...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.33...HEAD
+[0.6.33]: https://github.com/towishy/owen-editor/compare/0.6.32...0.6.33
 [0.6.32]: https://github.com/towishy/owen-editor/compare/0.6.31...0.6.32
 [0.6.31]: https://github.com/towishy/owen-editor/compare/0.6.30...0.6.31
 [0.6.30]: https://github.com/towishy/owen-editor/compare/0.6.29...0.6.30

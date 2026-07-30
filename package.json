@@ -1,6 +1,6 @@
 {
   "name": "owen-editor",
-  "version": "0.6.32",
+  "version": "0.6.33",
   "description": "Markdown editing toolbar with persistent code titles and Owen Graphite helpers for Obsidian.",
   "main": "main.js",
   "scripts": {

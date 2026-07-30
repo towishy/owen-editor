@@ -113,7 +113,6 @@ export function registerFrostedScrollbars(plugin: Plugin) {
     rail.className = "owen-frosted-scroll__rail";
     const grip = document.createElement("span");
     grip.className = "owen-frosted-scroll__grip";
-    grip.style.setProperty("--owen-frosted-grip-y", "0px");
     rail.appendChild(grip);
     root.appendChild(rail);
     document.body.appendChild(root);

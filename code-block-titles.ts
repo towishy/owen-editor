@@ -295,7 +295,6 @@ function decorateLivePreviewCodeTitles(plugin: Plugin, labels: () => CodeBlockTi
     }
     flair.classList.remove("owen-editor-codeblock-title-trigger", "is-custom-title", "is-language-label");
     flair.classList.add("owen-editor-codeblock-controls");
-    flair.style.maxInlineSize = "none";
     flair.removeAttribute("aria-label");
     flair.removeAttribute("role");
     flair.removeAttribute("tabindex");
