@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.34] - 2026-07-30
+
+### Fixed
+
+- Kept the Live Preview code-title input mounted and focused on macOS by moving it outside CodeMirror-owned line DOM.
+
 ## [0.6.33] - 2026-07-30
 
 ### Fixed
@@ -389,7 +395,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.33...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.34...HEAD
+[0.6.34]: https://github.com/towishy/owen-editor/compare/0.6.33...0.6.34
 [0.6.33]: https://github.com/towishy/owen-editor/compare/0.6.32...0.6.33
 [0.6.32]: https://github.com/towishy/owen-editor/compare/0.6.31...0.6.32
 [0.6.31]: https://github.com/towishy/owen-editor/compare/0.6.30...0.6.31

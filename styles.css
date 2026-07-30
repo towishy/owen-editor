@@ -1966,6 +1966,13 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   pointer-events: auto;
 }
 
+.owen-editor-codeblock-title-input.is-live-preview {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  z-index: var(--layer-popover);
+}
+
 .owen-editor-codeblock-title-editing .owen-editor-codeblock-title-trigger {
   visibility: hidden;
 }

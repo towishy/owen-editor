@@ -174,12 +174,13 @@ function livePreviewLineInfo(plugin: Plugin, lineElement: Element) {
   }
 }
 
-function createTitleInput(container: HTMLElement, value: string, labels: () => CodeBlockTitleLabels, onSave: (title: string) => Promise<void>, onCancel?: () => void) {
+function createTitleInput(container: HTMLElement, value: string, labels: () => CodeBlockTitleLabels, onSave: (title: string) => Promise<void>, onCancel?: () => void, prepare?: (input: HTMLInputElement) => void) {
   const input = document.createElement("input");
   input.className = "owen-editor-codeblock-title-input";
   input.type = "text";
   input.value = value;
   input.setAttribute("aria-label", labels().edit);
+  prepare?.(input);
   container.appendChild(input);
   let finished = false;
   const cancel = () => {
@@ -353,15 +354,22 @@ async function copyLivePreviewCodeBlock(plugin: Plugin, copyButton: HTMLButtonEl
 function editLivePreviewTitle(plugin: Plugin, trigger: HTMLElement, labels: () => CodeBlockTitleLabels) {
   const lineElement = trigger.closest<HTMLElement>(".cm-line.HyperMD-codeblock-begin");
   const lineInfo = lineElement ? livePreviewLineInfo(plugin, lineElement) : undefined;
-  if (!lineElement || !lineInfo || lineElement.querySelector(".owen-editor-codeblock-title-input")) return;
+  if (!lineElement || !lineInfo || document.querySelector(".owen-editor-codeblock-title-input.is-live-preview")) return;
   const expectedLine = lineInfo.view.editor.getLine(lineInfo.lineNumber);
   if (!parseFenceLine(expectedLine)) return;
+  const triggerRect = trigger.getBoundingClientRect();
   lineElement.classList.add("owen-editor-codeblock-title-editing");
-  createTitleInput(lineElement, trigger.textContent ?? "", labels, async (title) => {
+  createTitleInput(document.body, trigger.textContent ?? "", labels, async (title) => {
     if (lineInfo.view.editor.getLine(lineInfo.lineNumber) !== expectedLine) throw new Error("Code block changed.");
     lineInfo.view.editor.setLine(lineInfo.lineNumber, updateFenceTitle(expectedLine, title));
     lineElement.classList.remove("owen-editor-codeblock-title-editing");
-  }, () => lineElement.classList.remove("owen-editor-codeblock-title-editing"));
+  }, () => lineElement.classList.remove("owen-editor-codeblock-title-editing"), (input) => {
+    input.classList.add("is-live-preview");
+    input.style.top = `${triggerRect.top}px`;
+    input.style.left = `${triggerRect.left}px`;
+    input.style.width = `${triggerRect.width}px`;
+    input.style.height = `${triggerRect.height}px`;
+  });
 }
 
 export function registerCodeBlockTitleEditing(plugin: Plugin, labels: () => CodeBlockTitleLabels) {
