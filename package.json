@@ -8,7 +8,8 @@
     "docs:screenshot": "node scripts/docs-screenshot.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "i18n:check": "node scripts/check-i18n.mjs",
-    "lint:obsidian": "eslint main.ts",
+    "test": "node --test",
+    "lint:obsidian": "eslint \"*.ts\"",
     "release:check": "node scripts/release-check.mjs",
     "release:preflight": "node scripts/release.mjs",
     "release:create": "node scripts/release.mjs --create",
@@ -41,7 +42,7 @@
     "esbuild": "^0.20.2",
     "eslint": "^9.39.4",
     "eslint-plugin-obsidianmd": "^0.2.9",
-    "obsidian": "~1.5.0",
+    "obsidian": "1.13.1",
     "tslib": "^2.6.2",
     "typescript": "^5.4.3"
   }

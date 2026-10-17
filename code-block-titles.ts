@@ -1,4 +1,5 @@
 import { Editor, MarkdownView, Notice, Plugin, TFile, setIcon, type MarkdownPostProcessorContext } from "obsidian";
+import { registerWindowDocuments } from "./window-documents";
 
 const FENCE_RE = /^(\s{0,3})(`{3,}|~{3,})([^\r\n]*)$/;
 const TITLE_ATTRIBUTE_RE = /(?:^|\s)title=("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')(?=\s|$)/i;
@@ -175,13 +176,12 @@ function livePreviewLineInfo(plugin: Plugin, lineElement: Element) {
 }
 
 function createTitleInput(container: HTMLElement, value: string, labels: () => CodeBlockTitleLabels, onSave: (title: string) => Promise<void>, onCancel?: () => void, prepare?: (input: HTMLInputElement) => void) {
-  const input = document.createElement("input");
+  const input = container.createEl("input");
   input.className = "owen-editor-codeblock-title-input";
   input.type = "text";
   input.value = value;
   input.setAttribute("aria-label", labels().edit);
   prepare?.(input);
-  container.appendChild(input);
   let finished = false;
   const cancel = () => {
     if (finished) return;
@@ -213,7 +213,7 @@ function createTitleInput(container: HTMLElement, value: string, labels: () => C
     }
   });
   input.addEventListener("blur", () => void save(), { once: true });
-  requestAnimationFrame(() => {
+  input.win.requestAnimationFrame(() => {
     input.focus();
     input.select();
   });
@@ -231,7 +231,7 @@ async function enhanceReadingCodeBlocks(plugin: Plugin, root: HTMLElement, conte
     const opener = findFencedCodeBlockForCode(source, codeText, renderedLanguage);
     if (!opener) continue;
     const titleKey = `${context.sourcePath}\u0000${opener.language.toLowerCase()}\u0000${normalizeCodeText(codeText)}`;
-    const trigger = document.createElement("button");
+    const trigger = pre.createEl("button");
     trigger.className = `owen-editor-codeblock-title ${opener.hasTitle ? "is-custom-title" : "is-language-label"}`;
     trigger.type = "button";
     const override = overrides.get(titleKey);
@@ -264,12 +264,11 @@ async function enhanceReadingCodeBlocks(plugin: Plugin, root: HTMLElement, conte
       });
     });
     pre.classList.add("owen-editor-codeblock-title-ready");
-    pre.appendChild(trigger);
   }
 }
 
-function decorateLivePreviewCodeTitles(plugin: Plugin, labels: () => CodeBlockTitleLabels) {
-  document.querySelectorAll<HTMLElement>(".markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin").forEach((lineElement) => {
+function decorateLivePreviewCodeTitles(plugin: Plugin, doc: Document, labels: () => CodeBlockTitleLabels) {
+  doc.querySelectorAll<HTMLElement>(".markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock-begin").forEach((lineElement) => {
     const flair = lineElement.querySelector<HTMLElement>(".code-block-flair");
     const lineInfo = flair ? livePreviewLineInfo(plugin, lineElement) : undefined;
     if (!flair || !lineInfo) return;
@@ -280,15 +279,15 @@ function decorateLivePreviewCodeTitles(plugin: Plugin, labels: () => CodeBlockTi
     let copyButton = flair.querySelector<HTMLButtonElement>(".owen-editor-codeblock-copy-button");
     let copyStatus = flair.querySelector<HTMLElement>(".owen-editor-codeblock-copy-status");
     if (!trigger || !copyButton || !copyStatus) {
-      trigger = document.createElement("button");
+      trigger = flair.createEl("button");
       trigger.className = "owen-editor-codeblock-title-trigger";
       trigger.type = "button";
-      copyStatus = document.createElement("span");
+      copyStatus = flair.createSpan();
       copyStatus.className = "owen-editor-codeblock-copy-status";
       copyStatus.setAttribute("aria-atomic", "true");
       copyStatus.setAttribute("aria-live", "polite");
       copyStatus.setAttribute("role", "status");
-      copyButton = document.createElement("button");
+      copyButton = flair.createEl("button");
       copyButton.className = "owen-editor-codeblock-copy-button";
       copyButton.type = "button";
       setIcon(copyButton, "copy");
@@ -323,14 +322,14 @@ async function copyLivePreviewCodeBlock(plugin: Plugin, copyButton: HTMLButtonEl
   copyButton.setAttribute("aria-busy", "true");
   let copied = false;
   try {
-    await navigator.clipboard.writeText(code);
+    await copyButton.win.navigator.clipboard.writeText(code);
     copied = true;
     setIcon(copyButton, "check");
     copyButton.classList.add("is-copy-success");
     copyButton.setAttribute("aria-label", labels().copied);
     copyButton.title = labels().copied;
     if (copyStatus) copyStatus.textContent = labels().copied;
-    window.setTimeout(() => {
+    copyButton.win.setTimeout(() => {
       if (!copyButton.isConnected) return;
       setIcon(copyButton, "copy");
       copyButton.classList.remove("is-copy-success");
@@ -354,12 +353,12 @@ async function copyLivePreviewCodeBlock(plugin: Plugin, copyButton: HTMLButtonEl
 function editLivePreviewTitle(plugin: Plugin, trigger: HTMLElement, labels: () => CodeBlockTitleLabels) {
   const lineElement = trigger.closest<HTMLElement>(".cm-line.HyperMD-codeblock-begin");
   const lineInfo = lineElement ? livePreviewLineInfo(plugin, lineElement) : undefined;
-  if (!lineElement || !lineInfo || document.querySelector(".owen-editor-codeblock-title-input.is-live-preview")) return;
+  if (!lineElement || !lineInfo || trigger.doc.querySelector(".owen-editor-codeblock-title-input.is-live-preview")) return;
   const expectedLine = lineInfo.view.editor.getLine(lineInfo.lineNumber);
   if (!parseFenceLine(expectedLine)) return;
   const triggerRect = trigger.getBoundingClientRect();
   lineElement.classList.add("owen-editor-codeblock-title-editing");
-  createTitleInput(document.body, trigger.textContent ?? "", labels, async (title) => {
+  createTitleInput(trigger.doc.body, trigger.textContent ?? "", labels, async (title) => {
     if (lineInfo.view.editor.getLine(lineInfo.lineNumber) !== expectedLine) throw new Error("Code block changed.");
     lineInfo.view.editor.setLine(lineInfo.lineNumber, updateFenceTitle(expectedLine, title));
     lineElement.classList.remove("owen-editor-codeblock-title-editing");
@@ -374,44 +373,57 @@ function editLivePreviewTitle(plugin: Plugin, trigger: HTMLElement, labels: () =
 
 export function registerCodeBlockTitleEditing(plugin: Plugin, labels: () => CodeBlockTitleLabels) {
   const overrides = new Map<string, string>();
-  let queued = false;
-  const update = () => {
-    if (queued) return;
-    queued = true;
-    requestAnimationFrame(() => {
-      queued = false;
-      decorateLivePreviewCodeTitles(plugin, labels);
-    });
-  };
-  const observer = new MutationObserver(update);
-  observer.observe(document.body, { subtree: true, childList: true });
-  plugin.register(() => observer.disconnect());
   plugin.registerMarkdownPostProcessor((root, context) => {
     void enhanceReadingCodeBlocks(plugin, root, context, labels, overrides);
   });
-  plugin.registerDomEvent(document, "click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    const copyButton = event.target.closest<HTMLButtonElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button");
-    if (copyButton) {
+  registerWindowDocuments(plugin, (doc) => {
+    const win = doc.defaultView;
+    if (!win) throw new Error("Owen Editor cannot edit code titles without a window.");
+    let queuedFrame: number | undefined;
+    const update = () => {
+      if (queuedFrame !== undefined) return;
+      queuedFrame = win.requestAnimationFrame(() => {
+        queuedFrame = undefined;
+        decorateLivePreviewCodeTitles(plugin, doc, labels);
+      });
+    };
+    const observer = new win.MutationObserver(update);
+    observer.observe(doc.body, { subtree: true, childList: true });
+    const onClick = (event: MouseEvent) => {
+      const target = event.targetNode;
+      if (!target?.instanceOf(Element)) return;
+      const copyButton = target.closest<HTMLButtonElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-copy-button");
+      if (copyButton) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        void copyLivePreviewCodeBlock(plugin, copyButton, labels);
+        return;
+      }
+      const trigger = target.closest<HTMLElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger");
+      if (!trigger) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      void copyLivePreviewCodeBlock(plugin, copyButton, labels);
-      return;
-    }
-    const trigger = event.target.closest<HTMLElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger");
-    if (!trigger) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    editLivePreviewTitle(plugin, trigger, labels);
-  }, true);
-  plugin.registerDomEvent(document, "keydown", (event) => {
-    if (!(event.target instanceof Element) || !["Enter", "F2"].includes(event.key)) return;
-    const trigger = event.target.closest<HTMLElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger");
-    if (!trigger) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    editLivePreviewTitle(plugin, trigger, labels);
-  }, true);
-  plugin.registerEvent(plugin.app.workspace.on("css-change", update));
-  plugin.app.workspace.onLayoutReady(update);
+      editLivePreviewTitle(plugin, trigger, labels);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.targetNode;
+      if (!target?.instanceOf(Element) || !["Enter", "F2"].includes(event.key)) return;
+      const trigger = target.closest<HTMLElement>(".markdown-source-view.mod-cm6 .owen-editor-codeblock-title-trigger");
+      if (!trigger) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      editLivePreviewTitle(plugin, trigger, labels);
+    };
+    doc.addEventListener("click", onClick, true);
+    doc.addEventListener("keydown", onKeyDown, true);
+    const cssChange = plugin.app.workspace.on("css-change", update);
+    update();
+    return () => {
+      observer.disconnect();
+      if (queuedFrame !== undefined) win.cancelAnimationFrame(queuedFrame);
+      doc.removeEventListener("click", onClick, true);
+      doc.removeEventListener("keydown", onKeyDown, true);
+      plugin.app.workspace.offref(cssChange);
+    };
+  });
 }

@@ -1,4 +1,5 @@
 import { Plugin } from "obsidian";
+import { registerWindowDocuments } from "./window-documents";
 
 const GRIP_HEIGHT = 44;
 const MIN_VIEWPORT_HEIGHT = 64;
@@ -20,7 +21,7 @@ interface FrostedScrollbarInstance {
 function isVerticalScrollViewport(element: HTMLElement) {
   if (element.closest(".owen-editor-frosted-scroll-overlay")) return false;
   if (element.matches("input, select, textarea")) return false;
-  const style = getComputedStyle(element);
+  const style = element.win.getComputedStyle(element);
   if (!/(auto|scroll|overlay)/.test(style.overflowY)) return false;
   const bounds = element.getBoundingClientRect();
   return bounds.width > 24
@@ -32,13 +33,19 @@ function isVerticalScrollViewport(element: HTMLElement) {
 function overlayZIndex(viewport: HTMLElement) {
   let zIndex = 1;
   for (let element: HTMLElement | null = viewport; element; element = element.parentElement) {
-    const value = Number.parseInt(getComputedStyle(element).zIndex, 10);
+    const value = Number.parseInt(element.win.getComputedStyle(element).zIndex, 10);
     if (Number.isFinite(value)) zIndex = Math.max(zIndex, value + 1);
   }
   return zIndex;
 }
 
 export function registerFrostedScrollbars(plugin: Plugin) {
+  registerWindowDocuments(plugin, (doc) => registerDocumentFrostedScrollbars(plugin, doc));
+}
+
+function registerDocumentFrostedScrollbars(plugin: Plugin, doc: Document) {
+  const win = doc.defaultView;
+  if (!win) throw new Error("Owen Editor cannot attach scrollbars without a window.");
   const instances = new Map<HTMLElement, FrostedScrollbarInstance>();
   const pendingRoots = new Set<Node>();
   let discoveryFrame: number | undefined;
@@ -54,8 +61,8 @@ export function registerFrostedScrollbars(plugin: Plugin) {
       && bounds.height >= MIN_VIEWPORT_HEIGHT
       && bounds.bottom > 0
       && bounds.right > 0
-      && bounds.top < window.innerHeight
-      && bounds.left < window.innerWidth;
+      && bounds.top < win.innerHeight
+      && bounds.left < win.innerWidth;
     root.hidden = !visible;
     if (!visible) return;
 
@@ -75,7 +82,7 @@ export function registerFrostedScrollbars(plugin: Plugin) {
 
   const scheduleSync = () => {
     if (syncFrame !== undefined) return;
-    syncFrame = window.requestAnimationFrame(() => {
+    syncFrame = win.requestAnimationFrame(() => {
       syncFrame = undefined;
       for (const [viewport, instance] of instances) {
         if (!viewport.isConnected) {
@@ -100,7 +107,7 @@ export function registerFrostedScrollbars(plugin: Plugin) {
   };
 
   const createInstance = (viewport: HTMLElement) => {
-    const root = document.createElement("div");
+    const root = doc.body.createDiv();
     root.className = "owen-frosted-scroll owen-editor-frosted-scroll-overlay";
     if (viewport.matches(".owen-editor-palette-content, .owen-editor-palette-rail-items")) {
       root.classList.add("mod-palette");
@@ -109,13 +116,10 @@ export function registerFrostedScrollbars(plugin: Plugin) {
       root.classList.add("mod-file-explorer");
     }
     root.setAttribute("aria-hidden", "true");
-    const rail = document.createElement("div");
+    const rail = root.createDiv();
     rail.className = "owen-frosted-scroll__rail";
-    const grip = document.createElement("span");
+    const grip = rail.createSpan();
     grip.className = "owen-frosted-scroll__grip";
-    rail.appendChild(grip);
-    root.appendChild(rail);
-    document.body.appendChild(root);
     viewport.classList.add("owen-frosted-scroll__viewport", "owen-editor-frosted-scroll-viewport");
 
     const instance: FrostedScrollbarInstance = {
@@ -152,7 +156,7 @@ export function registerFrostedScrollbars(plugin: Plugin) {
     rail.addEventListener("pointermove", instance.onPointerMove);
     rail.addEventListener("pointerup", instance.onPointerEnd);
     rail.addEventListener("pointercancel", instance.onPointerEnd);
-    instance.resizeObserver = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(() => syncGrip(instance));
+    instance.resizeObserver = typeof win.ResizeObserver === "undefined" ? undefined : new win.ResizeObserver(() => syncGrip(instance));
     instance.resizeObserver?.observe(viewport);
     instances.set(viewport, instance);
     syncGrip(instance);
@@ -160,8 +164,8 @@ export function registerFrostedScrollbars(plugin: Plugin) {
 
   const discover = (root: Node) => {
     const elements: HTMLElement[] = [];
-    if (root instanceof HTMLElement) elements.push(root);
-    if (root instanceof Document || root instanceof DocumentFragment || root instanceof HTMLElement) {
+    if (root.instanceOf(HTMLElement)) elements.push(root);
+    if (root.instanceOf(Document) || root.instanceOf(DocumentFragment) || root.instanceOf(HTMLElement)) {
       elements.push(...Array.from(root.querySelectorAll<HTMLElement>("*")));
     }
     for (const element of elements) {
@@ -173,7 +177,7 @@ export function registerFrostedScrollbars(plugin: Plugin) {
   const scheduleDiscovery = (root: Node) => {
     pendingRoots.add(root);
     if (discoveryFrame !== undefined) return;
-    discoveryFrame = window.requestAnimationFrame(() => {
+    discoveryFrame = win.requestAnimationFrame(() => {
       discoveryFrame = undefined;
       for (const pendingRoot of pendingRoots) discover(pendingRoot);
       pendingRoots.clear();
@@ -181,27 +185,29 @@ export function registerFrostedScrollbars(plugin: Plugin) {
     });
   };
 
-  const mutationObserver = new MutationObserver((records) => {
+  const mutationObserver = new win.MutationObserver((records) => {
     for (const record of records) {
       scheduleDiscovery(record.target);
       for (const node of Array.from(record.addedNodes)) scheduleDiscovery(node);
     }
   });
-  mutationObserver.observe(document.body, { childList: true, subtree: true });
-  document.body.classList.add("owen-editor-frosted-scrollbars-active");
-  document.addEventListener("scroll", scheduleSync, true);
-  window.addEventListener("resize", scheduleSync);
-  plugin.registerEvent(plugin.app.workspace.on("layout-change", () => scheduleDiscovery(document.body)));
-  plugin.registerEvent(plugin.app.workspace.on("css-change", () => scheduleDiscovery(document.body)));
-  scheduleDiscovery(document.body);
+  mutationObserver.observe(doc.body, { childList: true, subtree: true });
+  doc.body.classList.add("owen-editor-frosted-scrollbars-active");
+  doc.addEventListener("scroll", scheduleSync, true);
+  win.addEventListener("resize", scheduleSync);
+  const layoutChange = plugin.app.workspace.on("layout-change", () => scheduleDiscovery(doc.body));
+  const cssChange = plugin.app.workspace.on("css-change", () => scheduleDiscovery(doc.body));
+  scheduleDiscovery(doc.body);
 
-  plugin.register(() => {
+  return () => {
     mutationObserver.disconnect();
-    document.removeEventListener("scroll", scheduleSync, true);
-    window.removeEventListener("resize", scheduleSync);
-    if (discoveryFrame !== undefined) window.cancelAnimationFrame(discoveryFrame);
-    if (syncFrame !== undefined) window.cancelAnimationFrame(syncFrame);
-    document.body.classList.remove("owen-editor-frosted-scrollbars-active");
+    doc.removeEventListener("scroll", scheduleSync, true);
+    win.removeEventListener("resize", scheduleSync);
+    if (discoveryFrame !== undefined) win.cancelAnimationFrame(discoveryFrame);
+    if (syncFrame !== undefined) win.cancelAnimationFrame(syncFrame);
+    plugin.app.workspace.offref(layoutChange);
+    plugin.app.workspace.offref(cssChange);
+    doc.body.classList.remove("owen-editor-frosted-scrollbars-active");
     for (const instance of instances.values()) {
       instance.resizeObserver?.disconnect();
       instance.viewport.removeEventListener("scroll", instance.onScroll);
@@ -213,5 +219,5 @@ export function registerFrostedScrollbars(plugin: Plugin) {
       instance.root.remove();
     }
     instances.clear();
-  });
+  };
 }

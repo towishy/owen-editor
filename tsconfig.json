@@ -10,12 +10,13 @@
     "importHelpers": true,
     "isolatedModules": true,
     "strictNullChecks": true,
+    "types": ["obsidian"],
     "lib": [
       "DOM",
-      "ES2018"
+      "ES2019"
     ]
   },
   "include": [
-    "main.ts"
+    "*.ts"
   ]
 }

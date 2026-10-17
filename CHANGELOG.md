@@ -8,6 +8,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+
+- Use each document's Obsidian DOM helpers, animation frames, clipboard, and observers for code titles and Frosted ScrollArea controls, including popout windows and window-close cleanup.
+- Declare the ES2019 APIs used by toolbar grouping and report templates without relying on incidental Node.js types.
+- Replace palette parent-state `:has()` selectors with explicit selection/focus state and native hover/focus-within selectors, and keep visually hidden labels compatible with older hosts.
+
+### Changed
+
+- Run typed Obsidian lint against every TypeScript module and add window lifecycle regression tests.
+- Register individual searchable settings on Obsidian 1.13 and later, retaining the existing controls and a legacy rendering path for older supported hosts. The newer Obsidian dependency supplies development types only; the runtime minimum is unchanged.
+
 ## [0.6.34] - 2026-07-30
 
 ### Fixed

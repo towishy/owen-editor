@@ -617,7 +617,6 @@ body.owen-editor-toolbar-offset.owen-editor-toolbar-bottom .workspace-leaf-conte
 
 .modal.owen-editor-palette-modal .modal-title {
   clip: rect(0 0 0 0);
-  clip-path: inset(50%);
   height: 1px;
   overflow: hidden;
   position: absolute;
@@ -1009,8 +1008,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   visibility: visible;
 }
 
-.owen-editor-group-title:has(.owen-editor-group-title-info-button:hover),
-.owen-editor-group-title:has(.owen-editor-group-title-info-button:focus) {
+.owen-editor-group-title:hover,
+.owen-editor-group-title:focus-within {
   position: relative;
   z-index: 8;
 }
@@ -1102,7 +1101,7 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
 
 .owen-editor-command-item:hover,
 .owen-editor-command-item:focus-within,
-.owen-editor-command-item:has(.owen-editor-command-button.is-selected) {
+.owen-editor-command-item.is-selected {
   background: color-mix(in srgb, var(--owen-editor-section-tone) 5%, var(--owen-editor-palette-surface));
   border-color: var(--owen-editor-card-border);
   box-shadow: none;
@@ -1116,7 +1115,7 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   border-bottom: 0;
 }
 
-.owen-editor-command-item:has(.owen-editor-command-button:focus-visible) {
+.owen-editor-command-item.has-visible-focus {
   outline: 2px solid var(--owen-editor-palette-focus);
   outline-offset: 2px;
 }
@@ -1184,9 +1183,12 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   z-index: 3;
 }
 
+.owen-editor-settings-tab .owen-editor-favorites-setting {
+  display: block;
+}
+
 .owen-editor-visually-hidden {
   clip: rect(0 0 0 0);
-  clip-path: inset(50%);
   height: 1px;
   overflow: hidden;
   position: absolute;
@@ -1280,12 +1282,8 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   visibility: visible;
 }
 
-.owen-editor-command-item:has(.owen-editor-command-info-button:hover),
-.owen-editor-command-item:has(.owen-editor-command-info-button:focus),
-.owen-editor-command-item:has(.owen-editor-command-status-indicator:hover),
-.owen-editor-command-item:has(.owen-editor-command-status-indicator:focus),
-.owen-editor-command-item:has(.owen-editor-favorite-button:hover),
-.owen-editor-command-item:has(.owen-editor-favorite-button:focus) {
+.owen-editor-command-item:hover,
+.owen-editor-command-item:focus-within {
   z-index: 5;
 }
 
@@ -1599,7 +1597,7 @@ body .modal.owen-editor-palette-modal input.owen-editor-search[type="search"]:fo
   }
 
   .owen-editor-palette-rail-button:focus-visible,
-  .owen-editor-command-item:has(.owen-editor-command-button:focus-visible),
+  .owen-editor-command-item.has-visible-focus,
   .modal.owen-editor-palette-modal .owen-editor-favorite-button:focus-visible {
     outline-color: Highlight;
   }
@@ -2062,6 +2060,7 @@ body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport:
 }
 
 .owen-frosted-scroll__grip {
+  box-sizing: border-box;
   position: absolute;
   top: var(--owen-frosted-grip-y, 0);
   left: 50%;

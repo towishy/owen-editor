@@ -133,6 +133,7 @@ For development:
 npm install
 npm run lint:obsidian
 npm run build
+npm test
 npm run docs:screenshot
 npm run release:check
 npm run release:preflight

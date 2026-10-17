@@ -7,7 +7,7 @@ export default [
   },
   ...obsidianmd.configs.recommended,
   {
-    files: ["main.ts"],
+    files: ["*.ts"],
     languageOptions: {
       parser: tsparser,
       parserOptions: {

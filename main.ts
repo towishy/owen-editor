@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, moment, setIcon } from "obsidian";
+import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, moment, requireApiVersion, setIcon, setTooltip, type SettingDefinitionRender } from "obsidian";
 import { registerCodeBlockTitleEditing } from "./code-block-titles";
 import { registerFrostedScrollbars } from "./frosted-scrollbars";
 import { isLanguagePreference, resolveLanguage, translate, translateCommandName, type Language, type LanguagePreference, type TranslationKey } from "./i18n";
@@ -724,7 +724,7 @@ export default class OwenEditorPlugin extends Plugin {
     this.refreshFloatingToolbar();
     this.refreshSelectionToolbar();
     this.refreshStatusBarButton();
-    this.settingTab?.display();
+    this.settingTab?.refresh();
   }
 
   private refreshRegisteredCommandNames() {
@@ -2125,6 +2125,7 @@ class OwenEditorPaletteModal extends Modal {
     for (const button of buttons) {
       const isSelected = !selectedButton && button.getAttribute("data-command-id") === this.selectedCommandId;
       button.classList.toggle("is-selected", isSelected);
+      button.closest(".owen-editor-command-item")?.classList.toggle("is-selected", isSelected);
       button.setAttribute("aria-selected", String(isSelected));
       if (isSelected) {
         selectedButton = button;
@@ -2155,6 +2156,8 @@ class OwenEditorPaletteModal extends Modal {
         }
       });
       const icon = button.createSpan({ cls: "owen-editor-command-icon" });
+      this.registerRenderEvent(button, "focus", () => item.classList.toggle("has-visible-focus", button.matches(":focus-visible")));
+      this.registerRenderEvent(button, "blur", () => item.classList.remove("has-visible-focus"));
       setSafeIcon(icon, command.icon);
       const copy = button.createDiv({ cls: "owen-editor-command-copy" });
       copy.createSpan({ text: command.name, cls: "owen-editor-command-label" });
@@ -2818,6 +2821,8 @@ class OwenEditorHighlightModal extends Modal {
   }
 }
 
+type SearchableEditorSetting = Omit<SettingDefinitionRender, "render"> & { render: (setting: Setting) => void };
+
 class OwenEditorSettingTab extends PluginSettingTab {
   private plugin: OwenEditorPlugin;
 
@@ -2827,37 +2832,59 @@ class OwenEditorSettingTab extends PluginSettingTab {
   }
 
   display() {
+    this.displayLegacy();
+  }
+
+  private displayLegacy() {
+    this.containerEl.empty();
+    this.containerEl.addClass("owen-editor-settings-tab");
+    for (const definition of this.getSettingDefinitions()) {
+      const setting = new Setting(this.containerEl).setName(definition.name);
+      if (definition.desc) setting.setDesc(definition.desc);
+      definition.render(setting);
+    }
+  }
+
+  refresh() {
+    if (requireApiVersion("1.13.0")) this.update();
+    else this.displayLegacy();
+  }
+
+  getSettingDefinitions(): SearchableEditorSetting[] {
     const { containerEl } = this;
     const t = (key: TranslationKey, variables?: Record<string, string | number>) => this.plugin.t(key, variables);
-    containerEl.empty();
-    containerEl.addClass("owen-editor-settings-tab");
-    this.createSettingsSection(t("settings.section.interface"), t("settings.section.interfaceDesc"), "interface", "languages");
+    const definitions: SearchableEditorSetting[] = [];
+    const defineSetting = (name: string, desc: SearchableEditorSetting["desc"], configure: (setting: Setting) => Setting | void = () => {}) => {
+      definitions.push({
+        name,
+        desc,
+        render: (setting) => {
+          containerEl.addClass("owen-editor-settings-tab");
+          configure(setting);
+        }
+      });
+    };
+    this.createSettingsSection(definitions, t("settings.section.interface"), t("settings.section.interfaceDesc"), "interface", "languages");
 
-    new Setting(containerEl)
-      .setName(t("settings.language.name"))
-      .setDesc(t("settings.language.desc"))
+    defineSetting(t("settings.language.name"), t("settings.language.desc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
         .addOption("auto", t("language.auto"))
         .addOption("en", t("language.en"))
         .addOption("ko", t("language.ko"))
         .setValue(this.plugin.settings.language)
-        .onChange(async (value) => this.plugin.setLanguage(value as LanguagePreference)));
+        .onChange(async (value) => this.plugin.setLanguage(value as LanguagePreference))));
 
-    this.createSettingsSection(t("settings.section.toolbar"), t("settings.section.toolbarDesc"), "toolbar", "panel-top");
+    this.createSettingsSection(definitions, t("settings.section.toolbar"), t("settings.section.toolbarDesc"), "toolbar", "panel-top");
 
-    new Setting(containerEl)
-      .setName(t("settings.showToolbar"))
-      .setDesc(t("settings.showToolbarDesc"))
+    defineSetting(t("settings.showToolbar"), t("settings.showToolbarDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showFloatingToolbar)
         .onChange(async (value) => {
           this.plugin.settings.showFloatingToolbar = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.position"))
-      .setDesc(t("settings.positionDesc"))
+    defineSetting(t("settings.position"), t("settings.positionDesc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
         .addOption("top", t("settings.top"))
         .addOption("bottom", t("settings.bottom"))
@@ -2865,11 +2892,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .onChange(async (value) => {
           this.plugin.settings.toolbarPosition = value as ToolbarPosition;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.preset"))
-      .setDesc(t("settings.presetDesc"))
+    defineSetting(t("settings.preset"), t("settings.presetDesc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
         .addOption("minimal", t("settings.minimal"))
         .addOption("writer", t("settings.writer"))
@@ -2879,12 +2904,10 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.toolbarPreset)
         .onChange(async (value) => {
           await this.plugin.applyToolbarPreset(value as ToolbarPreset);
-          this.display();
-        }));
+          this.refresh();
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.density"))
-      .setDesc(t("settings.densityDesc"))
+    defineSetting(t("settings.density"), t("settings.densityDesc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
         .addOption("compact", t("settings.compact"))
         .addOption("balanced", t("settings.balanced"))
@@ -2893,36 +2916,33 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.toolbarDensity)
         .onChange(async (value) => {
           await this.plugin.applyToolbarDensity(value as ToolbarDensity);
-          this.display();
-        }));
+          this.refresh();
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.collapsed"))
-      .setDesc(t("settings.collapsedDesc"))
+    defineSetting(t("settings.collapsed"), t("settings.collapsedDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.toolbarCollapsed)
         .onChange(async (value) => {
           this.plugin.settings.toolbarCollapsed = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.scale"))
-      .setDesc(t("settings.scaleDesc"))
-      .addSlider((slider) => slider
+    defineSetting(t("settings.scale"), t("settings.scaleDesc"), (setting) => setting
+      .addSlider((slider) => {
+        setTooltip(slider.sliderEl, String(this.plugin.settings.toolbarScale));
+        slider
         .setLimits(80, 110, 5)
         .setValue(this.plugin.settings.toolbarScale)
-        .setDynamicTooltip()
         .onChange(async (value) => {
+          setTooltip(slider.sliderEl, String(value));
           this.plugin.settings.toolbarScale = value;
           this.plugin.settings.toolbarDensity = "custom";
           await this.plugin.saveSettings();
-          this.display();
-        }));
+          this.refresh();
+        });
+      }));
 
-    new Setting(containerEl)
-      .setName(t("settings.favoriteDisplay"))
-      .setDesc(t("settings.favoriteDisplayDesc"))
+    defineSetting(t("settings.favoriteDisplay"), t("settings.favoriteDisplayDesc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
         .addOption("always", t("settings.always"))
         .addOption("hover", t("settings.onHover"))
@@ -2932,123 +2952,105 @@ class OwenEditorSettingTab extends PluginSettingTab {
           this.plugin.settings.favoriteDisplay = value as FavoriteDisplayMode;
           this.plugin.settings.toolbarDensity = "custom";
           await this.plugin.saveSettings();
-          this.display();
-        }));
+          this.refresh();
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.mobileCompact"))
-      .setDesc(t("settings.mobileCompactDesc"))
+    defineSetting(t("settings.mobileCompact"), t("settings.mobileCompactDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.mobileCompactToolbar)
         .onChange(async (value) => {
           this.plugin.settings.mobileCompactToolbar = value;
           this.plugin.settings.toolbarDensity = "custom";
           await this.plugin.saveSettings();
-          this.display();
-        }));
+          this.refresh();
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.contextAware"))
-      .setDesc(t("settings.contextAwareDesc"))
+    defineSetting(t("settings.contextAware"), t("settings.contextAwareDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.contextAwareToolbar)
         .onChange(async (value) => {
           this.plugin.settings.contextAwareToolbar = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.feedback"))
-      .setDesc(t("settings.feedbackDesc"))
+    defineSetting(t("settings.feedback"), t("settings.feedbackDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.commandFeedback)
         .onChange(async (value) => {
           this.plugin.settings.commandFeedback = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    this.createSettingsSection(t("settings.section.selection"), t("settings.section.selectionDesc"), "selection", "mouse-pointer-2");
+    this.createSettingsSection(definitions, t("settings.section.selection"), t("settings.section.selectionDesc"), "selection", "mouse-pointer-2");
 
-    new Setting(containerEl)
-      .setName(t("settings.showSelection"))
-      .setDesc(t("settings.showSelectionDesc"))
+    defineSetting(t("settings.showSelection"), t("settings.showSelectionDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showSelectionToolbar)
         .onChange(async (value) => {
           this.plugin.settings.showSelectionToolbar = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    this.createSettingsSection(t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"), "shortcuts", "keyboard");
+    this.createSettingsSection(definitions, t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"), "shortcuts", "keyboard");
 
-    new Setting(containerEl)
-      .setName(t("settings.showStatus"))
-      .setDesc(t("settings.showStatusDesc"))
+    defineSetting(t("settings.showStatus"), t("settings.showStatusDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showStatusBarButton)
         .onChange(async (value) => {
           this.plugin.settings.showStatusBarButton = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    this.createSettingsSection(t("settings.section.graphite"), t("settings.section.graphiteDesc"), "graphite", "sparkles");
+    this.createSettingsSection(definitions, t("settings.section.graphite"), t("settings.section.graphiteDesc"), "graphite", "sparkles");
 
-    new Setting(containerEl)
-      .setName(t("settings.htmlTables"))
-      .setDesc(t("settings.htmlTablesDesc"))
+    defineSetting(t("settings.htmlTables"), t("settings.htmlTablesDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.insertHtmlTables)
         .onChange(async (value) => {
           this.plugin.settings.insertHtmlTables = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.themeWarning"))
-      .setDesc(t("settings.themeWarningDesc"))
+    defineSetting(t("settings.themeWarning"), t("settings.themeWarningDesc"), (setting) => setting
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.showGraphiteThemeNotice)
         .onChange(async (value) => {
           this.plugin.settings.showGraphiteThemeNotice = value;
           await this.plugin.saveSettings();
-        }));
+        })));
 
-    this.createSettingsSection(t("settings.section.favorites"), t("settings.section.favoritesDesc"), "favorites", "star");
+    this.createSettingsSection(definitions, t("settings.section.favorites"), t("settings.section.favoritesDesc"), "favorites", "star");
 
-    new Setting(containerEl)
-      .setName(t("settings.favoritePresets"))
-      .setDesc(t("settings.favoritePresetsDesc"))
+    defineSetting(t("settings.favoritePresets"), t("settings.favoritePresetsDesc"), (setting) => setting
       .addButton((button) => button
         .setButtonText(t("settings.writer"))
         .onClick(async () => {
           await this.plugin.applyFavoritePreset("writer");
-          this.display();
+          this.refresh();
         }))
       .addButton((button) => button
         .setButtonText(t("settings.research"))
         .onClick(async () => {
           await this.plugin.applyFavoritePreset("research");
-          this.display();
+          this.refresh();
         }))
       .addButton((button) => button
         .setButtonText(t("settings.report"))
         .onClick(async () => {
           await this.plugin.applyFavoritePreset("report");
-          this.display();
+          this.refresh();
         }))
       .addButton((button) => button
         .setButtonText(t("settings.tableHeavy"))
         .onClick(async () => {
           await this.plugin.applyFavoritePreset("table-heavy");
-          this.display();
-        }));
+          this.refresh();
+        })));
 
     const availableFavoriteCommands = this.plugin.getCommands().filter((command) => !this.plugin.isFavoriteCommand(command.id));
     if (availableFavoriteCommands.length > 0) {
       let selectedFavoriteCommandId = availableFavoriteCommands[0].id;
-      new Setting(containerEl)
-        .setName(t("settings.addFavorite"))
-        .setDesc(t("settings.addFavoriteDesc"))
+      defineSetting(t("settings.addFavorite"), t("settings.addFavoriteDesc"), (setting) => setting
         .addDropdown((dropdown) => {
           for (const command of availableFavoriteCommands) {
             dropdown.addOption(command.id, command.name);
@@ -3062,12 +3064,10 @@ class OwenEditorSettingTab extends PluginSettingTab {
           .setButtonText(t("settings.add"))
           .onClick(async () => {
             await this.plugin.addFavoriteCommand(selectedFavoriteCommandId);
-            this.display();
-          }));
+            this.refresh();
+          })));
     } else {
-      new Setting(containerEl)
-        .setName(t("settings.addFavorite"))
-        .setDesc(t("settings.allFavorites"));
+      defineSetting(t("settings.addFavorite"), t("settings.allFavorites"));
     }
 
     const favoriteCommands = this.plugin.settings.favoriteCommandIds.map((id) => ({
@@ -3076,90 +3076,87 @@ class OwenEditorSettingTab extends PluginSettingTab {
     }));
     const invalidFavoriteIds = favoriteCommands.filter((favorite) => !favorite.command).map((favorite) => favorite.id);
     if (invalidFavoriteIds.length > 0) {
-      containerEl.createDiv({
-        cls: "owen-editor-favorite-settings-warning",
-        text: t("settings.unknownIds", { ids: invalidFavoriteIds.join(", ") })
-      });
+      defineSetting(t("settings.unknownIds", { ids: invalidFavoriteIds.join(", ") }), undefined,
+        (setting) => setting.settingEl.addClass("owen-editor-favorite-settings-warning"));
     }
 
     if (favoriteCommands.length > 0) {
-      new Setting(containerEl)
-        .setName(t("settings.favoriteOrder"))
-        .setHeading();
-      const favoriteList = containerEl.createDiv({ cls: "owen-editor-favorite-settings-list" });
-      for (const [index, favorite] of favoriteCommands.entries()) {
-        const label = favorite.command?.name ?? favorite.id;
-        const row = favoriteList.createDiv({ cls: `owen-editor-favorite-settings-row${favorite.command ? "" : " is-invalid"}` });
-        row.createSpan({ text: label, cls: "owen-editor-favorite-settings-label" });
+      defineSetting(t("settings.favoriteOrder"), undefined, (setting) => {
+        setting.setHeading();
+        setting.settingEl.addClass("owen-editor-favorites-setting");
+        const favoriteList = setting.settingEl.createDiv({ cls: "owen-editor-favorite-settings-list" });
+        for (const [index, favorite] of favoriteCommands.entries()) {
+          const label = favorite.command?.name ?? favorite.id;
+          const row = favoriteList.createDiv({ cls: `owen-editor-favorite-settings-row${favorite.command ? "" : " is-invalid"}` });
+          row.createSpan({ text: label, cls: "owen-editor-favorite-settings-label" });
 
-        const createActionButton = (labelText: string, icon: string, disabled: boolean, action: () => void) => {
-          const actionButton = row.createEl("button", {
-            cls: "owen-editor-favorite-action-button",
-            attr: {
-              type: "button",
-              title: labelText,
-              "aria-label": labelText
+          const createActionButton = (labelText: string, icon: string, disabled: boolean, action: () => void) => {
+            const actionButton = row.createEl("button", {
+              cls: "owen-editor-favorite-action-button",
+              attr: {
+                type: "button",
+                title: labelText,
+                "aria-label": labelText
+              }
+            });
+            actionButton.disabled = disabled;
+            setSafeIcon(actionButton.createSpan(), icon);
+            if (!disabled) {
+              actionButton.addEventListener("click", action);
             }
-          });
-          actionButton.disabled = disabled;
-          setSafeIcon(actionButton.createSpan(), icon);
-          if (!disabled) {
-            actionButton.addEventListener("click", action);
-          }
-        };
+          };
 
-        createActionButton(t("settings.moveUp"), "arrow-up", index === 0, () => {
-          void this.plugin.moveFavoriteCommand(favorite.id, "up").then(() => this.display());
-        });
-        createActionButton(t("settings.moveDown"), "arrow-down", index === favoriteCommands.length - 1, () => {
-          void this.plugin.moveFavoriteCommand(favorite.id, "down").then(() => this.display());
-        });
-        createActionButton(t("settings.remove"), "x", false, () => {
-          void this.plugin.removeFavoriteCommand(favorite.id).then(() => this.display());
-        });
-      }
+          createActionButton(t("settings.moveUp"), "arrow-up", index === 0, () => {
+            void this.plugin.moveFavoriteCommand(favorite.id, "up").then(() => this.refresh());
+          });
+          createActionButton(t("settings.moveDown"), "arrow-down", index === favoriteCommands.length - 1, () => {
+            void this.plugin.moveFavoriteCommand(favorite.id, "down").then(() => this.refresh());
+          });
+          createActionButton(t("settings.remove"), "x", false, () => {
+            void this.plugin.removeFavoriteCommand(favorite.id).then(() => this.refresh());
+          });
+        }
+      });
     }
 
-    this.createSettingsSection(t("settings.section.portability"), t("settings.section.portabilityDesc"), "portability", "folder-sync");
+    this.createSettingsSection(definitions, t("settings.section.portability"), t("settings.section.portabilityDesc"), "portability", "folder-sync");
 
     let settingsJson = JSON.stringify(getPortableSettings(this.plugin.settings), null, 2);
-    new Setting(containerEl)
-      .setName(t("settings.json"))
-      .setDesc(t("settings.jsonDesc"))
+    defineSetting(t("settings.json"), t("settings.jsonDesc"), (setting) => setting
       .addTextArea((text) => text
         .setValue(settingsJson)
         .onChange((value) => {
           settingsJson = value;
-        }));
+        })));
 
-    new Setting(containerEl)
-      .setName(t("settings.importRefresh"))
+    defineSetting(t("settings.importRefresh"), undefined, (setting) => setting
       .addButton((button) => button
         .setButtonText(t("settings.import"))
         .onClick(async () => {
           try {
             await this.plugin.replaceSettings(parsePortableSettings(settingsJson));
             new Notice(t("notice.settingsImported"));
-            this.display();
+            this.refresh();
           } catch (error) {
             new Notice(t("notice.importFailed", { detail: error instanceof Error ? error.message : t("error.invalidJson") }));
           }
         }))
       .addButton((button) => button
         .setButtonText(t("settings.refresh"))
-        .onClick(() => this.display()));
+        .onClick(() => this.refresh())));
+    return definitions;
   }
 
-  private createSettingsSection(title: string, description: string, section: string, icon: string) {
-    const heading = new Setting(this.containerEl)
-      .setName(title)
-      .setDesc(description)
-      .setHeading();
-    heading.settingEl.dataset.owenSection = section;
-    const glyph = heading.settingEl.createDiv({ cls: "owen-editor-settings-section-glyph" });
-    glyph.setAttr("aria-hidden", "true");
-    setSafeIcon(glyph, icon);
-    heading.settingEl.insertBefore(glyph, heading.infoEl);
+  private createSettingsSection(definitions: SearchableEditorSetting[], title: string, description: string, section: string, icon: string) {
+    definitions.push({ name: title, desc: description, render: (heading) => {
+      this.containerEl.addClass("owen-editor-settings-tab");
+      heading.setHeading();
+      heading.settingEl.dataset.owenSection = section;
+      const glyph = heading.settingEl.createDiv({ cls: "owen-editor-settings-section-glyph" });
+      glyph.setAttr("aria-hidden", "true");
+      setSafeIcon(glyph, icon);
+      heading.settingEl.insertBefore(glyph, heading.infoEl);
+    } });
   }
 }
 

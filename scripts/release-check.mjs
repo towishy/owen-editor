@@ -38,8 +38,11 @@ assert(license.includes("MIT License"), "LICENSE must contain the MIT License te
 assert(readme.includes("screenshots/owen-editor-ui-preview.png"), "README.md must include the UI preview image");
 assert(existsSync(resolve(root, "screenshots/owen-editor-ui-preview.png")), "README preview image must exist");
 const releaseBadgeMatch = readme.match(/https:\/\/img\.shields\.io\/badge\/release-v([0-9]+\.[0-9]+\.[0-9]+)-/);
-assert(releaseBadgeMatch, "README.md must include a release badge");
-assert(releaseBadgeMatch[1] === manifest.version, `README release badge must match manifest version ${manifest.version}`);
+const dynamicReleaseBadge = /\[!\[Release\]\(https:\/\/img\.shields\.io\/github\/v\/release\/towishy\/owen-editor\?[^)]*\)\]\(https:\/\/github\.com\/towishy\/owen-editor\/releases\/latest\)/.test(readme);
+assert(releaseBadgeMatch || dynamicReleaseBadge, "README.md must include a release badge for this repository");
+if (releaseBadgeMatch) {
+  assert(releaseBadgeMatch[1] === manifest.version, `README release badge must match manifest version ${manifest.version}`);
+}
 assert(changelog.includes("## [Unreleased]"), "CHANGELOG.md must include an Unreleased section");
 assert(changelog.includes(`## [${manifest.version}]`), `CHANGELOG.md must include an entry for ${manifest.version}`);
 assert(changelog.includes(`[${manifest.version}]:`), `CHANGELOG.md must include a compare link for ${manifest.version}`);
