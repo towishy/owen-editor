@@ -1,225 +1,133 @@
-![Owen Kit](screenshots/owen-kit.png)
+[![Release](https://img.shields.io/github/v/release/towishy/owen-editor?style=flat-square)](https://github.com/towishy/owen-editor/releases/latest)
+[![License](https://img.shields.io/github/license/towishy/owen-editor?style=flat-square)](LICENSE)
+[![Obsidian](https://img.shields.io/badge/Obsidian-1.5%2B-7c3aed?style=flat-square&logo=obsidian)](https://obsidian.md)
+[![Language](https://img.shields.io/badge/Interface-English%20%2F%20Korean-0d9488?style=flat-square)](#compatibility-and-boundaries)
+
+<br>
+<br>
+<br>
+
+![Obsidian Stack — Write, Connect, Publish](screenshots/owen-kit.png)
+
+<br>
+
+## The Owen stack
+
+Pick the tool for the part of the workflow you want to improve. These projects work together, but you do not need to install everything.
+
+| Project | Its role in your workflow |
+| --- | --- |
+| [Owen Graphite](https://github.com/towishy/Owen-Graphite) | Theme, typography, workspace styling, and PDF polish. |
+| **[Owen Editor](https://github.com/towishy/owen-editor)** | Markdown authoring, editing commands, tables, and report helpers. |
+| [Owen Exporter](https://github.com/towishy/owen-exporter) | SVG-to-image export and Markdown/HTML handoff workflows. |
+| [Owen Mermaid](https://github.com/towishy/owen-mermaid) | Mermaid viewing, visual editing, and image export. |
+| [Owen Wiki](https://github.com/towishy/owen-wiki) | A repository template for LLM-assisted knowledge operations. |
+
+<br>
 
 # Owen Editor
 
+**Markdown editing, tables, and report helpers inside your Obsidian vault.**
+
+Bring writing, research, report drafting, table conversion, and Owen Graphite snippets into one editing toolbar.
+
+**Obsidian plugin · Desktop & mobile · English & Korean · Theme-independent core commands**
+
+[Quick start](#quick-start) · [Features](#features) · [Preview](#preview) · [Documentation](#documentation)
+
+<br>
+
+## Preview
+
 ![Owen Editor tools overview](screenshots/owen-editor-tools-new.png)
-
-![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
-
-![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
-
-![release v0.6.34](https://img.shields.io/badge/release-v0.6.34-0b8bdc?style=flat-square)
-![license MIT](https://img.shields.io/badge/license-MIT-8cc63f?style=flat-square)
-![Obsidian Compatible](https://img.shields.io/badge/Obsidian-Compatible-7c3aed?style=flat-square&logo=obsidian&logoColor=white)
-![Settings 16 options](https://img.shields.io/badge/Settings-16%20options-0f9b8e?style=flat-square)
-
-Owen Editor is an Obsidian community plugin for fast Markdown editing. It brings writing, research, report drafting, table conversion, and Owen Graphite theme snippets into one lightweight editing toolbar.
-
-> **Language:** Owen Editor follows Obsidian by default: Korean uses Korean, while every other locale uses English. Override it from **Settings → Owen Editor → Interface → Language**.
 
 ![Owen Editor glass toolbar preview](screenshots/owen-editor-ui-preview.png)
 
-## Latest updates
+<details>
+<summary>Workflow diagrams and palette layout</summary>
 
-### v0.6.34
+![Owen Markdown knowledge work stack](screenshots/owen-knowledge-work-stack.svg)
+![Owen AI document production model](screenshots/owen-ai-document-merged-model.svg)
+![Command palette overflow sample](screenshots/owen-editor-v0.6.6-palette-overflow.png)
 
-- Fixed Live Preview code-title editing on macOS by keeping the focused input outside CodeMirror-owned line DOM.
+The palette layout sample documents long command names, preview chips, and code snippets in narrow layouts.
 
-### v0.6.33
+</details>
 
-- Moved static code-block control sizing and Frosted ScrollArea initialization into CSS to satisfy Obsidian plugin validation without changing rendered behavior.
+<br>
 
-### v0.6.32
+## Features
 
-- Restored the Foundation Frosted ScrollArea's canonical rail, glass grip, subtle rim, shadow, and three-line handle while suppressing native scrollbar chrome.
-- Returned file explorer scrollbars to their native channel and aligned editor palette scrollbars with the modal's right edge.
+| For your workflow | What Owen Editor brings |
+| --- | --- |
+| Edit in place | Floating and selection toolbars, context-aware groups, top/bottom placement, collapsed mode, density controls, and compact mobile layout. |
+| Format Markdown | Bold, italic, strike, underline, highlight, headings, indentation, lists, checkboxes, undo, redo, and selection wrappers. |
+| Connect notes | Markdown links, wikilinks, embeds, attachments, images, and footnotes. |
+| Build documents | Callouts, frontmatter, Mermaid/code blocks, block quotes, alignment helpers, and report templates. |
+| Work with code | Persistent fenced-code titles in Live Preview and Reading View, plus one-click code copying. |
+| Shape tables | Table builder and CSV/TSV/Markdown conversion into Markdown tables or Owen Graphite HTML tables. |
+| Repeat common work | Minimal/writer/report/full/custom presets, favorites, favorite presets, recent commands, and English/Korean search aliases. |
+| Prepare Graphite reports | Executive summaries, comparison/risk/meeting reviews, wide/risk/numeric tables, risk matrices, reference lists, status badges, keyboard tags, blur spans, and A3/PDF-oriented snippets. |
 
-### v0.6.31
+Code titles are stored in fenced Markdown as `title="..."`. **Enter** saves, **Escape** cancels, and **F2** starts title editing.
 
-- Added a native-scroll-preserving Frosted ScrollArea adapter with a fixed 44px glass grip, rail click, and pointer drag across Obsidian vertical viewports.
-- Added one-click Live Preview code-block copying and refined editable title, control spacing, and print-safe title behavior.
+<br>
 
-### v0.6.30
+## Quick start
 
-- Rebuilt the editor palette as a compact settings-style browser with tinted category headers, transparent scrolling, and stable command rows.
-- Added accessible detail, recommendation, recent-use, favorite, and Owen Graphite requirement indicators with consistent icon sizing and custom tooltips.
+1. Open the [latest release](https://github.com/towishy/owen-editor/releases/latest).
+2. Download **`main.js`**, **`manifest.json`**, and **`styles.css`** from **Assets**.
+3. Place them directly inside `<YourVault>/.obsidian/plugins/owen-editor/`.
+4. Restart Obsidian or reload plugins, then enable **Owen Editor** under **Community plugins**.
+5. Open a Markdown note to use the toolbar.
 
-### v0.6.29
-
-- Added distinct Lucide icons and stable semantic section identifiers to every settings group.
-- Aligned Owen Editor settings with the grouped Owen Mermaid and Owen Graphite settings layout.
-
-### v0.6.28
-
-- Added persistent code block title editing in Live Preview and Reading View without requiring a separate companion plugin.
-- Stores titles in fenced Markdown as `title="..."` and preserves blank titles, CRLF files, and stale-block safety checks.
-
-### v0.6.27
-
-- Added complete English and Korean interface catalogs for settings, commands, notices, menus, and dialogs.
-- Added an Interface language setting that follows Obsidian automatically while allowing explicit English or Korean overrides.
-
-### v0.6.26
-
-- Restyled the editor palette with a cool neutral canvas, layered white command surfaces, restrained shadows, and quieter neutral selection states.
-- Replaced the search field's accent focus rim with a subtle boundary treatment and stabilized compact command labels across host and mobile font settings.
-
-### v0.6.25
-
-- Reorganized the floating toolbar into clearer history, context, collection, and utility groups with larger effective control targets.
-- Added accessible native heading and More menus while removing duplicate primary and favorite commands.
-- Rebuilt the editor palette as an opaque quiet workbench with sticky search, a semantic category rail, section counts, keyboard navigation, and boundary-only liquid glass.
-
-### v0.6.24
-
-- Refined the editor palette with blue-gray liquid glass command cards, softer outlines, clearer menu text, and stronger section spacing.
-- Added distinct hover, favorite, and Owen Graphite table preset color states for easier scanning.
-- Kept favorite actions inside each command card so palette rows read as single controls.
-
-### v0.6.23
-
-- Added H1 and unwrap table actions to the editor toolbar for faster Markdown cleanup workflows.
-- Added an unwrap markdown action that preserves links and images while removing formatting, HTML highlights, and stray `<br>` tags.
-- Reworked the command palette with a category rail, clearer section bands, stronger panel visibility, and scrollable content.
-- Kept the selection toolbar closer to the recent mouse position when selecting large document ranges.
-
-### v0.6.22
-
-- Replaced the `builtin-modules` dependency with the native `node:module` `builtinModules` import to match Obsidian reviewer guidance.
-- Pinned the `obsidian` devDependency to `~1.5.0` and added `engines.node >= 18` so automated builds run in the expected runtime.
-- Replaced the toolbar row `:has(...)` z-index selector with plain `:hover` and `:focus-within` selectors to avoid broad selector invalidation.
-- Stopped publishing the bundled `owen-editor.zip` release asset. GitHub releases now publish `main.js`, `manifest.json`, and `styles.css` directly.
-- Added a GitHub Actions release workflow with build provenance attestation for the published plugin assets.
-
-### v0.6.21
-
-- Refined the resting state of toolbar buttons so the liquid glass style is lighter and closer to the shared CodePen reference.
-- Improved bottom toolbar tooltip placement, favorite settings, mobile selection context updates, and table builder source controls.
-- Updated the README UI preview and palette overflow sample images to match the current interface.
-
-### v0.6.20
-
-- Replaced the first README introduction image with a bright modern mockup that shows the real Owen WIKI, Owen Graphite, and Owen Editor workflow.
-
-### v0.6.19
-
-- Kept tooltips for central toolbar icons above the second-row favorite buttons during hover and focus states.
-
-### v0.6.18
-
-- Rebuilt the README with current installation, usage, settings, validation, and release guidance.
-- Updated UI copy to follow Obsidian community plugin sentence-case expectations.
-- Moved static SVG filter styling from direct `element.style` assignments into CSS classes.
-- Switched editor document access to `activeDocument` for better Obsidian popout compatibility.
-- Added local ReviewBot-style validation with `eslint-plugin-obsidianmd` and `npm run lint:obsidian`.
-- Hardened saved settings loading so unexpected data falls back to default settings safely.
-- Added a Windows `Compress-Archive` fallback for release automation when the `zip` executable is unavailable.
-
-## Installation
-
-After Owen Editor is listed in the Obsidian community plugin browser, you can install it by searching for `Owen Editor` under `Community plugins`.
-
-### Manual installation
-
-> **Do not download GitHub's `Source code (zip)` archive.** That archive contains the repository source, not the built Obsidian plugin files. Download `main.js`, `manifest.json`, and `styles.css` from the release **Assets** section instead.
+> **Download the built files, not Source code (zip).** The source archive is not an installable plugin. Avoid a nested `owen-editor/owen-editor/` folder.
 
 ![GitHub release download guide](screenshots/github-release-download-guide.svg)
 
-1. Open the [latest Owen Editor release](https://github.com/towishy/owen-editor/releases/latest).
-2. Download all three files from **Assets**: `main.js`, `manifest.json`, and `styles.css`.
-3. Create an `owen-editor` folder inside your vault's `.obsidian/plugins/` folder.
-4. Place the three downloaded files directly inside that folder.
-5. Confirm that the folder has this structure.
+Once the plugin is listed in Obsidian's community plugin browser, it can also be installed by searching for **Owen Editor** there.
 
-```text
-.obsidian/plugins/owen-editor/main.js
-.obsidian/plugins/owen-editor/manifest.json
-.obsidian/plugins/owen-editor/styles.css
-```
+<br>
 
-Avoid nested folders such as `.obsidian/plugins/owen-editor/owen-editor/main.js`.
+## Everyday workflow
 
-Restart Obsidian or reload plugins, then enable `Owen Editor`.
+1. **Write and select.** Use the floating toolbar for document actions and the selection mini toolbar for nearby formatting.
+2. **Open a category.** Browse Selection, Links, Blocks, Tables, Owen Graphite, or All commands.
+3. **Build a table.** Choose row/column counts or paste CSV/TSV, review the preview, then insert Markdown or Graphite HTML.
+4. **Pin recurring actions.** Use the palette star button, favorite presets, or settings to order favorites.
+5. **Tune your layout.** Set toolbar position, density, collapse state, 80–110% scale, favorite-row visibility, context handling, and command feedback.
 
-## Key features
+Commands also run from Obsidian's command palette. Search with terms such as `table`, `link`, `highlight`, `graphite`, or `report`, or their Korean equivalents.
 
-- Floating glass toolbar for Markdown editing.
-- Selection mini toolbar that appears near selected text.
-- Context-aware toolbar groups for selections, Markdown tables, code blocks, and Graphite report contexts.
-- Top and bottom toolbar placement, collapsed mode, density controls, and compact mobile layout.
-- Minimal, writer, report, full, and custom toolbar presets.
-- Favorite commands and favorite presets for pinning frequent actions to the toolbar.
-- Recent commands so repeated actions stay easy to find.
-- Bold, italic, strikethrough, underline, highlight, headings, indentation, lists, checkboxes, undo, and redo.
-- Insert helpers for Markdown links, wiki links, embeds, attachments, images, and footnotes.
-- Callouts, frontmatter, Mermaid blocks, code blocks, block quotes, and alignment helpers.
-- Persistent code block title editing in Live Preview and Reading View; `Enter` saves, `Escape` cancels, and `F2` starts editing.
-- Table builder for Markdown tables and Owen Graphite HTML tables.
-- Selection conversion from CSV, TSV, or Markdown tables into Markdown tables or Graphite HTML tables.
-- Document templates for executive summaries, comparison reports, risk reviews, and meeting reviews.
-- Owen Graphite snippets for frontmatter, wide tables, risk tables, numeric tables, risk matrices, reference lists, status badges, kbd tags, blur spans, and Graphite callouts.
-- A3 and PDF-oriented snippets for source notes, metric rows, and decision matrices.
-- Command palette search aliases in English and Korean.
+Settings JSON export/import helps transfer toolbar preferences between vaults or devices.
 
-## Usage
+<br>
 
-Open a Markdown note in Obsidian and the floating toolbar appears in the editor according to your settings. Use the primary editing buttons on the left for common Markdown formatting, then open feature palettes from the category buttons on the right.
+## Compatibility and boundaries
 
-| Category | Features |
+- Requires **Obsidian 1.5.0 or later**; the manifest supports desktop and mobile.
+- The interface follows Obsidian: Korean locales use Korean; other locales use English. Override this under **Settings → Owen Editor → Interface → Language**.
+- Core Markdown commands work with any theme.
+- Graphite-specific classes such as `wide-table`, `risk-table`, `ogd-status-badge`, and `ogd-reference-list` need Owen Graphite for their intended visual treatment. The inserted Markdown/HTML remains readable without it.
+- Exporting complete HTML documents or rasterizing SVG images is Owen Exporter's role; diagram visual editing is Owen Mermaid's role.
+
+<br>
+
+## Documentation
+
+| Start here | What you will find |
 | --- | --- |
-| Selection | Text formatting, comments, callouts, block quotes, code blocks, and selection wrappers |
-| Links | Markdown links, wiki links, embeds, attachments, images, and footnotes |
-| Blocks | Dividers, frontmatter, Mermaid blocks, alignment helpers, and document blocks |
-| Tables | Markdown tables, table builder, and Graphite table presets |
-| Owen Graphite | Graphite reports, tables, callouts, badges, blur, keyboard tags, and reference helpers |
-| All commands | The full Owen Editor command palette |
+| [Latest release](https://github.com/towishy/owen-editor/releases/latest) | Built plugin files. |
+| [Changelog](CHANGELOG.md) | Release history, including the 0.6.34 macOS code-title fix. |
+| [AI writing guide](docs/llm-wiki-owen-editor-ai-guide.md) | Commands, Graphite classes, report frontmatter, callouts, table presets, and reusable prompt instructions. |
+| [Plugin manifest](manifest.json) | Plugin ID, compatibility, and metadata. |
+| [Issue tracker](https://github.com/towishy/owen-editor/issues) | Bug reports and feature requests. |
 
-You can also run Owen Editor commands from Obsidian's built-in command palette. Owen Editor palette search accepts English keywords such as `table`, `link`, `highlight`, `graphite`, and `report`, along with their Korean equivalents.
+<br>
 
-In the full command palette, press the star button to pin frequently used commands to the floating toolbar. The settings tab also lets you reorder favorites or apply a favorite preset.
+## Contributing and license
 
-When you select text, the selection mini toolbar appears near the selection. It gives quick access to commands such as bold, italic, highlight, link, Graphite kbd, and Graphite blur. The mini toolbar stays inside the active Markdown pane and flips below the selection when there is not enough room above it.
-
-Open the Tables palette when you need a table. The table builder can create tables from row and column counts or from pasted CSV or TSV data, and it previews the Markdown or HTML result before insertion.
-
-## Owen Graphite theme notes
-
-The core Markdown editing commands work in any Obsidian theme. Snippets that use Owen Graphite-specific classes, such as `wide-table`, `risk-table`, `ogd-status-badge`, and `ogd-reference-list`, render with their intended visual style when the Owen Graphite theme is active.
-
-Without the Owen Graphite theme, inserted Markdown and HTML remain readable. Only the theme-specific visual treatment is omitted.
-
-## AI writing guide
-
-Use [docs/llm-wiki-owen-editor-ai-guide.md](docs/llm-wiki-owen-editor-ai-guide.md) when you want LLM-wiki or AI writing workflows to match Owen Editor and Owen Graphite output rules. The guide connects commands, Markdown syntax, Graphite classes, report frontmatter, callouts, table presets, and reusable prompt instructions.
-
-## Palette layout sample
-
-Since v0.6.6, the command palette keeps long command names, preview chips, and code snippets inside their cards even in narrow or dense layouts.
-
-![Owen Editor v0.6.6 command palette overflow sample](screenshots/owen-editor-v0.6.6-palette-overflow.png)
-
-## Settings
-
-- Show floating glass toolbar: Shows the horizontal editing toolbar.
-- Show selection mini toolbar: Shows the mini toolbar near selected text.
-- Show status bar button: Adds a status bar entry for opening the editor palette quickly.
-- Toolbar position: Places the toolbar at the top or bottom of the editor.
-- Toolbar preset: Applies the minimal, writer, report, full, or custom layout.
-- Toolbar density: Applies compact, balanced, comfortable, or custom spacing.
-- Start with toolbar collapsed: Opens the toolbar as a single collapsed button.
-- Toolbar scale: Resizes the floating toolbar and selection mini toolbar from 80% to 110%.
-- Favorite row display: Shows favorites always, only on hover or focus, or keeps them hidden.
-- Compact toolbar on mobile: Reduces button sizes and allows wrapping on mobile.
-- Context-aware toolbar: Changes command groups for selections, tables, code blocks, and report contexts.
-- Command feedback: Briefly highlights toolbar buttons after a command runs.
-- Prefer owen graphite HTML tables: Inserts Graphite-class HTML tables first when a supported table preset allows it.
-- Warn when owen graphite is not active: Shows a one-time notice when a Graphite-specific snippet is used without the theme active.
-- Favorite presets: Applies writer, research, report, or table-heavy favorite sets.
-- Add favorite command: Adds a pinned toolbar command from the dropdown.
-- Favorite order: Moves pinned commands up or down, or removes them.
-- Settings JSON: Exports toolbar settings and imports them into another vault or device.
-
-## Development
+For development:
 
 ```bash
 npm install
@@ -230,35 +138,32 @@ npm run release:check
 npm run release:preflight
 ```
 
-If Windows PowerShell blocks `npm.ps1`, use `npm.cmd`, such as `npm.cmd run build`.
+Use `npm run dev` for rebuilds. If PowerShell blocks `npm.ps1`, use `npm.cmd`.
 
-Use this command when you want automatic rebuilds during development.
+Before a release, align package/manifest/version files, move `Unreleased` changelog entries, review the AI writing guide, and run preflight. `release:check` validates release metadata, assets, README previews, and the changelog. Only run `release:create` when the release is ready.
 
-```bash
-npm run dev
-```
+Remove private note contents from issue examples and screenshots.
 
-## Release process
+**License:** MIT — see [LICENSE](LICENSE).
 
-Before a release, check these items.
+---
 
-- Move `CHANGELOG.md` `Unreleased` entries into a new version section.
-- Keep versions aligned in `package.json`, `package-lock.json`, `manifest.json`, and `versions.json`.
-- Review [docs/llm-wiki-owen-editor-ai-guide.md](docs/llm-wiki-owen-editor-ai-guide.md) when editing commands, document templates, Graphite snippets, or table helpers.
-- Run `npm run lint:obsidian` to catch Obsidian community review issues early.
-- Run `npm run release:preflight` to validate the build, release checks, clean diff requirements, and release assets.
-- Run `npm run release:create` only after the changelog and assets are ready.
+<br>
 
-`npm run release:check` validates version alignment, release assets, license metadata, README preview images, and the changelog section for the current manifest version.
-
-## Sponsorship
+## Support
 
 <p align="center">
-  <a href="https://github.com/sponsors/towishy">
-    <img src="screenshots/sponsor-coffee.svg" alt="Support Owen Editor with coffee" width="560">
+  <a href="https://mdbox.sarang.day/">
+    <img src="screenshots/workspace-card.svg" alt="My Latest Markdown Editor &amp; Workspace — mdbox.sarang.day. Open the editor and workspace." width="960">
   </a>
 </p>
 
-## Repository
+<br>
 
-[https://github.com/towishy/owen-editor](https://github.com/towishy/owen-editor)
+<p align="center">
+  <a href="https://github.com/sponsors/towishy">
+    <img src="screenshots/support-sponsor.svg" alt="Support Owen Editor with a coffee. A small contribution helps keep the plugin improving. Support on GitHub Sponsors." width="960">
+  </a>
+</p>
+
+Owen Editor is free and open source. If it helps your writing, tables, or report workflow, you can support maintenance through [GitHub Sponsors](https://github.com/sponsors/towishy).
