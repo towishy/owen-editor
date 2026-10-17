@@ -131,6 +131,8 @@ After a successful release workflow, only the latest published release and its m
 
 For development:
 
+The development SDK supplies types only and does not raise the plugin's runtime minimum. A scoped npm override makes the Obsidian linter share that pinned SDK instead of installing its older transitive SDK and Moment dependency.
+
 ```bash
 npm install
 npm run lint:obsidian
