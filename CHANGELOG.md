@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.35] - 2026-10-17
+
 ### Fixed
 
 - Use each document's Obsidian DOM helpers, animation frames, clipboard, and observers for code titles and Frosted ScrollArea controls, including popout windows and window-close cleanup.
@@ -406,7 +408,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.34...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.35...HEAD
+[0.6.35]: https://github.com/towishy/owen-editor/compare/0.6.34...0.6.35
 [0.6.34]: https://github.com/towishy/owen-editor/compare/0.6.33...0.6.34
 [0.6.33]: https://github.com/towishy/owen-editor/compare/0.6.32...0.6.33
 [0.6.32]: https://github.com/towishy/owen-editor/compare/0.6.31...0.6.32
