@@ -127,6 +127,8 @@ Settings JSON export/import helps transfer toolbar preferences between vaults or
 
 ## Contributing and license
 
+After a successful release workflow, only the latest published release and its matching tag are retained. Older release downloads and tag-based rollback links are removed; source commit history is preserved. The retention workflow also supports a guarded dry run.
+
 For development:
 
 ```bash

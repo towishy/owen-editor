@@ -30,6 +30,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Regression tests, typed Obsidian lint, and translations
+        run: |
+          npm test
+          npm run lint:obsidian
+          npm run i18n:check
+
       - name: Release checks
         run: npm run release:check
 

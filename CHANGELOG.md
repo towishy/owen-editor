@@ -8,7 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-## [0.6.35] - 2026-10-17
+## [0.6.36] - 2026-10-17
 
 ### Fixed
 
@@ -20,6 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Run typed Obsidian lint against every TypeScript module and add window lifecycle regression tests.
 - Register individual searchable settings on Obsidian 1.13 and later, retaining the existing controls and a legacy rendering path for older supported hosts. The newer Obsidian dependency supplies development types only; the runtime minimum is unchanged.
+- Keep only the latest published release and its matching tag after successful release validation; source commit history remains intact.
 
 ## [0.6.34] - 2026-07-30
 
@@ -408,8 +409,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.35...HEAD
-[0.6.35]: https://github.com/towishy/owen-editor/compare/0.6.34...0.6.35
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.36...HEAD
+[0.6.36]: https://github.com/towishy/owen-editor/compare/77a8d1a55a05380d5971153d8368543675edd25f...0.6.36
 [0.6.34]: https://github.com/towishy/owen-editor/compare/0.6.33...0.6.34
 [0.6.33]: https://github.com/towishy/owen-editor/compare/0.6.32...0.6.33
 [0.6.32]: https://github.com/towishy/owen-editor/compare/0.6.31...0.6.32
