@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.38] - 2026-10-19
+
+### Changed
+
+- Unify settings panels with the UI Portal design and add accessible custom dropdown lists while preserving native select values and keyboard behavior.
+
 ## [0.6.37] - 2026-10-17
 
 ### Fixed
@@ -416,7 +422,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.37...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.38...HEAD
+[0.6.38]: https://github.com/towishy/owen-editor/compare/0.6.37...0.6.38
 [0.6.37]: https://github.com/towishy/owen-editor/compare/00e353dca8c0e119cd58a43d07c9ce38926c00e3...0.6.37
 [0.6.36]: https://github.com/towishy/owen-editor/compare/77a8d1a55a05380d5971153d8368543675edd25f...0.6.36
 [0.6.34]: https://github.com/towishy/owen-editor/compare/0.6.33...0.6.34

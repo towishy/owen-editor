@@ -1,6 +1,7 @@
 import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, moment, requireApiVersion, setIcon, setTooltip, type SettingDefinitionRender } from "obsidian";
 import { registerCodeBlockTitleEditing } from "./code-block-titles";
 import { registerFrostedScrollbars } from "./frosted-scrollbars";
+import { styleSettingsHeading, styleSettingsRow } from "./settings-design";
 import { isLanguagePreference, resolveLanguage, translate, translateCommandName, type Language, type LanguagePreference, type TranslationKey } from "./i18n";
 
 interface OwenEditorSettings {
@@ -2837,7 +2838,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
 
   private displayLegacy() {
     this.containerEl.empty();
-    this.containerEl.addClass("owen-editor-settings-tab");
+    this.containerEl.addClass("owen-editor-settings-tab", "owen-settings-design");
     for (const definition of this.getSettingDefinitions()) {
       const setting = new Setting(this.containerEl).setName(definition.name);
       if (definition.desc) setting.setDesc(definition.desc);
@@ -2859,8 +2860,9 @@ class OwenEditorSettingTab extends PluginSettingTab {
         name,
         desc,
         render: (setting) => {
-          containerEl.addClass("owen-editor-settings-tab");
+          containerEl.addClass("owen-editor-settings-tab", "owen-settings-design");
           configure(setting);
+          styleSettingsRow(setting);
         }
       });
     };
@@ -3152,6 +3154,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
       this.containerEl.addClass("owen-editor-settings-tab");
       heading.setHeading();
       heading.settingEl.dataset.owenSection = section;
+      styleSettingsHeading(heading.settingEl, section);
       const glyph = heading.settingEl.createDiv({ cls: "owen-editor-settings-section-glyph" });
       glyph.setAttr("aria-hidden", "true");
       setSafeIcon(glyph, icon);

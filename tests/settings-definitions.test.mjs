@@ -24,6 +24,8 @@ function createTab({ modern = true, favorites = [] } = {}) {
   let mutations = 0;
   const controls = new Map();
   class Element {
+    classList = { add() {}, contains() { return false; } };
+    closest() { return null; }
     addClass() { mutations += 1; }
     empty() { mutations += 1; }
     createDiv() { mutations += 1; return new Element(); }
@@ -35,6 +37,9 @@ function createTab({ modern = true, favorites = [] } = {}) {
   class Setting {
     settingEl = new Element();
     infoEl = new Element();
+    nameEl = new Element();
+    descEl = new Element();
+    controlEl = new Element();
     setName(name) { this.name = name; return this; }
     setDesc() { return this; }
     setHeading() { return this; }
