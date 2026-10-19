@@ -2907,7 +2907,10 @@ class OwenEditorSettingTab extends PluginSettingTab {
         }
       });
     };
-    this.createSettingsSection(definitions, t("settings.section.interface"), t("settings.section.interfaceDesc"), "interface", "languages");
+    const createSection = (title: string, description: string, section: string, icon: string) => {
+      this.createSettingsSection(definitions, title, description, section, icon);
+    };
+    createSection(t("settings.section.interface"), t("settings.section.interfaceDesc"), "interface", "languages");
 
     defineSetting(t("settings.language.name"), t("settings.language.desc"), (setting) => setting
       .addDropdown((dropdown) => dropdown
@@ -2917,7 +2920,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.language)
         .onChange(async (value) => this.plugin.setLanguage(value as LanguagePreference))));
 
-    this.createSettingsSection(definitions, t("settings.section.toolbar"), t("settings.section.toolbarDesc"), "toolbar", "panel-top");
+    createSection(t("settings.section.toolbar"), t("settings.section.toolbarDesc"), "toolbar", "panel-top");
 
     defineSetting(t("settings.showToolbar"), t("settings.showToolbarDesc"), (setting) => setting
       .addToggle((toggle) => toggle
@@ -3024,7 +3027,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })));
 
-    this.createSettingsSection(definitions, t("settings.section.selection"), t("settings.section.selectionDesc"), "selection", "mouse-pointer-2");
+    createSection(t("settings.section.selection"), t("settings.section.selectionDesc"), "selection", "mouse-pointer-2");
 
     defineSetting(t("settings.showSelection"), t("settings.showSelectionDesc"), (setting) => setting
       .addToggle((toggle) => toggle
@@ -3034,7 +3037,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })));
 
-    this.createSettingsSection(definitions, t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"), "shortcuts", "keyboard");
+    createSection(t("settings.section.shortcuts"), t("settings.section.shortcutsDesc"), "shortcuts", "keyboard");
 
     defineSetting(t("settings.showStatus"), t("settings.showStatusDesc"), (setting) => setting
       .addToggle((toggle) => toggle
@@ -3044,7 +3047,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })));
 
-    this.createSettingsSection(definitions, t("settings.section.graphite"), t("settings.section.graphiteDesc"), "graphite", "sparkles");
+    createSection(t("settings.section.graphite"), t("settings.section.graphiteDesc"), "graphite", "sparkles");
 
     defineSetting(t("settings.htmlTables"), t("settings.htmlTablesDesc"), (setting) => setting
       .addToggle((toggle) => toggle
@@ -3062,7 +3065,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         })));
 
-    this.createSettingsSection(definitions, t("settings.section.favorites"), t("settings.section.favoritesDesc"), "favorites", "star");
+    createSection(t("settings.section.favorites"), t("settings.section.favoritesDesc"), "favorites", "star");
 
     defineSetting(t("settings.favoritePresets"), t("settings.favoritePresetsDesc"), (setting) => setting
       .addButton((button) => button
@@ -3162,7 +3165,7 @@ class OwenEditorSettingTab extends PluginSettingTab {
       });
     }
 
-    this.createSettingsSection(definitions, t("settings.section.portability"), t("settings.section.portabilityDesc"), "portability", "folder-sync");
+    createSection(t("settings.section.portability"), t("settings.section.portabilityDesc"), "portability", "folder-sync");
 
     let settingsJson = JSON.stringify(getPortableSettings(this.plugin.settings), null, 2);
     defineSetting(t("settings.json"), t("settings.jsonDesc"), (setting) => setting
@@ -3200,7 +3203,24 @@ class OwenEditorSettingTab extends PluginSettingTab {
       glyph.setAttr("aria-hidden", "true");
       setSafeIcon(glyph, icon);
       heading.settingEl.insertBefore(glyph, heading.infoEl);
+      queueMicrotask(() => this.groupSettingsSections());
     } });
+  }
+
+  private groupSettingsSections() {
+    const items = this.containerEl.querySelector(".setting-items") ?? this.containerEl;
+    if (items.querySelector(":scope > .owen-editor-settings-group")) return;
+
+    let group: HTMLElement | undefined;
+    for (const item of Array.from(items.children)) {
+      if (!item.classList.contains("setting-item")) continue;
+      if (item.classList.contains("owen-settings-heading")) {
+        group = items.ownerDocument.createElement("div");
+        group.className = "owen-editor-settings-group";
+        items.insertBefore(group, item);
+      }
+      group?.append(item);
+    }
   }
 }
 

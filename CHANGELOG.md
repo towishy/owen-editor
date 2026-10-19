@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.6.40] - 2026-10-19
+
+### Changed
+
+- Separate Owen Editor preference sections with open spacing, remove enclosing outlines, and use consistent horizontal row dividers.
+
 ## [0.6.39] - 2026-10-19
 
 ### Fixed
@@ -430,7 +436,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Highlight color picker.
 - Owen Graphite table, report, callout, badge, blur, keyboard, and reference snippets.
 
-[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.39...HEAD
+[Unreleased]: https://github.com/towishy/owen-editor/compare/0.6.40...HEAD
+[0.6.40]: https://github.com/towishy/owen-editor/compare/0.6.39...0.6.40
 [0.6.39]: https://github.com/towishy/owen-editor/compare/0.6.38...0.6.39
 [0.6.38]: https://github.com/towishy/owen-editor/compare/0.6.37...0.6.38
 [0.6.37]: https://github.com/towishy/owen-editor/compare/00e353dca8c0e119cd58a43d07c9ce38926c00e3...0.6.37

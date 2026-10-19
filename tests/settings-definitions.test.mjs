@@ -23,26 +23,67 @@ const { outputFiles } = await build({
 function createTab({ modern = true, favorites = [] } = {}) {
   let mutations = 0;
   const controls = new Map();
+  const groups = [];
   class Element {
-    classList = { add() {}, contains() { return false; } };
+    constructor() {
+      this.children = [];
+      this.classes = new Set();
+    }
+    ownerDocument = document;
+    classList = {
+      add: (...names) => names.forEach((name) => this.classes.add(name)),
+      contains: (name) => this.classes.has(name)
+    };
+    get className() { return [...this.classes].join(" "); }
+    set className(value) { this.classes = new Set(value.split(/\s+/).filter(Boolean)); }
     closest() { return null; }
-    addClass() { mutations += 1; }
-    empty() { mutations += 1; }
-    createDiv() { mutations += 1; return new Element(); }
+    before(element) {
+      if (!this.parentElement) return;
+      const index = this.parentElement.children.indexOf(this);
+      this.parentElement.insertBefore(element, this, index);
+    }
+    append(child) {
+      if (child.parentElement) child.parentElement.children.splice(child.parentElement.children.indexOf(child), 1);
+      child.parentElement = this;
+      this.children.push(child);
+    }
+    insertBefore(child, reference, forcedIndex) {
+      if (child.parentElement) child.parentElement.children.splice(child.parentElement.children.indexOf(child), 1);
+      const index = forcedIndex ?? this.children.indexOf(reference);
+      child.parentElement = this;
+      this.children.splice(index < 0 ? this.children.length : index, 0, child);
+    }
+    addClass(...names) { mutations += 1; this.classList.add(...names); }
+    empty() { mutations += 1; this.children = []; }
+    createDiv() { mutations += 1; const element = new Element(); this.append(element); return element; }
     setAttr() { mutations += 1; }
-    insertBefore() { mutations += 1; }
-    querySelector(selector) { return selector === "svg" && this.icon ? new Element() : null; }
+    querySelector(selector) {
+      if (selector === ":scope > .owen-editor-settings-group") return this.children.find((child) => child.classList.contains("owen-editor-settings-group")) ?? null;
+      if (selector === "svg" && this.icon) return new Element();
+      return null;
+    }
     dataset = {};
   }
+  const document = {
+    createElement() {
+      const element = new Element();
+      groups.push(element);
+      return element;
+    }
+  };
   class Setting {
     settingEl = new Element();
     infoEl = new Element();
     nameEl = new Element();
     descEl = new Element();
     controlEl = new Element();
+    constructor(parent) {
+      this.settingEl.classList.add("setting-item");
+      parent?.append(this.settingEl);
+    }
     setName(name) { this.name = name; return this; }
     setDesc() { return this; }
-    setHeading() { return this; }
+    setHeading() { this.settingEl.classList.add("setting-item-heading"); return this; }
     addControl(configure) {
       const component = {
         sliderEl: new Element(),
@@ -93,7 +134,7 @@ function createTab({ modern = true, favorites = [] } = {}) {
     async saveSettings() { this.saves += 1; }
   };
   const tab = new module.exports.OwenEditorSettingTab({}, plugin);
-  return { tab, plugin, controls, mutations: () => mutations };
+  return { tab, plugin, controls, groups, mutations: () => mutations };
 }
 
 test("indexes each existing setting by its own localized name and description without rendering DOM", () => {
@@ -129,9 +170,12 @@ test("refreshes native search definitions without rendering legacy controls on s
 });
 
 test("renders usable legacy controls and persists changes on older supported hosts", async () => {
-  const { tab, plugin, controls, mutations } = createTab({ modern: false });
+  const { tab, plugin, controls, mutations, groups } = createTab({ modern: false });
   assert.equal(tab.update, undefined);
   tab.refresh();
+  await Promise.resolve();
+  assert.equal(groups.length, 7, "each settings section has its own card");
+  assert(groups.every((group) => group.children.length > 1), "section cards contain their heading and settings");
   assert.ok(mutations() > 0);
   const toolbarToggle = controls.get("settings.showToolbar");
   assert.equal(toolbarToggle.value, true);
