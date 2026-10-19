@@ -40,7 +40,7 @@ function overlayZIndex(viewport: HTMLElement) {
 }
 
 export function registerFrostedScrollbars(plugin: Plugin) {
-  registerWindowDocuments(plugin, (doc) => registerDocumentFrostedScrollbars(plugin, doc));
+  registerWindowDocuments(plugin, (doc) => registerDocumentFrostedScrollbars(plugin, doc), { includeSettings: true });
 }
 
 function registerDocumentFrostedScrollbars(plugin: Plugin, doc: Document) {
@@ -68,10 +68,12 @@ function registerDocumentFrostedScrollbars(plugin: Plugin, doc: Document) {
 
     root.style.top = `${bounds.top}px`;
     root.style.left = `${bounds.left}px`;
-    const paletteModal = root.classList.contains("mod-palette")
+    const edgeContainer = root.classList.contains("mod-palette")
       ? viewport.closest<HTMLElement>(".owen-editor-palette-modal")
-      : null;
-    const overlayRight = paletteModal?.getBoundingClientRect().right ?? bounds.right;
+      : root.classList.contains("mod-settings-sidebar")
+        ? viewport.closest<HTMLElement>(".vertical-tab-header")
+        : null;
+    const overlayRight = edgeContainer?.getBoundingClientRect().right ?? bounds.right;
     root.style.width = `${Math.max(bounds.width, overlayRight - bounds.left)}px`;
     root.style.height = `${bounds.height}px`;
     root.style.zIndex = String(overlayZIndex(viewport));
@@ -114,6 +116,9 @@ function registerDocumentFrostedScrollbars(plugin: Plugin, doc: Document) {
     }
     if (viewport.matches(".nav-files-container")) {
       root.classList.add("mod-file-explorer");
+    }
+    if (viewport.matches(".vertical-tab-header-group-container")) {
+      root.classList.add("mod-settings-sidebar");
     }
     root.setAttribute("aria-hidden", "true");
     const rail = root.createDiv();

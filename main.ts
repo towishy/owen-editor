@@ -1,6 +1,7 @@
 import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting, moment, requireApiVersion, setIcon, setTooltip, type SettingDefinitionRender } from "obsidian";
 import { registerCodeBlockTitleEditing } from "./code-block-titles";
 import { registerFrostedScrollbars } from "./frosted-scrollbars";
+import { registerWindowDocuments } from "./window-documents";
 import { styleSettingsHeading, styleSettingsRow } from "./settings-design";
 import { isLanguagePreference, resolveLanguage, translate, translateCommandName, type Language, type LanguagePreference, type TranslationKey } from "./i18n";
 
@@ -480,12 +481,14 @@ export default class OwenEditorPlugin extends Plugin {
   settings: OwenEditorSettings;
   private commands: EditorCommand[] = [];
   private toolbarEl?: HTMLElement;
+  private toolbarBody?: HTMLElement;
   private selectionToolbarEl?: HTMLElement;
   private liquidGlassFilterEl?: SVGSVGElement;
   private statusBarItem?: HTMLElement;
   private ribbonEl?: HTMLElement;
   private toolbarResizeObserver?: ResizeObserver;
   private selectionToolbarFrame?: number;
+  private selectionToolbarWindow?: Window;
   private lastPointerAnchor?: PointerAnchor;
   private currentToolbarContext: ToolbarContext = "default";
   private graphiteNoticeShown = false;
@@ -571,24 +574,36 @@ export default class OwenEditorPlugin extends Plugin {
         this.updateToolbarContentOffset();
         this.scheduleSelectionToolbarUpdate();
       }));
-      this.registerDomEvent(window, "resize", () => {
-        this.updateToolbarContentOffset();
-        this.scheduleSelectionToolbarUpdate();
-      });
-      this.registerDomEvent(window, "scroll", () => this.scheduleSelectionToolbarUpdate(), true);
-      this.registerDomEvent(activeDocument, "selectionchange", () => {
-        this.scheduleSelectionToolbarUpdate();
-        this.refreshToolbarForContext();
-      });
-      this.registerDomEvent(activeDocument, "pointermove", recordPointerAnchor);
-      this.registerDomEvent(activeDocument, "pointerup", (event) => {
-        recordPointerAnchor(event);
-        this.scheduleSelectionToolbarUpdate();
-        this.refreshToolbarForContext();
-      });
-      this.registerDomEvent(activeDocument, "keyup", () => {
-        this.scheduleSelectionToolbarUpdate();
-        this.refreshToolbarForContext();
+      registerWindowDocuments(this, (doc) => {
+        const win = doc.defaultView;
+        if (!win) throw new Error("Owen Editor cannot attach toolbar events without a window.");
+        const updateContext = () => {
+          this.scheduleSelectionToolbarUpdate();
+          this.refreshToolbarForContext();
+        };
+        const updateLayout = () => {
+          this.updateToolbarContentOffset();
+          this.scheduleSelectionToolbarUpdate();
+        };
+        const pointerUp = (event: PointerEvent) => {
+          recordPointerAnchor(event);
+          updateContext();
+        };
+        const updateScroll = () => this.scheduleSelectionToolbarUpdate();
+        win.addEventListener("resize", updateLayout);
+        win.addEventListener("scroll", updateScroll, true);
+        doc.addEventListener("selectionchange", updateContext);
+        doc.addEventListener("pointermove", recordPointerAnchor);
+        doc.addEventListener("pointerup", pointerUp);
+        doc.addEventListener("keyup", updateContext);
+        return () => {
+          win.removeEventListener("resize", updateLayout);
+          win.removeEventListener("scroll", updateScroll, true);
+          doc.removeEventListener("selectionchange", updateContext);
+          doc.removeEventListener("pointermove", recordPointerAnchor);
+          doc.removeEventListener("pointerup", pointerUp);
+          doc.removeEventListener("keyup", updateContext);
+        };
       });
       this.app.workspace.onLayoutReady(() => {
         this.updateToolbarContentOffset();
@@ -620,11 +635,11 @@ export default class OwenEditorPlugin extends Plugin {
 
   onunload() {
     if (this.selectionToolbarFrame !== undefined) {
-      window.cancelAnimationFrame(this.selectionToolbarFrame);
+      this.selectionToolbarWindow?.cancelAnimationFrame(this.selectionToolbarFrame);
       this.selectionToolbarFrame = undefined;
     }
     this.clearToolbarContentOffset();
-    activeDocument.body.style.removeProperty("--owen-editor-toolbar-scale");
+    this.toolbarBody?.style.removeProperty("--owen-editor-toolbar-scale");
     this.selectionToolbarEl?.remove();
     this.toolbarEl?.remove();
     this.liquidGlassFilterEl?.remove();
@@ -632,19 +647,21 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private ensureLiquidGlassFilter() {
-    if (this.liquidGlassFilterEl?.isConnected) {
+    const doc = this.getActiveMarkdownView()?.contentEl.ownerDocument ?? this.app.workspace.rootSplit.doc;
+    if (this.liquidGlassFilterEl) {
+      if (this.liquidGlassFilterEl.parentElement !== doc.body) doc.body.appendChild(this.liquidGlassFilterEl);
       return;
     }
 
-    activeDocument.getElementById(LIQUID_GLASS_FILTER_SVG_ID)?.remove();
+    doc.getElementById(LIQUID_GLASS_FILTER_SVG_ID)?.remove();
 
-    const svg = activeDocument.createElementNS(SVG_NS, "svg");
+    const svg = doc.createElementNS(SVG_NS, "svg");
     svg.id = LIQUID_GLASS_FILTER_SVG_ID;
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
     svg.setAttribute("class", "owen-editor-liquid-glass-filter-svg");
 
-    const filter = activeDocument.createElementNS(SVG_NS, "filter");
+    const filter = doc.createElementNS(SVG_NS, "filter");
     filter.id = LIQUID_GLASS_FILTER_ID;
     filter.setAttribute("x", "0%");
     filter.setAttribute("y", "0%");
@@ -652,20 +669,20 @@ export default class OwenEditorPlugin extends Plugin {
     filter.setAttribute("height", "100%");
     filter.setAttribute("filterUnits", "objectBoundingBox");
 
-    const componentTransfer = activeDocument.createElementNS(SVG_NS, "feComponentTransfer");
+    const componentTransfer = doc.createElementNS(SVG_NS, "feComponentTransfer");
     componentTransfer.setAttribute("in", "SourceAlpha");
     componentTransfer.setAttribute("result", "alpha");
 
-    const alpha = activeDocument.createElementNS(SVG_NS, "feFuncA");
+    const alpha = doc.createElementNS(SVG_NS, "feFuncA");
     alpha.setAttribute("type", "identity");
     componentTransfer.appendChild(alpha);
 
-    const blur = activeDocument.createElementNS(SVG_NS, "feGaussianBlur");
+    const blur = doc.createElementNS(SVG_NS, "feGaussianBlur");
     blur.setAttribute("in", "alpha");
     blur.setAttribute("stdDeviation", "16");
     blur.setAttribute("result", "blur");
 
-    const displacement = activeDocument.createElementNS(SVG_NS, "feDisplacementMap");
+    const displacement = doc.createElementNS(SVG_NS, "feDisplacementMap");
     displacement.setAttribute("in", "SourceGraphic");
     displacement.setAttribute("in2", "blur");
     displacement.setAttribute("scale", "16");
@@ -676,7 +693,7 @@ export default class OwenEditorPlugin extends Plugin {
     filter.appendChild(blur);
     filter.appendChild(displacement);
     svg.appendChild(filter);
-    activeDocument.body.appendChild(svg);
+    doc.body.appendChild(svg);
     this.liquidGlassFilterEl = svg;
   }
 
@@ -756,7 +773,7 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private applyToolbarScale(viewWidth?: number) {
-    activeDocument.body.style.setProperty("--owen-editor-toolbar-scale", `${getAdaptiveToolbarScale(this.settings.toolbarScale, viewWidth) / 100}`);
+    this.getActiveMarkdownView()?.contentEl.ownerDocument.body.style.setProperty("--owen-editor-toolbar-scale", `${getAdaptiveToolbarScale(this.settings.toolbarScale, viewWidth) / 100}`);
   }
 
   getCommands() {
@@ -947,11 +964,12 @@ export default class OwenEditorPlugin extends Plugin {
     this.selectionToolbarEl?.remove();
     this.selectionToolbarEl = undefined;
 
-    if (!this.settings.showSelectionToolbar) {
+    const view = this.getActiveMarkdownView();
+    if (!this.settings.showSelectionToolbar || !view) {
       return;
     }
 
-    const toolbar = activeDocument.body.createDiv({ cls: "owen-editor-selection-toolbar" });
+    const toolbar = view.contentEl.ownerDocument.body.createDiv({ cls: "owen-editor-selection-toolbar" });
     toolbar.setAttr("aria-label", this.t("toolbar.selection"));
     toolbar.addEventListener("mousedown", (event) => event.preventDefault());
 
@@ -967,11 +985,13 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private scheduleSelectionToolbarUpdate() {
-    if (this.selectionToolbarFrame !== undefined) {
+    const win = this.getActiveMarkdownView()?.contentEl.ownerDocument.defaultView ?? window;
+    if (this.selectionToolbarFrame !== undefined && this.selectionToolbarWindow === win) {
       return;
     }
-
-    this.selectionToolbarFrame = window.requestAnimationFrame(() => {
+    if (this.selectionToolbarFrame !== undefined) this.selectionToolbarWindow?.cancelAnimationFrame(this.selectionToolbarFrame);
+    this.selectionToolbarWindow = win;
+    this.selectionToolbarFrame = win.requestAnimationFrame(() => {
       this.selectionToolbarFrame = undefined;
       this.updateSelectionToolbar();
     });
@@ -1023,11 +1043,19 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private updateSelectionToolbar() {
-    if (!this.settings.showSelectionToolbar || !this.selectionToolbarEl) {
+    if (!this.settings.showSelectionToolbar) {
       return;
     }
 
     const activeMarkdownView = this.getActiveMarkdownView();
+    if (activeMarkdownView && !this.selectionToolbarEl) {
+      this.refreshSelectionToolbar();
+      return;
+    }
+    if (!this.selectionToolbarEl) return;
+    if (activeMarkdownView && this.selectionToolbarEl.ownerDocument !== activeMarkdownView.contentEl.ownerDocument) {
+      activeMarkdownView.contentEl.ownerDocument.body.appendChild(this.selectionToolbarEl);
+    }
     const editor = activeMarkdownView?.editor;
     if (!editor || !editor.getSelection()) {
       this.selectionToolbarEl.removeClass("is-visible");
@@ -1041,12 +1069,13 @@ export default class OwenEditorPlugin extends Plugin {
     }
 
     const toolbarRect = this.selectionToolbarEl.getBoundingClientRect();
+    const win = activeMarkdownView.contentEl.win;
     const viewRect = activeMarkdownView.contentEl.getBoundingClientRect();
     const anchor = this.getRecentPointerAnchor(viewRect) ?? rect;
     const viewportLeft = Math.max(12, viewRect.left + 12);
-    const viewportRight = Math.min(window.innerWidth - 12, viewRect.right - 12);
+    const viewportRight = Math.min(win.innerWidth - 12, viewRect.right - 12);
     const minTop = Math.max(12, viewRect.top + 8);
-    const maxTop = Math.min(window.innerHeight - toolbarRect.height - 12, viewRect.bottom - toolbarRect.height - 8);
+    const maxTop = Math.min(win.innerHeight - toolbarRect.height - 12, viewRect.bottom - toolbarRect.height - 8);
     const availableAbove = anchor.top - minTop;
     const availableBelow = maxTop - anchor.bottom;
     const showBelow = availableAbove < toolbarRect.height + 12 && availableBelow > availableAbove;
@@ -1084,7 +1113,7 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private getSelectionRect(container: HTMLElement) {
-    const selection = window.getSelection();
+    const selection = container.ownerDocument.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
       return null;
     }
@@ -1117,17 +1146,20 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private refreshFloatingToolbar() {
+    this.clearToolbarContentOffset();
     this.toolbarResizeObserver?.disconnect();
     this.toolbarResizeObserver = undefined;
     this.toolbarEl?.remove();
     this.toolbarEl = undefined;
 
-    if (!this.settings.showFloatingToolbar) {
+    const view = this.getActiveMarkdownView();
+    if (!this.settings.showFloatingToolbar || !view) {
       this.clearToolbarContentOffset();
       return;
     }
 
-    const toolbar = activeDocument.body.createDiv({
+    this.toolbarBody = view.contentEl.ownerDocument.body;
+    const toolbar = this.toolbarBody.createDiv({
       cls: `owen-editor-glass-toolbar mod-${this.settings.toolbarPosition} is-favorites-${this.settings.favoriteDisplay}${this.settings.toolbarCollapsed ? " is-collapsed" : ""}${this.settings.mobileCompactToolbar ? " is-mobile-compact" : ""}`
     });
     toolbar.setAttr("aria-label", this.t("toolbar.editor"));
@@ -1186,16 +1218,31 @@ export default class OwenEditorPlugin extends Plugin {
   }
 
   private updateToolbarContentOffset() {
-    if (!this.settings.showFloatingToolbar || !this.toolbarEl) {
+    const view = this.getActiveMarkdownView();
+    if (!this.settings.showFloatingToolbar || !view) {
+      this.toolbarEl?.hide();
       this.clearToolbarContentOffset();
       return;
     }
+    if (!this.toolbarEl) {
+      this.refreshFloatingToolbar();
+      return;
+    }
+    const body = view.contentEl.ownerDocument.body;
+    if (this.toolbarBody !== body) {
+      this.clearToolbarContentOffset();
+      body.appendChild(this.toolbarEl);
+      this.toolbarBody = body;
+    }
+    this.toolbarEl.show();
+    this.ensureLiquidGlassFilter();
+    if (!this.toolbarResizeObserver) this.observeToolbarResize(this.toolbarEl);
 
     const toolbarHeight = Math.ceil(this.toolbarEl.getBoundingClientRect().height);
-    activeDocument.body.classList.add("owen-editor-toolbar-offset");
-    activeDocument.body.classList.toggle("owen-editor-toolbar-top", this.settings.toolbarPosition === "top");
-    activeDocument.body.classList.toggle("owen-editor-toolbar-bottom", this.settings.toolbarPosition === "bottom");
-    activeDocument.body.style.setProperty("--owen-editor-toolbar-clearance", `${toolbarHeight + 28}px`);
+    body.classList.add("owen-editor-toolbar-offset");
+    body.classList.toggle("owen-editor-toolbar-top", this.settings.toolbarPosition === "top");
+    body.classList.toggle("owen-editor-toolbar-bottom", this.settings.toolbarPosition === "bottom");
+    body.style.setProperty("--owen-editor-toolbar-clearance", `${toolbarHeight + 28}px`);
     this.updateToolbarDocumentPlacement();
   }
 
@@ -1203,32 +1250,26 @@ export default class OwenEditorPlugin extends Plugin {
     const activeMarkdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
     const viewEl = activeMarkdownView?.contentEl;
 
-    if (!viewEl) {
-      activeDocument.body.style.removeProperty("--owen-editor-toolbar-left");
-      activeDocument.body.style.removeProperty("--owen-editor-toolbar-max-width");
-      this.applyToolbarScale();
-      return;
-    }
+    if (!viewEl || !this.toolbarBody) return;
 
     const rect = viewEl.getBoundingClientRect();
     const horizontalInset = 32;
     const center = Math.round(rect.left + rect.width / 2);
     const maxWidth = Math.max(320, Math.floor(rect.width - horizontalInset));
 
-    activeDocument.body.style.setProperty("--owen-editor-toolbar-left", `${center}px`);
-    activeDocument.body.style.setProperty("--owen-editor-toolbar-max-width", `${maxWidth}px`);
+    this.toolbarBody.style.setProperty("--owen-editor-toolbar-left", `${center}px`);
+    this.toolbarBody.style.setProperty("--owen-editor-toolbar-max-width", `${maxWidth}px`);
     this.applyToolbarScale(rect.width);
   }
 
   private clearToolbarContentOffset() {
     this.toolbarResizeObserver?.disconnect();
     this.toolbarResizeObserver = undefined;
-    activeDocument.body.classList.remove("owen-editor-toolbar-offset");
-    activeDocument.body.classList.remove("owen-editor-toolbar-top");
-    activeDocument.body.classList.remove("owen-editor-toolbar-bottom");
-    activeDocument.body.style.removeProperty("--owen-editor-toolbar-clearance");
-    activeDocument.body.style.removeProperty("--owen-editor-toolbar-left");
-    activeDocument.body.style.removeProperty("--owen-editor-toolbar-max-width");
+    this.toolbarBody?.classList.remove("owen-editor-toolbar-offset", "owen-editor-toolbar-top", "owen-editor-toolbar-bottom");
+    this.toolbarBody?.style.removeProperty("--owen-editor-toolbar-clearance");
+    this.toolbarBody?.style.removeProperty("--owen-editor-toolbar-left");
+    this.toolbarBody?.style.removeProperty("--owen-editor-toolbar-max-width");
+    this.toolbarBody?.style.removeProperty("--owen-editor-toolbar-scale");
   }
 
   private observeToolbarResize(toolbar: HTMLElement) {

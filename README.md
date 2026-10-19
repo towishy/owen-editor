@@ -67,9 +67,15 @@ The palette layout sample documents long command names, preview chips, and code 
 | Work with code | Persistent fenced-code titles in Live Preview and Reading View, plus one-click code copying. |
 | Shape tables | Table builder and CSV/TSV/Markdown conversion into Markdown tables or Owen Graphite HTML tables. |
 | Repeat common work | Minimal/writer/report/full/custom presets, favorites, favorite presets, recent commands, and English/Korean search aliases. |
+| Scroll consistently | UI Portal Frosted ScrollArea grips across workspace panes and native settings popouts, with native wheel/keyboard scrolling and pointer dragging. |
 | Prepare Graphite reports | Executive summaries, comparison/risk/meeting reviews, wide/risk/numeric tables, risk matrices, reference lists, status badges, keyboard tags, blur spans, and A3/PDF-oriented snippets. |
 
 Code titles are stored in fenced Markdown as `title="..."`. **Enter** saves, **Escape** cancels, and **F2** starts title editing.
+
+Settings popouts are discovered independently of workspace windows. Their
+sidebar scrollbar follows the panel's outer right edge, and closing or
+reopening the window releases or restores its scroll bindings. This does not
+enable unrelated editing UI inside preferences.
 
 <br>
 
@@ -91,7 +97,7 @@ Once the plugin is listed in Obsidian's community plugin browser, it can also be
 
 ## Everyday workflow
 
-1. **Write and select.** Use the floating toolbar for document actions and the selection mini toolbar for nearby formatting.
+1. **Write and select.** Use the floating toolbar for document actions and the selection mini toolbar for nearby formatting. These toolbars appear only in Markdown document windows, including document popouts, not in settings or non-Markdown views.
 2. **Open a category.** Browse Selection, Links, Blocks, Tables, Owen Graphite, or All commands.
 3. **Build a table.** Choose row/column counts or paste CSV/TSV, review the preview, then insert Markdown or Graphite HTML.
 4. **Pin recurring actions.** Use the palette star button, favorite presets, or settings to order favorites.

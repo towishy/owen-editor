@@ -11,13 +11,25 @@ const { outputFiles } = await build({
   write: false
 });
 
-function createHost() {
-  const mainWindow = {};
-  const mainDocument = { defaultView: mainWindow };
+function createHost(activeDocument) {
+  const observers = [];
+  const mainWindow = {
+    MutationObserver: class {
+      constructor(callback) {
+        this.callback = callback;
+        this.targets = [];
+        observers.push(this);
+      }
+      observe(target) { this.targets.push(target); }
+      disconnect() { this.targets = []; }
+    }
+  };
+  const mainDocument = { defaultView: mainWindow, body: {} };
   mainWindow.document = mainDocument;
   const listeners = new Map();
   const unload = [];
   const workspace = {
+    rootSplit: { doc: mainDocument },
     leaves: [{ view: { containerEl: { doc: mainDocument } } }],
     on(name, callback) {
       const reference = { name, callback };
@@ -45,11 +57,12 @@ function createHost() {
     }
   };
   const module = { exports: {} };
-  new Function("module", "exports", "activeDocument", outputFiles[0].text)(module, module.exports, mainDocument);
+  new Function("module", "exports", "activeDocument", outputFiles[0].text)(module, module.exports, activeDocument ?? mainDocument);
   return {
     plugin,
     workspace,
     mainDocument,
+    observers,
     register: module.exports.registerWindowDocuments,
     emit(name, ...args) {
       for (const { callback } of listeners.get(name) ?? []) callback(...args);
@@ -60,9 +73,26 @@ function createHost() {
   };
 }
 
+test("excludes active settings windows unless explicitly opted in", () => {
+  const settingsDocument = { defaultView: {} };
+  settingsDocument.defaultView.document = settingsDocument;
+  const host = createHost(settingsDocument);
+  host.plugin.app.setting = { modalEl: { ownerDocument: settingsDocument } };
+  const attached = [];
+  host.register(host.plugin, (doc) => {
+    attached.push(doc);
+    return () => {};
+  });
+  host.workspace.ready();
+  host.emit("layout-change");
+  assert.deepEqual(attached, [host.mainDocument]);
+  host.unload();
+});
+
 test("attaches existing main and popout documents once despite multiple leaves and layout events", () => {
   const host = createHost();
   const popout = { defaultView: {} };
+  popout.defaultView.document = popout;
   host.workspace.leaves.push(...[popout, popout].map((doc) => ({ view: { containerEl: { doc } } })));
   const attached = [];
   host.register(host.plugin, (doc) => {
@@ -114,4 +144,36 @@ test("rejects documents without an owning window rather than using an unrelated 
   host.workspace.leaves.push({ view: { containerEl: { doc: { defaultView: null } } } });
   assert.throws(() => host.register(host.plugin, () => () => {}), /document without a window/);
   host.unload();
+});
+
+test("discovers adopted native settings documents without a workspace window-open event", async () => {
+  const host = createHost();
+  const modal = { ownerDocument: { defaultView: null } };
+  host.plugin.app.setting = { modalEl: modal };
+  const attached = new Set();
+  host.register(host.plugin, doc => {
+    attached.add(doc);
+    return () => attached.delete(doc);
+  }, { includeSettings: true });
+  assert(host.observers[0].targets.includes(modal));
+  const win = {};
+  const document = { defaultView: win };
+  win.document = document;
+  modal.ownerDocument = document;
+  host.observers[0].callback();
+  host.observers[0].callback();
+  await Promise.resolve();
+  assert.equal(attached.has(document), true);
+  win.closed = true;
+  host.emit("layout-change");
+  assert.equal(attached.has(document), false);
+  modal.ownerDocument = host.mainDocument;
+  host.observers[0].callback();
+  await Promise.resolve();
+  assert.equal(attached.has(document), false);
+  host.unload();
+  host.observers[0].callback();
+  await Promise.resolve();
+  assert.equal(attached.size, 0);
+  assert.equal(host.observers[0].targets.length, 0);
 });
