@@ -23,7 +23,7 @@ const { outputFiles } = await build({
 function createTab({ modern = true, favorites = [] } = {}) {
   let mutations = 0;
   const controls = new Map();
-  const groups = [];
+  const elements = [];
   class Element {
     constructor() {
       this.children = [];
@@ -67,7 +67,7 @@ function createTab({ modern = true, favorites = [] } = {}) {
   const document = {
     createElement() {
       const element = new Element();
-      groups.push(element);
+      elements.push(element);
       return element;
     }
   };
@@ -134,7 +134,7 @@ function createTab({ modern = true, favorites = [] } = {}) {
     async saveSettings() { this.saves += 1; }
   };
   const tab = new module.exports.OwenEditorSettingTab({}, plugin);
-  return { tab, plugin, controls, groups, mutations: () => mutations };
+  return { tab, plugin, controls, groups: () => elements.filter((element) => element.classList.contains("owen-editor-settings-group")), mutations: () => mutations };
 }
 
 test("indexes each existing setting by its own localized name and description without rendering DOM", () => {
@@ -174,8 +174,13 @@ test("renders usable legacy controls and persists changes on older supported hos
   assert.equal(tab.update, undefined);
   tab.refresh();
   await Promise.resolve();
-  assert.equal(groups.length, 7, "each settings section has its own card");
-  assert(groups.every((group) => group.children.length > 1), "section cards contain their heading and settings");
+  assert.equal(groups().length, 7, "each settings section has its own card");
+  assert(groups().every((group) =>
+    group.children[0]?.classList.contains("owen-editor-settings-group-header")
+      && group.children[0].children[0]?.classList.contains("owen-settings-heading")
+      && group.children[1]?.classList.contains("owen-editor-settings-group-body")
+      && group.children[1].children.length > 0
+  ), "section cards separate their header and setting rows");
   assert.ok(mutations() > 0);
   const toolbarToggle = controls.get("settings.showToolbar");
   assert.equal(toolbarToggle.value, true);

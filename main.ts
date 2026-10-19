@@ -3211,15 +3211,22 @@ class OwenEditorSettingTab extends PluginSettingTab {
     const items = this.containerEl.querySelector(".setting-items") ?? this.containerEl;
     if (items.querySelector(":scope > .owen-editor-settings-group")) return;
 
-    let group: HTMLElement | undefined;
+    let groupBody: HTMLElement | undefined;
     for (const item of Array.from(items.children)) {
       if (!item.classList.contains("setting-item")) continue;
       if (item.classList.contains("owen-settings-heading")) {
-        group = items.ownerDocument.createElement("div");
+        const group = items.ownerDocument.createElement("div");
         group.className = "owen-editor-settings-group";
+        const header = items.ownerDocument.createElement("div");
+        header.className = "owen-editor-settings-group-header";
+        groupBody = items.ownerDocument.createElement("div");
+        groupBody.className = "owen-editor-settings-group-body";
         items.insertBefore(group, item);
+        group.append(header);
+        group.append(groupBody);
+        header.append(item);
       }
-      group?.append(item);
+      else groupBody?.append(item);
     }
   }
 }

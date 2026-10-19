@@ -76,8 +76,8 @@ Settings popouts are discovered independently of workspace windows. Their
 sidebar scrollbar follows the panel's outer right edge, and closing or
 reopening the window releases or restores its scroll bindings. This does not
 enable unrelated editing UI inside preferences.
-Owen Editor preferences use separated, borderless categories with consistent
-horizontal dividers between setting rows.
+Owen Editor preferences use spaced, rounded section cards with inset row
+dividers, matching Owen Exporter's settings layout.
 
 <br>
 
