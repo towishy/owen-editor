@@ -2264,8 +2264,26 @@ body.owen-editor-frosted-scrollbars-active .owen-editor-frosted-scroll-viewport:
 :is(.owen-settings-design, .modal.mod-settings .vertical-tab-content.owen-settings-design) .owen-editor-settings-group-header { margin: 0; }
 body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-header > .setting-item.owen-settings-heading { margin: 0; border: 0; border-bottom: 1px solid var(--os-line); border-radius: 8px 8px 0 0; }
 :is(.owen-settings-design, .modal.mod-settings .vertical-tab-content.owen-settings-design) .owen-editor-settings-group-body { margin: 0; padding: 0 20px 8px; }
-body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:not(.setting-item-heading) { padding: 13px 0; border-top: 0; border-bottom: 1px solid color-mix(in srgb, var(--os-line) 72%, transparent); border-radius: 0; }
-body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:last-child { border-bottom: 0; border-radius: 0; }
+body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:not(.setting-item-heading) {
+  position: relative;
+  margin-inline: -20px;
+  padding: 13px 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: background-color 120ms ease;
+}
+body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:not(.setting-item-heading)::after {
+  position: absolute;
+  inset-inline: 20px;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--os-line) 50%, var(--os-surface));
+  content: "";
+  pointer-events: none;
+}
+body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:last-child::after { content: none; }
+body .modal.mod-settings .vertical-tab-content.owen-editor-settings-tab.owen-settings-design .owen-editor-settings-group-body > .setting-item:not(.setting-item-heading):is(:hover, :focus-within) { background-color: var(--os-selection); }
 :is(.owen-settings-design, .modal.mod-settings .vertical-tab-content.owen-settings-design) .setting-item:last-child { border-radius: 0 0 8px 8px; }
 body .modal.mod-settings .vertical-tab-content-container .vertical-tab-content.owen-editor-settings-tab.owen-settings-design > .setting-group { margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 :is(.owen-settings-design, .modal.mod-settings .vertical-tab-content.owen-settings-design) :is(.owen-exporter-settings-group-header, .owen-exporter-settings-group-body) { padding: 0; margin: 0; }
